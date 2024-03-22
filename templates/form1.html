@@ -1,0 +1,48 @@
+<!-- form.html -->
+<form action="/submit_form" method="post">
+    <div class="mb-4">
+      <label for="numero_atencion" class="block text-gray-700">N° Atención:</label>
+      <input type="text" id="numero_atencion" name="numero_atencion" class="form-input mt-1 block w-full" readonly>
+    </div>
+    <div class="mb-4">
+      <label for="cne" class="block text-gray-700">CNE - Código de Naturaleza de la Escritura:</label>
+      <select id="cne" name="cne" class="form-select mt-1 block w-full">
+        <option value="8">Compraventa</option>
+        <option value="99">Regularización de Patrimonio</option>
+      </select>
+    </div>
+    <div class="mb-4">
+      <label for="comuna" class="block text-gray-700">Comuna:</label>
+      <input type="text" id="comuna" name="comuna" class="form-input mt-1 block w-full">
+    </div>
+    <div class="mb-4">
+      <label for="manzana" class="block text-gray-700">Manzana:</label>
+      <input type="text" id="manzana" name="manzana" class="form-input mt-1 block w-full">
+    </div>
+    <div class="mb-4">
+      <label for="predio" class="block text-gray-700">Predio:</label>
+      <input type="text" id="predio" name="predio" class="form-input mt-1 block w-full">
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700">Enajenantes:</label>
+      <!-- Inputs para datos de enajenantes -->
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700">Adquirentes:</label>
+      <!-- Inputs para datos de adquirentes -->
+    </div>
+    <div class="mb-4">
+      <label for="fojas" class="block text-gray-700">Fojas:</label>
+      <input type="number" id="fojas" name="fojas" class="form-input mt-1 block w-full">
+    </div>
+    <div class="mb-4">
+      <label for="fecha_inscripcion" class="block text-gray-700">Fecha Inscripción:</label>
+      <input type="date" id="fecha_inscripcion" name="fecha_inscripcion" class="form-input mt-1 block w-full">
+    </div>
+    <div class="mb-4">
+      <label for="numero_inscripcion" class="block text-gray-700">Número Inscripción:</label>
+      <input type="text" id="numero_inscripcion" name="numero_inscripcion" class="form-input mt-1 block w-full">
+    </div>
+    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Guardar</button>
+  </form>
+  
