@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle del Formulario</title>
+</head>
+<body>
+  <h1>Detalle del Formulario</h1>
+  <ul>
+    <li>N° Atención: {{ formulario.numero_atencion }}</li>
+    <li>CNE: {{ formulario.cne }}</li>
+    <li>Comuna: {{ formulario.comuna }}</li>
+    <li>Manzana: {{ formulario.manzana }}</li>
+    <li>Predio: {{ formulario.predio }}</li>
+    <li>Fojas: {{ formulario.fojas }}</li>
+    <li>Fecha Inscripción: {{ formulario.fecha_inscripcion }}</li>
+    <li>Número Inscripción: {{ formulario.numero_inscripcion }}</li>
+    <!-- Agrega más detalles aquí según sea necesario -->
+  </ul>
+  <a href="/listado">Volver al Listado</a>
+</body>
+</html>
