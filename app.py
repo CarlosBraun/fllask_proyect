@@ -101,13 +101,18 @@ def obtener_formularios():
 
 @app.route('/1')
 def index2():
-    return render_template('index1.html')
+    return render_template('form1 copy.html')
 
 # Ruta para mostrar el listado de formularios
 
 
 @app.route('/listado')
 def mostrar_listado():
+    return render_template('listado.html')
+
+
+@app.route('/listado1')
+def mostrar_listado1():
     formularios = obtener_formularios()
     return render_template('listado.html', formularios=formularios)
 
