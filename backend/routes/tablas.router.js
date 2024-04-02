@@ -10,8 +10,8 @@ router.use(
   })
 );
 
-router.post("/tabla1", tablasController.createFormularioTable);
-router.post("/tabla2", tablasController.createEnajenanteTable);
-router.post("/tabla3", tablasController.createAdquirenteTable);
+router.get("/tabla1", tablasController.createFormularioTable);
+router.get("/tabla2", tablasController.createEnajenanteTable);
+router.get("/tabla3", tablasController.createAdquirenteTable);
 
 module.exports = router;

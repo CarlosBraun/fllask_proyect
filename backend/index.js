@@ -3,12 +3,13 @@ const connection = require("./database");
 const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT;
-let v1 = connection.host;
+const tablasRouter = require("./routes/tablas.router");
 // Ruta de prueba
 app.use(cors());
+app.use("/tablas/", tablasRouter);
 app.get("/", (req, res) => {
   res.send("¡Hola, mundo! prueba 1");
 });
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+  console.log(`Servidor escuchando en http://localhost:5000`);
 });
