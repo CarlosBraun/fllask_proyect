@@ -578,46 +578,60 @@ video {
   }
 }
 
-.static {
-  position: static;
+.collapse {
+  visibility: collapse;
 }
 
-.m-10 {
-  margin: 2.5rem;
+.static {
+  position: static;
 }
 
 .m-6 {
   margin: 1.5rem;
 }
 
-.mx-0 {
-  margin-left: 0px;
-  margin-right: 0px;
-}
-
-.mx-2 {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-}
-
-.mr-4 {
+.mx-4 {
+  margin-left: 1rem;
   margin-right: 1rem;
 }
 
-.mt-2 {
-  margin-top: 0.5rem;
+.mx-\[10\%\] {
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
-.mt-\[4\%\] {
-  margin-top: 4%;
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.my-2 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .mb-4 {
   margin-bottom: 1rem;
 }
 
+.mr-4 {
+  margin-right: 1rem;
+}
+
 .mt-1 {
   margin-top: 0.25rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mr-1 {
+  margin-right: 0.25rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
 }
 
 .block {
@@ -628,16 +642,61 @@ video {
   display: flex;
 }
 
-.w-full {
-  width: 100%;
+.table {
+  display: table;
+}
+
+.hidden {
+  display: none;
 }
 
 .w-\[100\%\] {
   width: 100%;
 }
 
+.w-full {
+  width: 100%;
+}
+
+.w-fit {
+  width: -moz-fit-content;
+  width: fit-content;
+}
+
+.w-\[1\/2\] {
+  width: 1/2;
+}
+
+.w-\[40\%\] {
+  width: 40%;
+}
+
+.w-\[80\%\] {
+  width: 80%;
+}
+
+.w-\[90\%\] {
+  width: 90%;
+}
+
+.w-\[33\%\] {
+  width: 33%;
+}
+
+.w-auto {
+  width: auto;
+}
+
 .max-w-full {
   max-width: 100%;
+}
+
+.max-w-\[800px\] {
+  max-width: 800px;
+}
+
+.border-collapse {
+  border-collapse: collapse;
 }
 
 .items-center {
@@ -648,12 +707,20 @@ video {
   justify-content: space-between;
 }
 
-.rounded-md {
-  border-radius: 0.375rem;
+.justify-evenly {
+  justify-content: space-evenly;
 }
 
 .rounded {
   border-radius: 0.25rem;
+}
+
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.border {
+  border-width: 1px;
 }
 
 .bg-blue-50 {
@@ -661,14 +728,9 @@ video {
   background-color: rgb(239 246 255 / var(--tw-bg-opacity));
 }
 
-.bg-gray-100 {
+.bg-blue-500 {
   --tw-bg-opacity: 1;
-  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
-}
-
-.bg-slate-900 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity));
+  background-color: rgb(59 130 246 / var(--tw-bg-opacity));
 }
 
 .bg-gray-600 {
@@ -676,9 +738,24 @@ video {
   background-color: rgb(75 85 99 / var(--tw-bg-opacity));
 }
 
-.bg-blue-500 {
+.bg-slate-900 {
   --tw-bg-opacity: 1;
-  background-color: rgb(59 130 246 / var(--tw-bg-opacity));
+  background-color: rgb(15 23 42 / var(--tw-bg-opacity));
+}
+
+.bg-gray-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(156 163 175 / var(--tw-bg-opacity));
+}
+
+.bg-slate-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(203 213 225 / var(--tw-bg-opacity));
+}
+
+.bg-red-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(239 68 68 / var(--tw-bg-opacity));
 }
 
 .p-10 {
@@ -687,6 +764,18 @@ video {
 
 .p-4 {
   padding: 1rem;
+}
+
+.p-2 {
+  padding: 0.5rem;
+}
+
+.p-6 {
+  padding: 1.5rem;
+}
+
+.p-8 {
+  padding: 2rem;
 }
 
 .px-4 {
@@ -699,6 +788,20 @@ video {
   padding-bottom: 0.5rem;
 }
 
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.align-middle {
+  vertical-align: middle;
+}
+
 .text-3xl {
   font-size: 1.875rem;
   line-height: 2.25rem;
@@ -709,11 +812,6 @@ video {
   line-height: 1.75rem;
 }
 
-.text-sm {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-}
-
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
@@ -721,10 +819,6 @@ video {
 
 .font-bold {
   font-weight: 700;
-}
-
-.font-semibold {
-  font-weight: 600;
 }
 
 .text-black {
@@ -737,14 +831,14 @@ video {
   color: rgb(209 213 219 / var(--tw-text-opacity));
 }
 
-.text-white {
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
 .text-gray-700 {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity));
+}
+
+.text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .hover\:bg-blue-700:hover {
@@ -752,7 +846,20 @@ video {
   background-color: rgb(29 78 216 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-red-700:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(185 28 28 / var(--tw-bg-opacity));
+}
+
 .hover\:text-white:hover {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.\[\&\>div\>input\]\:rounded-md>div>input {
+  border-radius: 0.375rem;
+}
+
+.\[\&\>div\>input\]\:p-2>div>input {
+  padding: 0.5rem;
 }

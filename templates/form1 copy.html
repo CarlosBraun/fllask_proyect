@@ -1,0 +1,334 @@
+<!-- form.html -->
+<div class="p-6 flex align-middle items-center w-full">
+  <form
+    action="/submit_form"
+    method="post"
+    id="formulario"
+    class="max-w-[800px] w-[90%] mx-auto bg-slate-300 p-8 border rounded-md [&>div>input]:p-2 [&>div>input]:rounded-md"
+  >
+    <div class="mb-4">
+      <label
+        for="numero_atencion"
+        class="block text-gray-700"
+        >N° Atención:</label
+      >
+      <input
+        type="text"
+        id="numero_atencion"
+        name="numero_atencion"
+        class="form-input mt-1 block w-full"
+        readonly
+      />
+    </div>
+    <div class="mb-4">
+      <label
+        for="cne"
+        class="block text-gray-700"
+        >CNE - Código de Naturaleza de la Escritura:</label
+      >
+      <select
+        id="cne"
+        name="cne"
+        class="form-select mt-1 block w-full p-2 rounded-md"
+      >
+        <option value="8">Compraventa</option>
+        <option value="99">Regularización de Patrimonio</option>
+      </select>
+    </div>
+    <div
+      class="flex [&>div>input]:p-2 [&>div>input]:rounded-md justify-between"
+    >
+      <div class="mb-4 w-auto">
+        <label
+          for="comuna"
+          class="block text-gray-700"
+          >Comuna:</label
+        >
+        <input
+          type="text"
+          id="comuna"
+          name="comuna"
+          class="form-input mt-1 block w-full"
+        />
+      </div>
+      <div class="mb-4">
+        <label
+          for="manzana"
+          class="block text-gray-700"
+          >Manzana:</label
+        >
+        <input
+          type="text"
+          id="manzana"
+          name="manzana"
+          class="form-input mt-1 block w-full"
+        />
+      </div>
+      <div class="mb-4">
+        <label
+          for="predio"
+          class="block text-gray-700"
+          >Predio:</label
+        >
+        <input
+          type="text"
+          id="predio"
+          name="predio"
+          class="form-input mt-1 block w-full"
+        />
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700">Enajenantes:</label>
+      <div id="enajenantes-container"></div>
+      <button
+        type="button"
+        id="agregar-enajenante"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 mt-4 px-4 rounded"
+      >
+        Agregar Enajenante
+      </button>
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700">Adquirentes:</label>
+      <div id="adquirentes-container"></div>
+      <button
+        type="button"
+        id="agregar-adquirente"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 mt-4 px-4 rounded"
+      >
+        Agregar Adquirente
+      </button>
+    </div>
+    <div class="mb-4">
+      <label
+        for="fojas"
+        class="block text-gray-700"
+        >Fojas:</label
+      >
+      <input
+        type="number"
+        id="fojas"
+        name="fojas"
+        class="form-input mt-1 block w-full"
+      />
+    </div>
+    <div class="mb-4">
+      <label
+        for="fecha_inscripcion"
+        class="block text-gray-700"
+        >Fecha Inscripción:</label
+      >
+      <input
+        type="date"
+        id="fecha_inscripcion"
+        name="fecha_inscripcion"
+        class="form-input mt-1 block w-full"
+      />
+    </div>
+    <div class="mb-4">
+      <label
+        for="numero_inscripcion"
+        class="block text-gray-700"
+        >Número Inscripción:</label
+      >
+      <input
+        type="text"
+        id="numero_inscripcion"
+        name="numero_inscripcion"
+        class="form-input mt-1 block w-full"
+      />
+    </div>
+    <button
+      type="button"
+      id="enviar-formulario"
+      class="bg-blue-500 hover:bg-blue-700 text-white w-[80%] mx-[10%] font-bold py-4 mt-2 px-4 rounded"
+    >
+      Guardar
+    </button>
+  </form>
+</div>
+<script>
+  // Función para obtener el próximo número de atención
+  function obtenerProximoNumeroAtencion() {
+    // Aquí se hace una solicitud AJAX para obtener el próximo número de atención
+    // Puedes llamar a tu función en el backend que obtiene el último número de atención registrado
+    // y luego calcular el siguiente número de atención
+    // Por ahora, vamos a simular que se obtiene el próximo número de atención de forma estática
+    return 1000; // Por ejemplo, el próximo número de atención
+  }
+
+  // Función para agregar el número de atención al formulario antes de enviarlo
+  function agregarNumeroAtencionAlFormulario() {
+    // Obtener el próximo número de atención
+    const proximoNumeroAtencion = obtenerProximoNumeroAtencion();
+
+    // Crear un campo de input oculto para el número de atención
+    const inputNumeroAtencion = document.createElement("input");
+    inputNumeroAtencion.type = "hidden";
+    inputNumeroAtencion.name = "numero_atencion";
+    inputNumeroAtencion.value = proximoNumeroAtencion;
+
+    // Agregar el campo de input oculto al formulario
+    const formulario = document.getElementById("formulario");
+    formulario.appendChild(inputNumeroAtencion);
+  }
+
+  // Función para agregar un nuevo campo de enajenante
+  function agregarEnajenante() {
+    const enajenantesContainer = document.getElementById(
+      "enajenantes-container"
+    );
+    const nuevoCampoEnajenante = document.createElement("div");
+
+    nuevoCampoEnajenante.innerHTML = `
+    <div class="flex mt-2">
+      <input
+        type="text"
+        class="form-input mt-1 mr-1 p-2 block w-full rounded-md"
+        name="enajenantes_RUNRUT[]"
+        placeholder="RUN/RUT"
+      />
+      <input
+        type="text"
+        class="form-input mt-1 mr-1 block p-2 w-full rounded-md"
+        name="enajenantes_porcDerecho[]"
+        placeholder="%"
+      />
+      <button
+        type="button"
+        class="bg-red-500 hover:bg-red-700 text-white font-bold mt-1 py-1 px-4 rounded"
+        onclick="eliminarCampo(this)"
+      >
+        Eliminar
+      </button>
+    </div>
+    `;
+
+    enajenantesContainer.appendChild(nuevoCampoEnajenante);
+  }
+
+  // Función para agregar un nuevo campo de adquirente
+  function agregarAdquirente() {
+    const adquirentesContainer = document.getElementById(
+      "adquirentes-container"
+    );
+    const nuevoCampoAdquirente = document.createElement("div");
+
+    nuevoCampoAdquirente.innerHTML = `
+      <div class="flex mt-2">
+        <input
+          type="text"
+          class="form-input mt-1 mr-1 p-2 block w-full rounded-md"
+          name="adquirentes_RUNRUT[]"
+          placeholder="RUN/RUT"
+        />
+        <input
+          type="text"
+          class="form-input mt-1 mr-1 p-2 block w-full rounded-md"
+          name="adquirentes_porcDerecho[]"
+          placeholder="%"
+        />
+        <button
+          type="button"
+          class="bg-red-500 hover:bg-red-700 text-white font-bold mt-1 py-1 px-4 rounded"
+          onclick="eliminarCampo(this)"
+        >
+          Eliminar
+        </button>
+      </div>
+      `;
+
+    adquirentesContainer.appendChild(nuevoCampoAdquirente);
+  }
+
+  // Función para eliminar un campo de enajenante o adquirente
+  function eliminarCampo(elemento) {
+    const campo = elemento.parentNode; // Obtenemos el div que contiene todo el campo
+    campo.parentNode.removeChild(campo); // Eliminamos el campo
+  }
+
+  // Función para enviar el formulario
+  function enviarFormulario() {
+    // Obtener los datos del formulario
+    let caca = obtenerProximoNumeroAtencion();
+    const formData = new FormData(document.getElementById("formulario"));
+    const jsonData = {
+      [caca]: [
+        {
+          CNE: parseInt(formData.get("cne")),
+          bienRaiz: {
+            comuna: parseInt(formData.get("comuna")),
+            manzana: parseInt(formData.get("manzana")),
+            predio: parseInt(formData.get("predio")),
+          },
+          enajenantes: [],
+          adquirentes: [],
+          fojas: parseInt(formData.get("fojas")),
+          fechaInscripcion: formData.get("fecha_inscripcion"),
+          nroInscripcion: parseInt(formData.get("numero_inscripcion")),
+        },
+      ],
+    };
+
+    // Agregar enajenantes
+    const enajenantes = document.getElementsByName("enajenantes_RUNRUT[]");
+    const enajenantesPorcDerecho = document.getElementsByName(
+      "enajenantes_porcDerecho[]"
+    );
+    for (let i = 0; i < enajenantes.length; i++) {
+      jsonData.F2890[0].enajenantes.push({
+        RUNRUT: enajenantes[i].value,
+        porcDerecho: parseInt(enajenantesPorcDerecho[i].value),
+      });
+    }
+
+    // Agregar adquirentes
+    const adquirentes = document.getElementsByName("adquirentes_RUNRUT[]");
+    const adquirentesPorcDerecho = document.getElementsByName(
+      "adquirentes_porcDerecho[]"
+    );
+    for (let i = 0; i < adquirentes.length; i++) {
+      jsonData.F2890[0].adquirentes.push({
+        RUNRUT: adquirentes[i].value,
+        porcDerecho: parseInt(adquirentesPorcDerecho[i].value),
+      });
+    }
+
+    // Convertir a JSON
+    const jsonString = JSON.stringify(jsonData);
+
+    // Enviar los datos en formato JSON (puedes hacerlo con AJAX o como desees)
+    console.log(jsonString); // Aquí se muestra el JSON en la consola como ejemplo
+    // En lugar de mostrarlo en la consola, puedes enviarlo a tu backend con AJAX o fetch
+
+    // Aquí puedes agregar tu lógica para enviar los datos a tu backend
+    // Por ejemplo, puedes usar fetch para enviar los datos JSON al servidor
+    // fetch("/submit_form", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json"
+    //   },
+    //   body: jsonString
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //   console.log(data); // Aquí puedes manejar la respuesta del servidor
+    // })
+    // .catch(error => {
+    //   console.error("Error:", error);
+    // });
+  }
+  // Agregar eventos a los botones de agregar enajenante y adquirente
+  document
+    .getElementById("agregar-enajenante")
+    .addEventListener("click", agregarEnajenante);
+  document
+    .getElementById("agregar-adquirente")
+    .addEventListener("click", agregarAdquirente);
+
+  // Agregar evento al botón de enviar formulario
+  document
+    .getElementById("enviar-formulario")
+    .addEventListener("click", enviarFormulario);
+</script>

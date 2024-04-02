@@ -1,85 +1,231 @@
 <!-- form.html -->
-<form action="/submit_form" method="post">
-  <div class="mb-4">
-      <label for="numero_atencion" class="block text-gray-700">N° Atención:</label>
-      <input type="text" id="numero_atencion" name="numero_atencion" class="form-input mt-1 block w-full" readonly>
+<form
+  action="/submit_form"
+  method="post"
+>
+  <div class="mb-4 flex">
+    <label
+      for="numero_atencion"
+      class="block text-gray-700 w-fit"
+      >N° Atención:</label
+    >
+    <input
+      type="text"
+      id="numero_atencion"
+      name="numero_atencion"
+      class="form-input mt-1 block w-full rounded-md"
+      readonly
+    />
+  </div>
+  <div class="mb-4 flex">
+    <label
+      for="cne"
+      class="block text-gray-700"
+      >CNE - Código de Naturaleza de la Escritura:</label
+    >
+    <select
+      id="cne"
+      name="cne"
+      class="form-select mt-1 block w-full"
+    >
+      <option value="8">Compraventa</option>
+      <option value="99">Regularización de Patrimonio</option>
+    </select>
+  </div>
+  <div class="mb-4 flex">
+    <label
+      for="comuna"
+      class="block text-gray-700"
+      >Comuna:</label
+    >
+    <input
+      type="text"
+      id="comuna"
+      name="comuna"
+      class="form-input mt-1 block w-full"
+    />
+  </div>
+  <div class="mb-4 flex">
+    <label
+      for="manzana"
+      class="block text-gray-700 mr-4"
+      >Manzana:</label
+    >
+    <input
+      type="text"
+      id="manzana"
+      name="manzana"
+      class="form-input mt-1 block w-full"
+    />
   </div>
   <div class="mb-4">
-      <label for="cne" class="block text-gray-700">CNE - Código de Naturaleza de la Escritura:</label>
-      <select id="cne" name="cne" class="form-select mt-1 block w-full">
-          <option value="8">Compraventa</option>
-          <option value="99">Regularización de Patrimonio</option>
-      </select>
+    <label
+      for="predio"
+      class="block text-gray-700"
+      >Predio:</label
+    >
+    <input
+      type="text"
+      id="predio"
+      name="predio"
+      class="form-input mt-1 block w-full"
+    />
   </div>
   <div class="mb-4">
-      <label for="comuna" class="block text-gray-700">Comuna:</label>
-      <input type="text" id="comuna" name="comuna" class="form-input mt-1 block w-full">
-  </div>
-  <div class="mb-4">
-      <label for="manzana" class="block text-gray-700">Manzana:</label>
-      <input type="text" id="manzana" name="manzana" class="form-input mt-1 block w-full">
-  </div>
-  <div class="mb-4">
-      <label for="predio" class="block text-gray-700">Predio:</label>
-      <input type="text" id="predio" name="predio" class="form-input mt-1 block w-full">
-  </div>
-  <div class="mb-4">
-      <label class="block text-gray-700">Enajenantes:</label>
-      <div id="enajenantes-container">
-          <!-- Contenedor para enajenantes -->
-      </div>
-      <button type="button" id="agregar-enajenante" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">+</button>
+    <label class="block text-gray-700">Enajenantes:</label>
+    <div id="enajenantes-container">
+      <!-- Contenedor para enajenantes -->
+    </div>
+    <button
+      type="button"
+      id="agregar-enajenante"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      +
+    </button>
   </div>
   <!-- Formulario para agregar enajenante (inicialmente oculto) -->
-  <div id="enajenante-form" style="display: none;">
-      <form id="enajenante-form-inner">
-          <div class="mb-4">
-              <label for="runrut" class="block text-gray-700">RUN/RUT - Propietario:</label>
-              <input type="text" id="runrut" name="runrut" class="form-input mt-1 block w-full">
-          </div>
-          <div class="mb-4">
-              <label for="porc_derecho" class="block text-gray-700">% Derechos:</label>
-              <input type="number" id="porc_derecho" name="porc_derecho" class="form-input mt-1 block w-full">
-          </div>
-          <button type="button" id="guardar-enajenante" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Guardar</button>
-      </form>
+  <div
+    id="enajenante-form"
+    style="display: none"
+  >
+    <form id="enajenante-form-inner">
+      <div class="mb-4">
+        <label
+          for="runrut"
+          class="block text-gray-700"
+          >RUN/RUT - Propietario:</label
+        >
+        <input
+          type="text"
+          id="runrut"
+          name="runrut"
+          class="form-input mt-1 block w-full"
+        />
+      </div>
+      <div class="mb-4">
+        <label
+          for="porc_derecho"
+          class="block text-gray-700"
+          >% Derechos:</label
+        >
+        <input
+          type="number"
+          id="porc_derecho"
+          name="porc_derecho"
+          class="form-input mt-1 block w-full"
+        />
+      </div>
+      <button
+        type="button"
+        id="guardar-enajenante"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Guardar
+      </button>
+    </form>
   </div>
 
   <div class="mb-4">
-      <label class="block text-gray-700">Adquirentes:</label>
-      <div id="adquirentes-container">
-          <!-- Contenedor para adquirentes -->
-      </div>
-      <button type="button" id="agregar-adquirente" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">+</button>
+    <label class="block text-gray-700">Adquirentes:</label>
+    <div id="adquirentes-container">
+      <!-- Contenedor para adquirentes -->
+    </div>
+    <button
+      type="button"
+      id="agregar-adquirente"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      +
+    </button>
   </div>
   <!-- Formulario para agregar adquirente (inicialmente oculto) -->
-  <div id="adquirente-form" style="display: none;">
-      <form id="adquirente-form-inner">
-          <div class="mb-4">
-              <label for="runrut_adq" class="block text-gray-700">RUN/RUT - Adquirente:</label>
-              <input type="text" id="runrut_adq" name="runrut_adq" class="form-input mt-1 block w-full">
-          </div>
-          <div class="mb-4">
-              <label for="porc_derecho_adq" class="block text-gray-700">% Derechos:</label>
-              <input type="number" id="porc_derecho_adq" name="porc_derecho_adq" class="form-input mt-1 block w-full">
-          </div>
-          <button type="button" id="guardar-adquirente" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Guardar</button>
-      </form>
+  <div
+    id="adquirente-form"
+    style="display: none"
+  >
+    <form id="adquirente-form-inner">
+      <div class="mb-4">
+        <label
+          for="runrut_adq"
+          class="block text-gray-700"
+          >RUN/RUT - Adquirente:</label
+        >
+        <input
+          type="text"
+          id="runrut_adq"
+          name="runrut_adq"
+          class="form-input mt-1 block w-full"
+        />
+      </div>
+      <div class="mb-4">
+        <label
+          for="porc_derecho_adq"
+          class="block text-gray-700"
+          >% Derechos:</label
+        >
+        <input
+          type="number"
+          id="porc_derecho_adq"
+          name="porc_derecho_adq"
+          class="form-input mt-1 block w-full"
+        />
+      </div>
+      <button
+        type="button"
+        id="guardar-adquirente"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Guardar
+      </button>
+    </form>
   </div>
 
   <div class="mb-4">
-      <label for="fojas" class="block text-gray-700">Fojas:</label>
-      <input type="number" id="fojas" name="fojas" class="form-input mt-1 block w-full">
+    <label
+      for="fojas"
+      class="block text-gray-700"
+      >Fojas:</label
+    >
+    <input
+      type="number"
+      id="fojas"
+      name="fojas"
+      class="form-input mt-1 block w-full"
+    />
   </div>
   <div class="mb-4">
-      <label for="fecha_inscripcion" class="block text-gray-700">Fecha Inscripción:</label>
-      <input type="date" id="fecha_inscripcion" name="fecha_inscripcion" class="form-input mt-1 block w-full">
+    <label
+      for="fecha_inscripcion"
+      class="block text-gray-700"
+      >Fecha Inscripción:</label
+    >
+    <input
+      type="date"
+      id="fecha_inscripcion"
+      name="fecha_inscripcion"
+      class="form-input mt-1 block w-full"
+    />
   </div>
   <div class="mb-4">
-      <label for="numero_inscripcion" class="block text-gray-700">Número Inscripción:</label>
-      <input type="text" id="numero_inscripcion" name="numero_inscripcion" class="form-input mt-1 block w-full">
+    <label
+      for="numero_inscripcion"
+      class="block text-gray-700"
+      >Número Inscripción:</label
+    >
+    <input
+      type="text"
+      id="numero_inscripcion"
+      name="numero_inscripcion"
+      class="form-input mt-1 block w-full"
+    />
   </div>
-  <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Guardar</button>
+  <button
+    type="submit"
+    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+  >
+    Guardar
+  </button>
 </form>
 
 <script>
@@ -88,72 +234,90 @@
   let adquirentes = [];
 
   // Función para mostrar el formulario de enajenante al hacer clic en "Agregar Enajenante"
-  document.getElementById('agregar-enajenante').addEventListener('click', function () {
-      document.getElementById('enajenante-form').style.display = 'block';
-  });
+  document
+    .getElementById("agregar-enajenante")
+    .addEventListener("click", function () {
+      document.getElementById("enajenante-form").style.display = "block";
+    });
 
   // Función para guardar enajenante y actualizar la interfaz
-  document.getElementById('guardar-enajenante').addEventListener('click', function () {
-      const runrut = document.getElementById('runrut').value;
-      const porcDerecho = parseInt(document.getElementById('porc_derecho').value);
+  document
+    .getElementById("guardar-enajenante")
+    .addEventListener("click", function () {
+      const runrut = document.getElementById("runrut").value;
+      const porcDerecho = parseInt(
+        document.getElementById("porc_derecho").value
+      );
 
       // Validación de campos
       if (!runrut || !porcDerecho || isNaN(porcDerecho)) {
-          alert('Por favor complete todos los campos correctamente.');
-          return;
+        alert("Por favor complete todos los campos correctamente.");
+        return;
       }
 
       // Guardar enajenante
-      enajenantes.push({ "RUNRUT": runrut, "porcDerecho": porcDerecho });
+      enajenantes.push({ RUNRUT: runrut, porcDerecho: porcDerecho });
 
       // Actualizar la interfaz
-      const enajenantesContainer = document.getElementById('enajenantes-container');
-      const enajenanteElement = document.createElement('div');
+      const enajenantesContainer = document.getElementById(
+        "enajenantes-container"
+      );
+      const enajenanteElement = document.createElement("div");
       enajenanteElement.textContent = `RUN/RUT: ${runrut} - % Derechos: ${porcDerecho}`;
       enajenantesContainer.appendChild(enajenanteElement);
 
       // Ocultar formulario de enajenante
-      document.getElementById('enajenante-form').style.display = 'none';
-  });
+      document.getElementById("enajenante-form").style.display = "none";
+    });
 
   // Función para mostrar el formulario de adquirente al hacer clic en "Agregar Adquirente"
-  document.getElementById('agregar-adquirente').addEventListener('click', function () {
-      document.getElementById('adquirente-form').style.display = 'block';
-  });
+  document
+    .getElementById("agregar-adquirente")
+    .addEventListener("click", function () {
+      document.getElementById("adquirente-form").style.display = "block";
+    });
 
   // Función para guardar adquirente y actualizar la interfaz
-  document.getElementById('guardar-adquirente').addEventListener('click', function () {
-      const runrut_adq = document.getElementById('runrut_adq').value;
-      const porcDerecho_adq = parseInt(document.getElementById('porc_derecho_adq').value);
+  document
+    .getElementById("guardar-adquirente")
+    .addEventListener("click", function () {
+      const runrut_adq = document.getElementById("runrut_adq").value;
+      const porcDerecho_adq = parseInt(
+        document.getElementById("porc_derecho_adq").value
+      );
 
       // Validación de campos
       if (!runrut_adq || !porcDerecho_adq || isNaN(porcDerecho_adq)) {
-          alert('Por favor complete todos los campos correctamente.');
-          return;
+        alert("Por favor complete todos los campos correctamente.");
+        return;
       }
 
       // Guardar adquirente
-      adquirentes.push({ "RUNRUT": runrut_adq, "porcDerecho": porcDerecho_adq });
+      adquirentes.push({ RUNRUT: runrut_adq, porcDerecho: porcDerecho_adq });
 
       // Actualizar la interfaz
-      const adquirentesContainer = document.getElementById('adquirentes-container');
-      const adquirenteElement = document.createElement('div');
+      const adquirentesContainer = document.getElementById(
+        "adquirentes-container"
+      );
+      const adquirenteElement = document.createElement("div");
       adquirenteElement.textContent = `RUN/RUT: ${runrut_adq} - % Derechos: ${porcDerecho_adq}`;
       adquirentesContainer.appendChild(adquirenteElement);
 
       // Ocultar formulario de adquirente
-      document.getElementById('adquirente-form').style.display = 'none';
-  });
+      document.getElementById("adquirente-form").style.display = "none";
+    });
 
   // Agregar enajenantes existentes al cargar la página
-  window.addEventListener('DOMContentLoaded', function () {
-      const enajenantesData = [];
-      enajenantesData.forEach(enajenante => {
-          enajenantes.push(enajenante);
-          const enajenantesContainer = document.getElementById('enajenantes-container');
-          const enajenanteElement = document.createElement('div');
-          enajenanteElement.textContent = `RUN/RUT: ${enajenante.RUNRUT} - % Derechos: ${enajenante.porcDerecho}`;
-          enajenantesContainer.appendChild(enajenanteElement);
-      });
+  window.addEventListener("DOMContentLoaded", function () {
+    const enajenantesData = [];
+    enajenantesData.forEach((enajenante) => {
+      enajenantes.push(enajenante);
+      const enajenantesContainer = document.getElementById(
+        "enajenantes-container"
+      );
+      const enajenanteElement = document.createElement("div");
+      enajenanteElement.textContent = `RUN/RUT: ${enajenante.RUNRUT} - % Derechos: ${enajenante.porcDerecho}`;
+      enajenantesContainer.appendChild(enajenanteElement);
+    });
   });
 </script>
