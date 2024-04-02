@@ -99,7 +99,7 @@ def obtener_formularios():
     return Formulario.query.all()
 
 
-@app.route('/1')
+@app.route('/formulario')
 def index2():
     return render_template('form1 copy.html')
 

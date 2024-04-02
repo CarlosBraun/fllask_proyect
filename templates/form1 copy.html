@@ -156,189 +156,192 @@
         </button>
       </form>
     </div>
-    <script>
-      // Función para obtener el próximo número de atención
-      function obtenerProximoNumeroAtencion() {
-        // Aquí se hace una solicitud AJAX para obtener el próximo número de atención
-        // Puedes llamar a tu función en el backend que obtiene el último número de atención registrado
-        // y luego calcular el siguiente número de atención
-        // Por ahora, vamos a simular que se obtiene el próximo número de atención de forma estática
-        return 1000; // Por ejemplo, el próximo número de atención
-      }
+  </div>
+</body>
+<script>
+  // Función para obtener el próximo número de atención
+  let ndeatencion = obtenerProximoNumeroAtencion();
+  function obtenerProximoNumeroAtencion() {
+    // Aquí se hace una solicitud AJAX para obtener el próximo número de atención
+    // Puedes llamar a tu función en el backend que obtiene el último número de atención registrado
+    // y luego calcular el siguiente número de atención
+    // Por ahora, vamos a simular que se obtiene el próximo número de atención de forma estática
+    return 1001; // Por ejemplo, el próximo número de atención
+  }
 
-      // Función para agregar el número de atención al formulario antes de enviarlo
-      function agregarNumeroAtencionAlFormulario() {
-        // Obtener el próximo número de atención
-        const proximoNumeroAtencion = obtenerProximoNumeroAtencion();
+  // Función para agregar el número de atención al formulario antes de enviarlo
+  function agregarNumeroAtencionAlFormulario() {
+    // Obtener el próximo número de atención
+    const proximoNumeroAtencion = obtenerProximoNumeroAtencion();
 
-        // Crear un campo de input oculto para el número de atención
-        const inputNumeroAtencion = document.createElement("input");
-        inputNumeroAtencion.type = "hidden";
-        inputNumeroAtencion.name = "numero_atencion";
-        inputNumeroAtencion.value = proximoNumeroAtencion;
+    // Crear un campo de input oculto para el número de atención
+    const inputNumeroAtencion = document.createElement("input");
+    inputNumeroAtencion.type = "hidden";
+    inputNumeroAtencion.name = "numero_atencion";
+    inputNumeroAtencion.value = proximoNumeroAtencion;
 
-        // Agregar el campo de input oculto al formulario
-        const formulario = document.getElementById("formulario");
-        formulario.appendChild(inputNumeroAtencion);
-      }
+    // Agregar el campo de input oculto al formulario
+    const formulario = document.getElementById("formulario");
+    formulario.appendChild(inputNumeroAtencion);
+  }
 
-      // Función para agregar un nuevo campo de enajenante
-      function agregarEnajenante() {
-        const enajenantesContainer = document.getElementById(
-          "enajenantes-container"
-        );
-        const nuevoCampoEnajenante = document.createElement("div");
+  // Función para agregar un nuevo campo de enajenante
+  function agregarEnajenante() {
+    const enajenantesContainer = document.getElementById(
+      "enajenantes-container"
+    );
+    const nuevoCampoEnajenante = document.createElement("div");
 
-        nuevoCampoEnajenante.innerHTML = `
-      <div class="flex mt-2">
-        <input
+    nuevoCampoEnajenante.innerHTML = `
+    <div class="flex mt-2">
+      <input
         type="text"
         class="form-input mt-1 mr-1 p-2 block w-full rounded-md"
         name="enajenantes_RUNRUT[]"
         placeholder="RUN/RUT"
-        />
-        <input
+      />
+      <input
         type="text"
         class="form-input mt-1 mr-1 block p-2 w-full rounded-md"
         name="enajenantes_porcDerecho[]"
         placeholder="%"
-        />
-        <button
+      />
+      <button
         type="button"
         class="bg-red-500 hover:bg-red-700 text-white font-bold mt-1 py-1 px-4 rounded"
         onclick="eliminarCampo(this)"
-        >
+      >
         Eliminar
       </button>
     </div>
     `;
 
-        enajenantesContainer.appendChild(nuevoCampoEnajenante);
-      }
+    enajenantesContainer.appendChild(nuevoCampoEnajenante);
+  }
 
-      // Función para agregar un nuevo campo de adquirente
-      function agregarAdquirente() {
-        const adquirentesContainer = document.getElementById(
-          "adquirentes-container"
-        );
-        const nuevoCampoAdquirente = document.createElement("div");
+  // Función para agregar un nuevo campo de adquirente
+  function agregarAdquirente() {
+    const adquirentesContainer = document.getElementById(
+      "adquirentes-container"
+    );
+    const nuevoCampoAdquirente = document.createElement("div");
 
-        nuevoCampoAdquirente.innerHTML = `
+    nuevoCampoAdquirente.innerHTML = `
       <div class="flex mt-2">
         <input
-        type="text"
-        class="form-input mt-1 mr-1 p-2 block w-full rounded-md"
-        name="adquirentes_RUNRUT[]"
-        placeholder="RUN/RUT"
+          type="text"
+          class="form-input mt-1 mr-1 p-2 block w-full rounded-md"
+          name="adquirentes_RUNRUT[]"
+          placeholder="RUN/RUT"
         />
         <input
-        type="text"
-        class="form-input mt-1 mr-1 p-2 block w-full rounded-md"
-        name="adquirentes_porcDerecho[]"
-        placeholder="%"
+          type="text"
+          class="form-input mt-1 mr-1 p-2 block w-full rounded-md"
+          name="adquirentes_porcDerecho[]"
+          placeholder="%"
         />
         <button
-        type="button"
-        class="bg-red-500 hover:bg-red-700 text-white font-bold mt-1 py-1 px-4 rounded"
-        onclick="eliminarCampo(this)"
+          type="button"
+          class="bg-red-500 hover:bg-red-700 text-white font-bold mt-1 py-1 px-4 rounded"
+          onclick="eliminarCampo(this)"
         >
-        Eliminar
-      </button>
-    </div>
-    `;
+          Eliminar
+        </button>
+      </div>
+      `;
 
-        adquirentesContainer.appendChild(nuevoCampoAdquirente);
-      }
+    adquirentesContainer.appendChild(nuevoCampoAdquirente);
+  }
 
-      // Función para eliminar un campo de enajenante o adquirente
-      function eliminarCampo(elemento) {
-        const campo = elemento.parentNode; // Obtenemos el div que contiene todo el campo
-        campo.parentNode.removeChild(campo); // Eliminamos el campo
-      }
+  // Función para eliminar un campo de enajenante o adquirente
+  function eliminarCampo(elemento) {
+    const campo = elemento.parentNode; // Obtenemos el div que contiene todo el campo
+    campo.parentNode.removeChild(campo); // Eliminamos el campo
+  }
 
-      // Función para enviar el formulario
-      function enviarFormulario() {
-        // Obtener los datos del formulario
-        let caca = obtenerProximoNumeroAtencion();
-        const formData = new FormData(document.getElementById("formulario"));
-        const jsonData = {
-          [caca]: [
-            {
-              CNE: parseInt(formData.get("cne")),
-              bienRaiz: {
-                comuna: parseInt(formData.get("comuna")),
-                manzana: parseInt(formData.get("manzana")),
-                predio: parseInt(formData.get("predio")),
-              },
-              enajenantes: [],
-              adquirentes: [],
-              fojas: parseInt(formData.get("fojas")),
-              fechaInscripcion: formData.get("fecha_inscripcion"),
-              nroInscripcion: parseInt(formData.get("numero_inscripcion")),
-            },
-          ],
-        };
+  // Función para enviar el formulario
+  function enviarFormulario() {
+    // Obtener los datos del formulario
+    const numeroAtencion = obtenerProximoNumeroAtencion();
+    const formData = new FormData(document.getElementById("formulario"));
+    const jsonData = {
+      [numeroAtencion]: [
+        {
+          CNE: parseInt(formData.get("cne")),
+          bienRaiz: {
+            comuna: parseInt(formData.get("comuna")),
+            manzana: parseInt(formData.get("manzana")),
+            predio: parseInt(formData.get("predio")),
+          },
+          enajenantes: [],
+          adquirentes: [],
+          fojas: parseInt(formData.get("fojas")),
+          fechaInscripcion: formData.get("fecha_inscripcion"),
+          nroInscripcion: parseInt(formData.get("numero_inscripcion")),
+        },
+      ],
+    };
 
-        // Agregar enajenantes
-        const enajenantes = document.getElementsByName("enajenantes_RUNRUT[]");
-        const enajenantesPorcDerecho = document.getElementsByName(
-          "enajenantes_porcDerecho[]"
-        );
-        for (let i = 0; i < enajenantes.length; i++) {
-          jsonData.F2890[0].enajenantes.push({
-            RUNRUT: enajenantes[i].value,
-            porcDerecho: parseInt(enajenantesPorcDerecho[i].value),
-          });
-        }
+    // Agregar enajenantes
+    const enajenantes = document.getElementsByName("enajenantes_RUNRUT[]");
+    const enajenantesPorcDerecho = document.getElementsByName(
+      "enajenantes_porcDerecho[]"
+    );
+    for (let i = 0; i < enajenantes.length; i++) {
+      jsonData[numeroAtencion][0].enajenantes.push({
+        RUNRUT: enajenantes[i].value,
+        porcDerecho: parseInt(enajenantesPorcDerecho[i].value),
+      });
+    }
 
-        // Agregar adquirentes
-        const adquirentes = document.getElementsByName("adquirentes_RUNRUT[]");
-        const adquirentesPorcDerecho = document.getElementsByName(
-          "adquirentes_porcDerecho[]"
-        );
-        for (let i = 0; i < adquirentes.length; i++) {
-          jsonData.F2890[0].adquirentes.push({
-            RUNRUT: adquirentes[i].value,
-            porcDerecho: parseInt(adquirentesPorcDerecho[i].value),
-          });
-        }
+    // Agregar adquirentes
+    const adquirentes = document.getElementsByName("adquirentes_RUNRUT[]");
+    const adquirentesPorcDerecho = document.getElementsByName(
+      "adquirentes_porcDerecho[]"
+    );
+    for (let i = 0; i < adquirentes.length; i++) {
+      jsonData[numeroAtencion][0].adquirentes.push({
+        RUNRUT: adquirentes[i].value,
+        porcDerecho: parseInt(adquirentesPorcDerecho[i].value),
+      });
+    }
 
-        // Convertir a JSON
-        const jsonString = JSON.stringify(jsonData);
+    // Convertir a JSON
+    const jsonString = JSON.stringify(jsonData);
 
-        // Enviar los datos en formato JSON (puedes hacerlo con AJAX o como desees)
-        console.log(jsonString); // Aquí se muestra el JSON en la consola como ejemplo
-        // En lugar de mostrarlo en la consola, puedes enviarlo a tu backend con AJAX o fetch
+    // Enviar los datos en formato JSON (puedes hacerlo con AJAX o como desees)
+    console.log(jsonString); // Aquí se muestra el JSON en la consola como ejemplo
+    // En lugar de mostrarlo en la consola, puedes enviarlo a tu backend con AJAX o fetch
 
-        // Aquí puedes agregar tu lógica para enviar los datos a tu backend
-        // Por ejemplo, puedes usar fetch para enviar los datos JSON al servidor
-        // fetch("/submit_form", {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json"
-        //   },
-        //   body: jsonString
-        // })
-        // .then(response => response.json())
-        // .then(data => {
-        //   console.log(data); // Aquí puedes manejar la respuesta del servidor
-        // })
-        // .catch(error => {
-        //   console.error("Error:", error);
-        // });
-      }
-      // Agregar eventos a los botones de agregar enajenante y adquirente
-      document
-        .getElementById("agregar-enajenante")
-        .addEventListener("click", agregarEnajenante);
-      document
-        .getElementById("agregar-adquirente")
-        .addEventListener("click", agregarAdquirente);
+    // En lugar de mostrarlo en la consola, puedes enviarlo a tu backend con AJAX o fetch
 
-      // Agregar evento al botón de enviar formulario
-      document
-        .getElementById("enviar-formulario")
-        .addEventListener("click", enviarFormulario);
-    </script>
-  </div>
-</body>
+    // Aquí puedes agregar tu lógica para enviar los datos a tu backend
+    // Por ejemplo, puedes usar fetch para enviar los datos JSON al servidor
+    // fetch("/submit_form", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json"
+    //   },
+    //   body: jsonString
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //   console.log(data); // Aquí puedes manejar la respuesta del servidor
+    // })
+    // .catch(error => {
+    //   console.error("Error:", error);
+    // });
+  }
+  // Agregar eventos a los botones de agregar enajenante y adquirente
+  document
+    .getElementById("agregar-enajenante")
+    .addEventListener("click", agregarEnajenante);
+  document
+    .getElementById("agregar-adquirente")
+    .addEventListener("click", agregarAdquirente);
+
+  // Agregar evento al botón de enviar formulario
+  document
+    .getElementById("enviar-formulario")
+    .addEventListener("click", enviarFormulario);
+</script>

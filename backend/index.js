@@ -10,6 +10,6 @@ app.use("/tablas/", tablasRouter);
 app.get("/", (req, res) => {
   res.send("¡Hola, mundo! prueba 1");
 });
-app.listen(PORT, () => {
+app.listen(5000, () => {
   console.log(`Servidor escuchando en http://localhost:5000`);
 });

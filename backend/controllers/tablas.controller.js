@@ -1,4 +1,5 @@
-const mysql = require("../database");
+const mysql = require("mysql2/promise");
+const connection = require("../database");
 
 const tablasController = {
   createFormularioTable: async (req, res) => {
@@ -16,7 +17,14 @@ const tablasController = {
           numero_inscripcion VARCHAR(255)
         )
       `;
-      await mysql.query(sql);
+      const connection = await mysql.createConnection({
+        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
+        user: "avnadmin",
+        password: "AVNS_LHyyUux2JxRT64CsmA5",
+        database: "defaultdb",
+        port: 18573,
+      });
+      await connection.query(sql);
       res.json({ msg: "Tabla 'Formulario' creada correctamente" });
     } catch (error) {
       res.json({ msg: error.message });
@@ -34,7 +42,14 @@ const tablasController = {
           FOREIGN KEY (formulario_id) REFERENCES Formulario(id)
         )
       `;
-      await mysql.query(sql);
+      const connection = await mysql.createConnection({
+        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
+        user: "avnadmin",
+        password: "AVNS_LHyyUux2JxRT64CsmA5",
+        database: "defaultdb",
+        port: 18573,
+      });
+      await connection.query(sql);
       res.json({ msg: "Tabla 'Enajenante' creada correctamente" });
     } catch (error) {
       res.json({ msg: error.message });
@@ -52,8 +67,34 @@ const tablasController = {
           FOREIGN KEY (formulario_id) REFERENCES Formulario(id)
         )
       `;
-      await mysql.query(sql);
+      const connection = await mysql.createConnection({
+        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
+        user: "avnadmin",
+        password: "AVNS_LHyyUux2JxRT64CsmA5",
+        database: "defaultdb",
+        port: 18573,
+      });
+      await connection.query(sql);
       res.json({ msg: "Tabla 'Adquirente' creada correctamente" });
+    } catch (error) {
+      res.json({ msg: error.message });
+    }
+  },
+  showtablas: async (req, res) => {
+    try {
+      const sql = `
+      DESCRIBE Formulario
+      `;
+      const connection = await mysql.createConnection({
+        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
+        user: "avnadmin",
+        password: "AVNS_LHyyUux2JxRT64CsmA5",
+        database: "defaultdb",
+        port: 18573,
+      });
+      const [results, fields] = await connection.query(sql); // Ejecuta la consulta SQL
+      await connection.end(); // Cierra la conexión después de usarla
+      res.json({ msg: results }); // Envía el resultado de la consulta como respuesta JSON
     } catch (error) {
       res.json({ msg: error.message });
     }
