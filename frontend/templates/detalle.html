@@ -1,23 +1,108 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detalle del Formulario</title>
-</head>
-<body>
-  <h1>Detalle del Formulario</h1>
-  <ul>
-    <li>N° Atención: {{ formulario.numero_atencion }}</li>
-    <li>CNE: {{ formulario.cne }}</li>
-    <li>Comuna: {{ formulario.comuna }}</li>
-    <li>Manzana: {{ formulario.manzana }}</li>
-    <li>Predio: {{ formulario.predio }}</li>
-    <li>Fojas: {{ formulario.fojas }}</li>
-    <li>Fecha Inscripción: {{ formulario.fecha_inscripcion }}</li>
-    <li>Número Inscripción: {{ formulario.numero_inscripcion }}</li>
-    <!-- Agrega más detalles aquí según sea necesario -->
-  </ul>
-  <a href="/listado">Volver al Listado</a>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Mostrar Información JSON desde API</title>
+    <!-- Agrega el enlace al archivo de estilos de Tailwind CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-200 p-6">
+    <!-- Contenedor principal -->
+    <div class="max-w-lg mx-auto bg-white rounded shadow-md p-8">
+      <!-- Título -->
+      <h1 class="text-2xl font-bold mb-4">Información JSON desde API</h1>
+
+      <!-- Contenedor para mostrar la información -->
+      <div
+        id="infoContainer"
+        class="border border-gray-300 rounded p-4 mb-4"
+      ></div>
+    </div>
+
+    <!-- Script para cargar los datos desde la API y mostrarlos -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // URL de la API
+        const apiUrl = "URL_DE_TU_API_AQUI";
+
+        // Realizar la solicitud a la API
+        fetch(apiUrl)
+          .then((response) => response.json()) // Convertir la respuesta a JSON
+          .then((data) => {
+            // Actualizar los datos en el contenedor
+            const infoContainer = document.getElementById("infoContainer");
+            infoContainer.innerHTML = `
+                        <div class="mb-2"><span class="font-semibold">CNE:</span> ${
+                          data.CNE
+                        }</div>
+                        <div class="mb-2">
+                            <span class="font-semibold">Bien Raíz:</span> 
+                            <div class="ml-4">
+                                <div><span class="font-semibold">Comuna:</span> ${
+                                  data.bienRaiz.comuna
+                                }</div>
+                                <div><span class="font-semibold">Manzana:</span> ${
+                                  data.bienRaiz.manzana
+                                }</div>
+                                <div><span class="font-semibold">Predio:</span> ${
+                                  data.bienRaiz.predio
+                                }</div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <span class="font-semibold">Enajenantes:</span> 
+                            <div class="ml-4">
+                                <!-- Mostrar cada enajenante del JSON -->
+                                ${data.enajenantes
+                                  .map(
+                                    (enajenante) => `
+                                    <div class="mb-2">
+                                        <span class="font-semibold">RUN/RUT:</span> ${enajenante.RUNRUT}
+                                        <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${enajenante.porcDerecho}
+                                    </div>
+                                `
+                                  )
+                                  .join("")}
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <span class="font-semibold">Adquirentes:</span> 
+                            <div class="ml-4">
+                                <!-- Mostrar cada adquirente del JSON -->
+                                ${data.adquirentes
+                                  .map(
+                                    (adquirente) => `
+                                    <div class="mb-2">
+                                        <span class="font-semibold">RUN/RUT:</span> ${adquirente.RUNRUT}
+                                        <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${adquirente.porcDerecho}
+                                    </div>
+                                `
+                                  )
+                                  .join("")}
+                            </div>
+                        </div>
+                        <div class="mb-2"><span class="font-semibold">Fojas:</span> ${
+                          data.fojas
+                        }</div>
+                        <div class="mb-2"><span class="font-semibold">Fecha Inscripción:</span> ${
+                          data.fechaInscripcion
+                        }</div>
+                        <div class="mb-2"><span class="font-semibold">Número Inscripción:</span> ${
+                          data.nroInscripcion
+                        }</div>
+                    `;
+          })
+          .catch((error) =>
+            console.error("Error al cargar los datos desde la API:", error)
+          );
+      });
+    </script>
+  </body>
 </html>

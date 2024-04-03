@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Busqueda de información</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/output.css') }}"
+    />
+    {% include 'navbar.html' %}
+  </head>
+  <body class="bg-slate-900 w-full">
+    <div class="bg-gray-400 p-10 rounded-md m-6 text-black">
+      <h1 class="text-3xl font-bold">Busqueda de información.</h1>
+      <div class="p-6 flex align-middle items-center w-full">
+        <form
+          action="/submit_form"
+          method="post"
+          id="formulario"
+          class="max-w-[800px] w-[90%] mx-auto bg-slate-300 p-8 border rounded-md [&>div>input]:p-2 [&>div>input]:rounded-md"
+        >
+          <div
+            class="flex [&>div>input]:p-2 [&>div>input]:rounded-md justify-between [&>div]:w-auto [&>div]:mx-2"
+          >
+            <div class="mb-4 w-auto">
+              <label
+                for="comuna"
+                class="block text-gray-700"
+                >Comuna:</label
+              >
+              <input
+                type="text"
+                id="comuna"
+                name="comuna"
+                class="form-input mt-1 block w-full"
+              />
+            </div>
+            <div class="mb-4">
+              <label
+                for="manzana"
+                class="block text-gray-700"
+                >Manzana:</label
+              >
+              <input
+                type="text"
+                id="manzana"
+                name="manzana"
+                class="form-input mt-1 block w-full"
+              />
+            </div>
+            <div class="mb-4">
+              <label
+                for="predio"
+                class="block text-gray-700"
+                >Predio:</label
+              >
+              <input
+                type="text"
+                id="predio"
+                name="predio"
+                class="form-input mt-1 block w-full"
+              />
+            </div>
+            <div class="mb-4">
+              <label
+                for="year"
+                class="block text-gray-700"
+                >Año:</label
+              >
+              <input
+                type="text"
+                id="year"
+                name="year"
+                class="form-input mt-1 block w-full"
+              />
+            </div>
+          </div>
+          <button
+            type="button"
+            id="enviar-formulario"
+            class="bg-blue-500 hover:bg-blue-700 text-white w-[50%] mx-[25%] font-bold py-4 mt-2 px-4 rounded"
+          >
+            Buscar
+          </button>
+        </form>
+      </div>
+      <div>
+        <h1 class="text-xl font-semibold">Resultados</h1>
+        <div id="resultados-container"></div>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Capturar el contenedor de resultados
+        const resultadosContainer = document.getElementById(
+          "resultados-container"
+        );
+
+        // Capturar el formulario y el botón de envío
+        const formulario = document.getElementById("formulario");
+        const enviarFormulario = document.getElementById("enviar-formulario");
+
+        // Agregar un evento clic al botón de envío
+        enviarFormulario.addEventListener("click", function () {
+          // Obtener los valores del formulario
+          const comuna = document.getElementById("comuna").value;
+          const manzana = document.getElementById("manzana").value;
+          const predio = document.getElementById("predio").value;
+          const year = document.getElementById("year").value;
+
+          // Crear un objeto JSON con los datos del formulario
+          const data = {
+            comuna: comuna,
+            manzana: manzana,
+            predio: predio,
+            year: year,
+          };
+
+          //Realizar la solicitud HTTP
+          fetch("http://localhost:5000/busqueda", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Limpiar los resultados anteriores
+              resultadosContainer.innerHTML = "";
+
+              // Crear elementos HTML para mostrar los resultados
+              const resultadosHTML = `
+                <div class="mb-2"><span class="font-semibold">CNE:</span> ${
+                  data.CNE
+                }</div>
+                <div class="mb-2">
+                  <span class="font-semibold">Bien Raíz:</span>
+                  <div class="ml-4">
+                    <div><span class="font-semibold">Comuna:</span> ${
+                      data.bienRaiz.comuna
+                    }</div>
+                    <div><span class="font-semibold">Manzana:</span> ${
+                      data.bienRaiz.manzana
+                    }</div>
+                    <div><span class="font-semibold">Predio:</span> ${
+                      data.bienRaiz.predio
+                    }</div>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <span class="font-semibold">Enajenantes:</span>
+                  <div class="ml-4">
+                    ${data.enajenantes
+                      .map(
+                        (enajenante) => `
+                      <div class="mb-2">
+                        <span class="font-semibold">RUN/RUT:</span> ${enajenante.RUNRUT}
+                        <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${enajenante.porcDerecho}
+                      </div>
+                    `
+                      )
+                      .join("")}
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <span class="font-semibold">Adquirentes:</span>
+                  <div class="ml-4">
+                    ${data.adquirentes
+                      .map(
+                        (adquirente) => `
+                      <div class="mb-2">
+                        <span class="font-semibold">RUN/RUT:</span> ${adquirente.RUNRUT}
+                        <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${adquirente.porcDerecho}
+                      </div>
+                    `
+                      )
+                      .join("")}
+                  </div>
+                </div>
+                <div class="mb-2"><span class="font-semibold">Fojas:</span> ${
+                  data.fojas
+                }</div>
+                <div class="mb-2"><span class="font-semibold">Fecha Inscripción:</span> ${
+                  data.fechaInscripcion
+                }</div>
+                <div class="mb-2"><span class="font-semibold">Número Inscripción:</span> ${
+                  data.nroInscripcion
+                }</div>
+              `;
+
+              // Agregar los resultados al contenedor
+              resultadosContainer.innerHTML = resultadosHTML;
+            })
+            .catch((error) =>
+              console.error("Error al enviar los datos:", error)
+            );
+        });
+      });
+    </script>
+  </body>
+</html>

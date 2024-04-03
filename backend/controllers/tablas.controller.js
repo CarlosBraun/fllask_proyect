@@ -80,10 +80,105 @@ const tablasController = {
       res.json({ msg: error.message });
     }
   },
-  showtablas: async (req, res) => {
+  showtablas1: async (req, res) => {
     try {
       const sql = `
       SELECT * FROM Formulario
+      `;
+      const connection = await mysql.createConnection({
+        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
+        user: "avnadmin",
+        password: "AVNS_LHyyUux2JxRT64CsmA5",
+        database: "defaultdb",
+        port: 18573,
+      });
+      const [results, fields] = await connection.query(sql); // Ejecuta la consulta SQL
+      await connection.end(); // Cierra la conexión después de usarla
+      res.json({ msg: results }); // Envía el resultado de la consulta como respuesta JSON
+    } catch (error) {
+      res.json({ msg: error.message });
+    }
+  },
+  showtablas2: async (req, res) => {
+    try {
+      const sql = `
+      SELECT * FROM Enajenante
+      `;
+      const connection = await mysql.createConnection({
+        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
+        user: "avnadmin",
+        password: "AVNS_LHyyUux2JxRT64CsmA5",
+        database: "defaultdb",
+        port: 18573,
+      });
+      const [results, fields] = await connection.query(sql); // Ejecuta la consulta SQL
+      await connection.end(); // Cierra la conexión después de usarla
+      res.json({ msg: results }); // Envía el resultado de la consulta como respuesta JSON
+    } catch (error) {
+      res.json({ msg: error.message });
+    }
+  },
+  showtablas3: async (req, res) => {
+    try {
+      const sql = `
+      SELECT * FROM Adquirente
+      `;
+      const connection = await mysql.createConnection({
+        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
+        user: "avnadmin",
+        password: "AVNS_LHyyUux2JxRT64CsmA5",
+        database: "defaultdb",
+        port: 18573,
+      });
+      const [results, fields] = await connection.query(sql); // Ejecuta la consulta SQL
+      await connection.end(); // Cierra la conexión después de usarla
+      res.json({ msg: results }); // Envía el resultado de la consulta como respuesta JSON
+    } catch (error) {
+      res.json({ msg: error.message });
+    }
+  },
+  deltablas1: async (req, res) => {
+    try {
+      const sql = `
+      DELETE FROM Formulario;
+      `;
+      const connection = await mysql.createConnection({
+        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
+        user: "avnadmin",
+        password: "AVNS_LHyyUux2JxRT64CsmA5",
+        database: "defaultdb",
+        port: 18573,
+      });
+      const [results, fields] = await connection.query(sql); // Ejecuta la consulta SQL
+      await connection.end(); // Cierra la conexión después de usarla
+      res.json({ msg: results }); // Envía el resultado de la consulta como respuesta JSON
+    } catch (error) {
+      res.json({ msg: error.message });
+    }
+  },
+  deltablas2: async (req, res) => {
+    try {
+      const sql = `
+      DELETE FROM Enajenante;
+      `;
+      const connection = await mysql.createConnection({
+        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
+        user: "avnadmin",
+        password: "AVNS_LHyyUux2JxRT64CsmA5",
+        database: "defaultdb",
+        port: 18573,
+      });
+      const [results, fields] = await connection.query(sql); // Ejecuta la consulta SQL
+      await connection.end(); // Cierra la conexión después de usarla
+      res.json({ msg: results }); // Envía el resultado de la consulta como respuesta JSON
+    } catch (error) {
+      res.json({ msg: error.message });
+    }
+  },
+  deltablas3: async (req, res) => {
+    try {
+      const sql = `
+      DELETE FROM Adquirente;
       `;
       const connection = await mysql.createConnection({
         host: "flask-g19-miuandes-3b9d.a.aivencloud.com",

@@ -45,46 +45,6 @@ class Adquirente(db.Model):
 # Ruta para manejar la solicitud POST del formulario
 
 
-@app.route('/submit_form', methods=['POST'])
-def submit_form():
-    # Obtener datos del formulario
-    numero_atencion = request.form['numero_atencion']
-    cne = request.form['cne']
-    comuna = request.form['comuna']
-    manzana = request.form['manzana']
-    predio = request.form['predio']
-    fojas = request.form['fojas']
-    fecha_inscripcion = datetime.strptime(
-        request.form['fecha_inscripcion'], '%Y-%m-%d')
-    numero_inscripcion = request.form['numero_inscripcion']
-
-    # Crear instancia del formulario
-    formulario = Formulario(numero_atencion=numero_atencion, cne=cne, comuna=comuna, manzana=manzana,
-                            predio=predio, fojas=fojas, fecha_inscripcion=fecha_inscripcion,
-                            numero_inscripcion=numero_inscripcion)
-
-    # Guardar formulario en la base de datos
-    db.session.add(formulario)
-    db.session.commit()
-
-    # Guardar enajenantes
-    for enajenante_data in request.form.getlist('enajenante'):
-        runrut, porc_derecho = enajenante_data.split(',')
-        enajenante = Enajenante(
-            runrut=runrut, porc_derecho=porc_derecho, formulario_id=formulario.id)
-        db.session.add(enajenante)
-
-    # Guardar adquirentes
-    for adquirente_data in request.form.getlist('adquirente'):
-        runrut_adq, porc_derecho_adq = adquirente_data.split(',')
-        adquirente = Adquirente(
-            runrut_adq=runrut_adq, porc_derecho_adq=porc_derecho_adq, formulario_id=formulario.id)
-        db.session.add(adquirente)
-
-    db.session.commit()
-
-    return redirect(url_for('index'))  # Redirigir a la página de inicio
-
 # Ruta de inicio
 
 
@@ -92,37 +52,25 @@ def submit_form():
 def index():
     return render_template('index.html')
 
-# Función para obtener los formularios
-
-
-def obtener_formularios():
-    return Formulario.query.all()
-
 
 @app.route('/formulario')
 def index2():
-    return render_template('form1 copy.html')
-
-# Ruta para mostrar el listado de formularios
+    return render_template('form.html')
 
 
 @app.route('/listado')
-def mostrar_listado():
+def listado():
     return render_template('listado.html')
 
 
-@app.route('/listado1')
-def mostrar_listado1():
-    formularios = obtener_formularios()
-    return render_template('listado.html', formularios=formularios)
-
-# Ruta para mostrar los detalles de un formulario específico
+@app.route('/detalle')
+def detalle():
+    return render_template('detalle.html')
 
 
-@app.route('/detalle/<int:id>')
-def mostrar_detalle(id):
-    formulario = Formulario.query.get_or_404(id)
-    return render_template('detalle.html', formulario=formulario)
+@app.route('/busqueda')
+def busqueda():
+    return render_template('busqueda.html')
 
 
 if __name__ == '__main__':

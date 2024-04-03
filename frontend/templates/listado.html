@@ -7,73 +7,74 @@
       content="width=device-width, initial-scale=1.0"
     />
     <title>Listado de Formularios Ingresados</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
-      h1 {
-        text-align: center;
-        margin-top: 20px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-      }
-      th,
-      td {
-        padding: 10px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-      }
-      th {
-        background-color: #f2f2f2;
-      }
-      tr:hover {
-        background-color: #f5f5f5;
-      }
-    </style>
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/output.css') }}"
     />
     {% include 'navbar.html' %}
   </head>
-  <body>
-    <h1 class="mt-6 text-2xl font-bold mx-auto">
-      Listado de Formularios Ingresados
-    </h1>
-    <div>
-      <table class="max-w-[90%] mx-auto border rounded-md">
-        <thead>
-          <tr>
-            <th>N° Atención</th>
-            <th>CNE</th>
-            <th>Comuna</th>
-            <th>Manzana</th>
-            <th>Predio</th>
-            <th>Fojas</th>
-            <th>Fecha Inscripción</th>
-            <th>Número Inscripción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for formulario in formularios %}
-          <tr>
-            <td>{{ formulario.numero_atencion }}</td>
-            <td>{{ formulario.cne }}</td>
-            <td>{{ formulario.comuna }}</td>
-            <td>{{ formulario.manzana }}</td>
-            <td>{{ formulario.predio }}</td>
-            <td>{{ formulario.fojas }}</td>
-            <td>{{ formulario.fecha_inscripcion }}</td>
-            <td>{{ formulario.numero_inscripcion }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <body class="bg-slate-900 w-full">
+    <div class="bg-gray-400 p-10 rounded-md m-6 text-black">
+      <h1 class="text-3xl font-bold">Listado de Formularios Ingresados</h1>
+      <div class="mt-8">
+        <table
+          class="min-w-[80%] mx-auto border-2 border-separate border-white rounded-md"
+          id="formulariosTable"
+        >
+          <thead class="bg-slate-600 border border-separate rounded-md">
+            <tr class="rounded-md">
+              <th>N° Atención</th>
+              <th>CNE</th>
+              <th>Comuna</th>
+              <th>Manzana</th>
+              <th>Predio</th>
+              <th>Fojas</th>
+              <th>Fecha Inscripción</th>
+              <th>Número Inscripción</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody
+            id="formulariosBody"
+            class="text-center align-middle [&>tr>td]:p-2 bg-slate-400 [&>tr>td>button]:border [&>tr>td>button]:bg-blue-600 [&>tr>td>button]:my-auto [&>tr>td>button]:text-white [&>tr>td>button]:border-white [&>tr>td>button]:py-1 [&>tr>td>button]:px-4 [&>tr>td>button]:rounded-md"
+          ></tbody>
+        </table>
+      </div>
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Realizar la solicitud HTTP al servidor
+        fetch("http://localhost:5000/tablas/tablas1")
+          .then((response) => response.json()) // Convertir la respuesta a formato JSON
+          .then((data) => {
+            // Manipular el DOM para mostrar los datos recibidos
+            const formulariosBody = document.getElementById("formulariosBody");
+            console.log(data.msg);
+            data.msg.forEach((formulario) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                          <td>${formulario.numero_atencion}</td>
+                          <td>${formulario.cne}</td>
+                          <td>${formulario.comuna}</td>
+                          <td>${formulario.manzana}</td>
+                          <td>${formulario.predio}</td>
+                          <td>${formulario.fojas}</td>
+                          <td>${formulario.fecha_inscripcion}</td>
+                          <td>${formulario.numero_inscripcion}</td>
+                          <td class="centre"><button class="hover:bg-blue-500 mt-0" onclick="redirectToDetails(${formulario.numero_atencion})">Más Información</button></td>
+                      `;
+              formulariosBody.appendChild(row);
+            });
+          })
+          .catch((error) =>
+            console.error("Error al obtener los datos:", error)
+          );
+      });
+
+      function redirectToDetails(numeroAtencion) {
+        // Redirigir a la página de detalles con el número de atención como parámetro en la URL
+        window.location.href = "/detalle?numero_atencion=" + numeroAtencion;
+      }
+    </script>
   </body>
 </html>
