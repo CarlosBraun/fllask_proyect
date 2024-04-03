@@ -160,30 +160,6 @@
 </body>
 <script>
   // Función para obtener el próximo número de atención
-  let ndeatencion = obtenerProximoNumeroAtencion();
-  function obtenerProximoNumeroAtencion() {
-    // Aquí se hace una solicitud AJAX para obtener el próximo número de atención
-    // Puedes llamar a tu función en el backend que obtiene el último número de atención registrado
-    // y luego calcular el siguiente número de atención
-    // Por ahora, vamos a simular que se obtiene el próximo número de atención de forma estática
-    return 1001; // Por ejemplo, el próximo número de atención
-  }
-
-  // Función para agregar el número de atención al formulario antes de enviarlo
-  function agregarNumeroAtencionAlFormulario() {
-    // Obtener el próximo número de atención
-    const proximoNumeroAtencion = obtenerProximoNumeroAtencion();
-
-    // Crear un campo de input oculto para el número de atención
-    const inputNumeroAtencion = document.createElement("input");
-    inputNumeroAtencion.type = "hidden";
-    inputNumeroAtencion.name = "numero_atencion";
-    inputNumeroAtencion.value = proximoNumeroAtencion;
-
-    // Agregar el campo de input oculto al formulario
-    const formulario = document.getElementById("formulario");
-    formulario.appendChild(inputNumeroAtencion);
-  }
 
   // Función para agregar un nuevo campo de enajenante
   function agregarEnajenante() {
@@ -262,10 +238,9 @@
   // Función para enviar el formulario
   function enviarFormulario() {
     // Obtener los datos del formulario
-    const numeroAtencion = obtenerProximoNumeroAtencion();
     const formData = new FormData(document.getElementById("formulario"));
     const jsonData = {
-      [numeroAtencion]: [
+      ["F2890"]: [
         {
           CNE: parseInt(formData.get("cne")),
           bienRaiz: {
@@ -288,7 +263,7 @@
       "enajenantes_porcDerecho[]"
     );
     for (let i = 0; i < enajenantes.length; i++) {
-      jsonData[numeroAtencion][0].enajenantes.push({
+      jsonData["F2890"][0].enajenantes.push({
         RUNRUT: enajenantes[i].value,
         porcDerecho: parseInt(enajenantesPorcDerecho[i].value),
       });
@@ -300,7 +275,7 @@
       "adquirentes_porcDerecho[]"
     );
     for (let i = 0; i < adquirentes.length; i++) {
-      jsonData[numeroAtencion][0].adquirentes.push({
+      jsonData["F2890"][0].adquirentes.push({
         RUNRUT: adquirentes[i].value,
         porcDerecho: parseInt(adquirentesPorcDerecho[i].value),
       });
@@ -317,20 +292,20 @@
 
     // Aquí puedes agregar tu lógica para enviar los datos a tu backend
     // Por ejemplo, puedes usar fetch para enviar los datos JSON al servidor
-    // fetch("/submit_form", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json"
-    //   },
-    //   body: jsonString
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //   console.log(data); // Aquí puedes manejar la respuesta del servidor
-    // })
-    // .catch(error => {
-    //   console.error("Error:", error);
-    // });
+    fetch("http://localhost:5000/formulario/crear", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonString,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data); // Aquí puedes manejar la respuesta del servidor
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   }
   // Agregar eventos a los botones de agregar enajenante y adquirente
   document

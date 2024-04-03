@@ -10,6 +10,6 @@ router.use(
 );
 
 router.post("/", busquedaController.busqueda);
-router.post("/atencion", busquedaController.busqueda);
+router.post("/atencion", busquedaController.atencion);
 
 module.exports = router;

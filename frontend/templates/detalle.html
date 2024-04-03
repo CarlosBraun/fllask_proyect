@@ -9,100 +9,119 @@
     <title>Mostrar Información JSON desde API</title>
     <!-- Agrega el enlace al archivo de estilos de Tailwind CSS -->
     <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
+      href="{{ url_for('static', filename='css/output.css') }}"
     />
+    {% include 'navbar.html' %}
   </head>
-  <body class="bg-gray-200 p-6">
-    <!-- Contenedor principal -->
-    <div class="max-w-lg mx-auto bg-white rounded shadow-md p-8">
-      <!-- Título -->
-      <h1 class="text-2xl font-bold mb-4">Información JSON desde API</h1>
-
-      <!-- Contenedor para mostrar la información -->
+  <body class="bg-slate-900 w-full">
+    <div class="bg-gray-400 p-10 rounded-md m-6 text-black">
       <div
-        id="infoContainer"
-        class="border border-gray-300 rounded p-4 mb-4"
-      ></div>
+        class="max-w-[800px] w-[90%] mx-auto bg-slate-300 p-8 border-2 border-white rounded-md [&>div>input]:p-2 [&>div>input]:rounded-md"
+      >
+        <h1 class="text-3xl font-bold">Busqueda de información.</h1>
+
+        <div
+          id="infoContainer"
+          class="border border-gray-300 rounded p-4 mb-4 mx-auto w-fit"
+        ></div>
+      </div>
     </div>
-
-    <!-- Script para cargar los datos desde la API y mostrarlos -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // URL de la API
-        const apiUrl = "URL_DE_TU_API_AQUI";
-
-        // Realizar la solicitud a la API
-        fetch(apiUrl)
-          .then((response) => response.json()) // Convertir la respuesta a JSON
-          .then((data) => {
-            // Actualizar los datos en el contenedor
-            const infoContainer = document.getElementById("infoContainer");
-            infoContainer.innerHTML = `
-                        <div class="mb-2"><span class="font-semibold">CNE:</span> ${
-                          data.CNE
-                        }</div>
-                        <div class="mb-2">
-                            <span class="font-semibold">Bien Raíz:</span> 
-                            <div class="ml-4">
-                                <div><span class="font-semibold">Comuna:</span> ${
-                                  data.bienRaiz.comuna
-                                }</div>
-                                <div><span class="font-semibold">Manzana:</span> ${
-                                  data.bienRaiz.manzana
-                                }</div>
-                                <div><span class="font-semibold">Predio:</span> ${
-                                  data.bienRaiz.predio
-                                }</div>
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <span class="font-semibold">Enajenantes:</span> 
-                            <div class="ml-4">
-                                <!-- Mostrar cada enajenante del JSON -->
-                                ${data.enajenantes
-                                  .map(
-                                    (enajenante) => `
-                                    <div class="mb-2">
-                                        <span class="font-semibold">RUN/RUT:</span> ${enajenante.RUNRUT}
-                                        <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${enajenante.porcDerecho}
-                                    </div>
-                                `
-                                  )
-                                  .join("")}
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <span class="font-semibold">Adquirentes:</span> 
-                            <div class="ml-4">
-                                <!-- Mostrar cada adquirente del JSON -->
-                                ${data.adquirentes
-                                  .map(
-                                    (adquirente) => `
-                                    <div class="mb-2">
-                                        <span class="font-semibold">RUN/RUT:</span> ${adquirente.RUNRUT}
-                                        <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${adquirente.porcDerecho}
-                                    </div>
-                                `
-                                  )
-                                  .join("")}
-                            </div>
-                        </div>
-                        <div class="mb-2"><span class="font-semibold">Fojas:</span> ${
-                          data.fojas
-                        }</div>
-                        <div class="mb-2"><span class="font-semibold">Fecha Inscripción:</span> ${
-                          data.fechaInscripcion
-                        }</div>
-                        <div class="mb-2"><span class="font-semibold">Número Inscripción:</span> ${
-                          data.nroInscripcion
-                        }</div>
-                    `;
-          })
-          .catch((error) =>
-            console.error("Error al cargar los datos desde la API:", error)
-          );
-      });
-    </script>
   </body>
 </html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Obtener el número de atención
+    const urlParams = new URLSearchParams(window.location.search);
+    const numeroAtencion = urlParams.get("numero_atencion");
+
+    // URL de la API
+    const apiUrl = "http://localhost:5000/busqueda/atencion";
+
+    // Objeto con el número de atención
+    const data = {
+      numero_atencion: numeroAtencion,
+    };
+
+    // Capturar el contenedor de información
+    const infoContainer = document.getElementById("infoContainer");
+
+    // Realizar la solicitud a la API
+    fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json()) // Convertir la respuesta a JSON
+      .then((data) => {
+        // Crear elementos HTML para mostrar los resultados
+        const resultadosHTML = `
+          <div class="mb-2"><span class="font-semibold">CNE:</span> ${
+            data.CNE
+          }</div>
+          <div class="mb-2">
+            <span class="font-semibold">Bien Raíz:</span>
+            <div class="ml-4">
+              <div><span class="font-semibold">Comuna:</span> ${
+                data.bienRaiz.comuna
+              }</div>
+              <div><span class="font-semibold">Manzana:</span> ${
+                data.bienRaiz.manzana
+              }</div>
+              <div><span class="font-semibold">Predio:</span> ${
+                data.bienRaiz.predio
+              }</div>
+            </div>
+          </div>
+          <div class="mb-2">
+            <span class="font-semibold">Enajenantes:</span>
+            <div class="ml-4">
+              ${data.enajenantes
+                .map(
+                  (enajenante) => `
+                <div class="mb-2">
+                  <span class="font-semibold">RUN/RUT:</span> ${enajenante.RUNRUT}
+                  <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${enajenante.porcDerecho}
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          </div>
+          <div class="mb-2">
+            <span class="font-semibold">Adquirentes:</span>
+            <div class="ml-4">
+              ${data.adquirentes
+                .map(
+                  (adquirente) => `
+                <div class="mb-2">
+                  <span class="font-semibold">RUN/RUT:</span> ${adquirente.RUNRUT}
+                  <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${adquirente.porcDerecho}
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          </div>
+          <div class="mb-2"><span class="font-semibold">Fojas:</span> ${
+            data.fojas
+          }</div>
+          <div class="mb-2"><span class="font-semibold">Fecha Inscripción:</span> ${
+            data.fechaInscripcion
+          }</div>
+          <div class="mb-2"><span class="font-semibold">Número Inscripción:</span> ${
+            data.nroInscripcion
+          }</div>
+        `;
+
+        // Agregar los resultados al contenedor
+        infoContainer.innerHTML = resultadosHTML;
+      })
+      .catch((error) =>
+        console.error("Error al cargar los datos desde la API:", error)
+      );
+  });
+</script>
