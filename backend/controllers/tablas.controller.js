@@ -83,7 +83,7 @@ const tablasController = {
   showtablas: async (req, res) => {
     try {
       const sql = `
-      DESCRIBE Formulario
+      SELECT * FROM Formulario
       `;
       const connection = await mysql.createConnection({
         host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
