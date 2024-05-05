@@ -7,12 +7,14 @@ const PORT = process.env.PORT;
 const tablasRouter = require("./routes/tablas.router");
 const formularioRouter = require("./routes/formulario.router");
 const busquedaRouter = require("./routes/busqueda.router");
+const multipropietarioRouter = require("./routes/multipropietario.router");
 // Ruta de prueba
 app.use(cors());
 app.use(bodyParser.json());
 app.use("/tablas/", tablasRouter);
 app.use("/formulario/", formularioRouter);
 app.use("/busqueda/", busquedaRouter);
+app.use("/multipropietario/", busquedaRouter);
 app.get("/", (req, res) => {
   // HTML de ejemplo
   const htmlContent = `
