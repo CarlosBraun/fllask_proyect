@@ -80,7 +80,7 @@ const tablasController = {
           ano_inscripccion INT,
           numero_inscripcion VARCHAR(255),
           ano_vigencia_i INT,
-          ano_vigencia_i INT
+          ano_vigencia_f INT
         )
       `;
       const connection = await pool.getConnection();
