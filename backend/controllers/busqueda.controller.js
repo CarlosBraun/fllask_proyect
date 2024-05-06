@@ -1,5 +1,5 @@
 const mysql = require("mysql2/promise");
-const connection = require("../database");
+const pool = require("../database");
 
 const busquedaController = {
   busqueda: async (req, res) => {
@@ -7,13 +7,7 @@ const busquedaController = {
       const { comuna, manzana, predio, año } = req.body;
 
       // Obtiene una nueva conexión
-      const connection = await mysql.createConnection({
-        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
-        user: "avnadmin",
-        password: "AVNS_LHyyUux2JxRT64CsmA5",
-        database: "defaultdb",
-        port: 18573,
-      });
+      const connection = await pool.getConnection();
 
       // Consulta para obtener la información del formulario
       const formularioSQL = `
@@ -76,8 +70,8 @@ const busquedaController = {
         nroInscripcion: formulario.numero_inscripcion,
       };
 
-      // Cierra la conexión
-      await connection.end();
+      // Libera la conexión
+      await connection.release();
 
       // Envía la respuesta
       res.json(respuesta);
@@ -92,14 +86,9 @@ const busquedaController = {
       const { numero_atencion } = req.body;
 
       // Obtiene una nueva conexión
-      const connection = await mysql.createConnection({
-        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
-        user: "avnadmin",
-        password: "AVNS_LHyyUux2JxRT64CsmA5",
-        database: "defaultdb",
-        port: 18573,
-      });
+      const connection = await pool.getConnection();
       console.log(numero_atencion);
+
       // Consulta para obtener el formulario relacionado a la atención
       const formularioSQL = `
         SELECT * FROM Formulario
@@ -161,7 +150,7 @@ const busquedaController = {
       };
 
       // Cierra la conexión
-      await connection.end();
+      await connection.release();
 
       // Envía la respuesta
       res.json(respuesta);

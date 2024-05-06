@@ -1,5 +1,5 @@
 const mysql = require("mysql2/promise");
-const connection = require("../database");
+const pool = require("../database");
 
 // Función para verificar si una cadena es una fecha válida en el formato 'YYYY-MM-DD'
 const isValidDate = (dateString) => {
@@ -15,13 +15,7 @@ const multipropietarioController = {
       const formularios = req.body["F2890"];
 
       // Obtiene una nueva conexión
-      connection = await mysql.createConnection({
-        host: "flask-g19-miuandes-3b9d.a.aivencloud.com",
-        user: "avnadmin",
-        password: "AVNS_LHyyUux2JxRT64CsmA5",
-        database: "defaultdb",
-        port: 18573,
-      });
+      const connection = await pool.getConnection();
 
       // Inicia la transacción manualmente
       await connection.beginTransaction();
@@ -156,7 +150,7 @@ const multipropietarioController = {
     } finally {
       // Libera la conexión
       if (connection) {
-        connection.end();
+        connection.release();
       }
     }
   },
