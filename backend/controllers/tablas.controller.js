@@ -85,14 +85,17 @@ const tablasController = {
       const sql = `
         CREATE TABLE IF NOT EXISTS Multipropietario (
           id INT AUTO_INCREMENT PRIMARY KEY,
-          numero_atencion VARCHAR(255),
-          cne INT,
           comuna INT,
           manzana INT,
           predio INT,
+          run VARCHAR(255),
+          derecho INT,
           fojas INT,
           fecha_inscripcion DATE,
-          numero_inscripcion VARCHAR(255)
+          ano_inscripccion INT,
+          numero_inscripcion VARCHAR(255),
+          ano_vigencia_i INT,
+          ano_vigencia_i INT
         )
       `;
       const connection = await mysql.createConnection({

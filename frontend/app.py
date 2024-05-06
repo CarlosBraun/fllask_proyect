@@ -1,22 +1,24 @@
 from flask import Flask, render_template, request, redirect, url_for
+import requests
 from datetime import datetime
 
 app = Flask(__name__)
 
-# Configuración de la base de datos
-
-# Definición de modelos
+# Cejemplo de llamada
 
 
-# Ruta para manejar la solicitud POST del formulario
-
-
-# Ruta de inicio
+def obtener_datos_de_api():
+    # Hacer la solicitud a la API y obtener los datos
+    response = requests.get('https://api.example.com/data')
+    data = response.json()
+    return data
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    datos = obtener_datos_de_api()
+    # Pasa los datos a la plantilla y renderiza la plantilla
+    return render_template('index.html', datos=datos)
 
 
 @app.route('/formulario')
