@@ -1,0 +1,40 @@
+<!-- form.html -->
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/output.css') }}"
+/>
+{% include 'navbar.html' %}
+<body class="bg-slate-900 w-full">
+  <div class="bg-gray-400 p-10 rounded-md m-6 text-black">
+    <h1 class="text-3xl font-bold">Subir archivo JSON</h1>
+    <div class="p-6 flex align-middle items-center w-full">
+      <form
+        action="{{ url_for('submit_json') }}"
+        method="post"
+        enctype="multipart/form-data"
+        id="formulario"
+        class="max-w-[800px] w-[90%] mx-auto bg-slate-300 p-8 border rounded-md"
+      >
+        <div class="mb-4">
+          <label
+            for="json_file"
+            class="block text-gray-700"
+            >Archivo JSON:</label
+          >
+          <input
+            type="file"
+            id="json_file"
+            name="json_file"
+            class="form-input mt-1 block w-full"
+          />
+        </div>
+        <button
+          type="submit"
+          class="bg-blue-500 hover:bg-blue-700 text-white w-[80%] mx-[10%] font-bold py-4 mt-2 px-4 rounded"
+        >
+          Enviar
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
