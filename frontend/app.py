@@ -29,7 +29,8 @@ def obtener_datos_de_api():
 def obtener_listado():
     try:
         # Hacer la solicitud a la API y obtener los datos
-        response = requests.get('https://api.example.com/data')
+        response = requests.get(
+            'https://fllask-proyect-yccm.vercel.app/tablas/tablas1')
         # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
         response.raise_for_status()
         data = response.json()
@@ -156,7 +157,8 @@ def json1():
 
 @app.route('/listado')
 def listado():
-    return render_template('listado.html')
+    listado = obtener_listado()
+    return render_template('listado.html', listado=listado["body"])
 
 
 @app.route('/detalle')
