@@ -15,29 +15,35 @@ const executeQuery2 = async (sql, parameters) => {
 const lookupDBController2 = {
   EnajenanteTables: async (req, res) => {
     const sql = `SELECT * FROM Enajenante`;
-    res.body = await executeQuery2(sql);
+    const body = await executeQuery2(sql);
+    res.json({ body });
   },
   AdquirienteTables: async (req, res) => {
     const sql = `SELECT * FROM Adquirente`;
-    res.body = await executeQuery2(sql);
+    const body = await executeQuery2(sql);
+    res.json({ body });
   },
   FormularioTables: async (req, res) => {
     const sql = `SELECT * FROM Formulario`;
-    res.body = await executeQuery2(sql);
+    const body = await executeQuery2(sql);
+    res.json({ body });
   },
   FormularioCMP: async (req, res) => {
     const sql = `SELECT * FROM Formulario WHERE comuna = ? AND manzana = ? AND predio = ?`;
     const { comuna, manzana, predio } = req.body;
-    res.body = await executeQuery2(sql, [comuna, manzana, predio]);
+    const body = await executeQuery2(sql, [comuna, manzana, predio]);
+    res.json({ body });
   },
   MultipropietrioTables: async (req, res) => {
     const sql = `SELECT * FROM Multipropietario`;
-    res.body = await executeQuery2(sql);
+    const body = await executeQuery2(sql);
+    res.json({ body });
   },
   MultipropietrioCMP: async (req, res) => {
     const sql = `SELECT * FROM Multipropietario WHERE comuna = ? AND manzana = ? AND predio = ?`;
     const { comuna, manzana, predio } = req.body;
-    res.body = await executeQuery2(sql, [comuna, manzana, predio]);
+    const body = await executeQuery2(sql, [comuna, manzana, predio]);
+    res.json({ body });
   },
 };
 
