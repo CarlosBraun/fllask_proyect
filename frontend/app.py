@@ -4,7 +4,6 @@ import json
 from datetime import datetime
 
 app = Flask(__name__)
-app.debug = True
 
 # Cejemplo de llamada
 
