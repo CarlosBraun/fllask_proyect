@@ -15,10 +15,10 @@ router.get("/tabla2", tablasController.createEnajenanteTable);
 router.get("/tabla3", tablasController.createAdquirenteTable);
 router.get("/tabla4", tablasController.createMultipropietarioTable);
 
-router.get("/tablas1", tablasController.showtablas1);
-router.get("/tablas2", tablasController.showtablas2);
-router.get("/tablas3", tablasController.showtablas3);
-router.get("/tablas4", tablasController.showtablas4);
+// router.get("/tablas1", tablasController.showtablas1);
+// router.get("/tablas2", tablasController.showtablas2);
+// router.get("/tablas3", tablasController.showtablas3);
+// router.get("/tablas4", tablasController.showtablas4);
 
 router.get("/deltablas1", tablasController.deltablas1);
 router.get("/deltablas2", tablasController.deltablas2);

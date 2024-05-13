@@ -1,58 +1,44 @@
 const pool = require("../database");
 
+const executeQuery = async (sql, parameters) => {
+  try {
+    const connection = await pool.getConnection();
+    const [results, fields] = await connection.query(sql, parameters = []);
+    connection.release();
+    return results
+  } catch (error) {
+    console.error(error.message);
+    return null;
+  }
+};
+
 const lookupDBController = {
-    showtablas1: async (req, res) => {
-        try {
-          const sql = `
-          SELECT * FROM Formulario
-          `;
-          const connection = await pool.getConnection();
-          const [results, fields] = await connection.query(sql); // Ejecuta la consulta SQL
-          connection.release(); // Cierra la conexión después de usarla
-          res.json({ msg: results }); // Envía el resultado de la consulta como respuesta JSON
-        } catch (error) {
-          res.json({ msg: error.message });
-        }
-      },
-      showtablas2: async (req, res) => {
-        try {
-          const sql = `
-          SELECT * FROM Enajenante
-          `;
-          const connection = await pool.getConnection();
-          const [results, fields] = await connection.query(sql); // Ejecuta la consulta SQL
-          connection.release(); // Cierra la conexión después de usarla
-          res.json({ msg: results }); // Envía el resultado de la consulta como respuesta JSON
-        } catch (error) {
-          res.json({ msg: error.message });
-        }
-      },
-      showtablas3: async (req, res) => {
-        try {
-          const sql = `
-          SELECT * FROM Adquirente
-          `;
-          const connection = await pool.getConnection();
-          const [results, fields] = await connection.query(sql); // Ejecuta la consulta SQL
-          connection.release(); // Cierra la conexión después de usarla
-          res.json({ msg: results }); // Envía el resultado de la consulta como respuesta JSON
-        } catch (error) {
-          res.json({ msg: error.message });
-        }
-      },
-      showtablas4: async (req, res) => {
-        try {
-          const sql = `
-          SELECT * FROM Multipropietario
-          `;
-          const connection = await pool.getConnection();
-          const [results, fields] = await connection.query(sql); // Ejecuta la consulta SQL
-          await connection.release(); // Cierra la conexión después de usarla
-          res.json({ msg: results }); // Envía el resultado de la consulta como respuesta JSON
-        } catch (error) {
-          res.json({ msg: error.message });
-        }
-      },
+  EnajenanteTables: async (req) => {
+    const sql = `SELECT * FROM Enajenante`;
+    return await executeQuery(sql);
+  },
+  AdquirienteTables: async (req) => {
+    const sql = `SELECT * FROM Adquirente`;
+    return await executeQuery(sql);
+  },
+  FormularioTables: async (req) => {
+    const sql = `SELECT * FROM Formulario`;
+    return await executeQuery(sql);
+  },
+  FormularioCMP: async (req) => {
+    const sql = `SELECT * FROM Formulario WHERE comuna = ? AND manzana = ? AND predio = ?`;
+    const { comuna, manzana, predio } = req.body;
+    return await executeQuery(sql, [comuna, manzana, predio]);
+  },
+  MultipropietrioTables: async (req) => {
+    const sql = `SELECT * FROM Multipropietario`;
+    return await executeQuery(sql);
+  },
+  MultipropietrioCMP: async (req) => {
+    const sql = `SELECT * FROM Multipropietario WHERE comuna = ? AND manzana = ? AND predio = ?`;
+    const { comuna, manzana, predio } = req.body;
+    return await executeQuery(sql, [comuna, manzana, predio]);
+  },
 };
 
 module.exports = lookupDBController;
