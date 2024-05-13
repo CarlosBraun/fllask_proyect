@@ -1,239 +1,207 @@
 const mysql = require("mysql2/promise");
 const pool = require("../database");
+const lookupDBController = require("./lookupDB.controller")
+
+const NOT_FOUND_STATUS = 404;
+const SERVER_ERROR_STATUS = 500;
 
 const busquedaController = {
   
+  respuestaFormulario: async (formulario) => {
+    
+    const { id, cne, comuna, manzana, predio, fojas, fecha_inscripcion, numero_inscripcion } = formulario;
+    const enajenantes = lookupDBController.EnajenanteID(formulario.id);
+    const adquirentes = lookupDBController.AdquirienteID(formulario.id);
+
+    return {
+      _comment: "",
+      CNE: cne,
+      bienRaiz: {
+        comuna: comuna,
+        manzana: manzana,
+        predio: predio,
+      },
+      enajenantes: enajenantes.map(({ runrut, porc_derecho }) => ({
+        RUNRUT: runrut,
+        porcDerecho: porc_derecho,
+      })),
+      adquirentes: adquirentes.map(({ runrut_adq, porc_derecho_adq }) => ({
+        RUNRUT: runrut_adq,
+        porcDerecho: porc_derecho_adq,
+      })),
+      fojas: fojas,
+      fechaInscripcion: fecha_inscripcion.toISOString().split("T")[0], // Formatea la fecha como 'YYYY-MM-DD'
+      nroInscripcion: numero_inscripcion,
+    };
+  },
+
+  respuestaMultipropietario: async (multipropietario) => {
+    const { id, comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, 
+      numero_inscripcion, ano_vigencia_i, ano_vigencia_f } = multipropietario;
+
+    return {
+      _comment: "",
+      bienRaiz: {
+        comuna: comuna,
+        manzana: manzana,
+        predio: predio,
+      },
+      propietario: {
+        RUNRUT: run,
+        derecho: derecho,
+      },
+      fojas: fojas,
+      fechaInscripcion: fecha_inscripcion.toISOString().split("T")[0], // Formatea la fecha como 'YYYY-MM-DD'
+      nroInscripcion: numero_inscripcion,
+      anoInscripcion: ano_inscripccion,
+      vigencia: {
+        inicio: ano_vigencia_i,
+        fin: ano_vigencia_f,
+      }
+    };
+  },
+  
   formularioCMP: async (req, res) => {
     try {
+
       const { comuna, manzana, predio } = req.body;
+      const formularios = lookupDBController.FormularioCMP(comuna, manzana, predio);
 
-      const connection = await pool.getConnection();
-
-      const formularioSQL = `
-        SELECT * FROM Formulario
-        WHERE comuna = ? AND manzana = ? AND predio = ? OR YEAR(fecha_inscripcion) = ?
-      `;
-      const [formularioRows] = await connection.query(formularioSQL, [
-        comuna,
-        manzana,
-        predio,
-        año,
-      ]);
-      const formulario = formularioRows[0];
-
-      if (!formulario) {
-        return res.status(404).json({ msg: "No se encontró el formulario" });
+      if (!formularios || formularios.length === 0) {
+        return res.status(NOT_FOUND_STATUS).json({ msg: "No se encontró el formulario" });
       }
+      
+      const respuestas = await Promise.all(
+        formularios.map(async (formulario) => {
+          return await this.respuestaFormulario(formulario);
+        })
+      );
 
-      // Consulta para obtener la información de los enajenantes
-      const enajenantesSQL = `
-        SELECT * FROM Enajenante
-        WHERE formulario_id = ?
-      `;
-      const [enajenantesRows] = await connection.query(enajenantesSQL, [
-        formulario.id,
-      ]);
-      const enajenantes = enajenantesRows;
-
-      // Consulta para obtener la información de los adquirentes
-      const adquirentesSQL = `
-        SELECT * FROM Adquirente
-        WHERE formulario_id = ?
-      `;
-      const [adquirentesRows] = await connection.query(adquirentesSQL, [
-        formulario.id,
-      ]);
-      const adquirentes = adquirentesRows;
-
-      // Construye el JSON de respuesta
-      const respuesta = {
-        _comment: "",
-        CNE: formulario.cne,
-        bienRaiz: {
-          comuna: formulario.comuna,
-          manzana: formulario.manzana,
-          predio: formulario.predio,
-        },
-        enajenantes: enajenantes.map((enajenante) => ({
-          RUNRUT: enajenante.runrut,
-          porcDerecho: enajenante.porc_derecho,
-        })),
-        adquirentes: adquirentes.map((adquirente) => ({
-          RUNRUT: adquirente.runrut_adq,
-          porcDerecho: adquirente.porc_derecho_adq,
-        })),
-        fojas: formulario.fojas,
-        fechaInscripcion: formulario.fecha_inscripcion
-          .toISOString()
-          .split("T")[0], // Formatea la fecha como 'YYYY-MM-DD'
-        nroInscripcion: formulario.numero_inscripcion,
-      };
-
-      // Libera la conexión
       await connection.release();
 
-      // Envía la respuesta
-      res.json(respuesta);
+      res.json(respuestas);
+
     } catch (error) {
-      // Maneja el error si ocurre alguno
+
       console.error("Error en búsqueda:", error);
-      res.status(500).json({ msg: "Error en búsqueda" });
+      res.status(SERVER_ERROR_STATUS).json({ msg: "Error en búsqueda" });
+
+    }
+  },
+
+  multipropietarioCMP: async (req, res) => {
+    try {
+
+      const { comuna, manzana, predio } = req.body;
+      const multipropietarios = lookupDBController.MultipropietarioCMP(comuna, manzana, predio);
+
+      if (!multipropietarios || multipropietarios.length === 0) {
+        return res.status(NOT_FOUND_STATUS).json({ msg: "No se encontró el multipropietario" });
+      }
+      
+      const respuestas = await Promise.all(
+        multipropietarios.map(async (multipropietario) => {
+          return await this.respuestaMultipropietario(multipropietario);
+        })
+      );
+
+      await connection.release();
+
+      res.json(respuestas);
+
+    } catch (error) {
+
+      console.error("Error en búsqueda:", error);
+      res.status(SERVER_ERROR_STATUS).json({ msg: "Error en búsqueda" });
+
     }
   },
 
   formularioYear: async (req, res) => {
     try {
-      const { comuna, manzana, predio } = req.body;
-
-      const connection = await pool.getConnection();
       
-      const formularioSQL = `
-        SELECT * FROM Formulario
-        WHERE YEAR(fecha_inscripcion) = ?
-      `;
-      const [formularioRows] = await connection.query(formularioSQL, [
-        año,
-      ]);
-      const formulario = formularioRows[0];
+      const { year } = req.body
+      const formularios = lookupDBController.FormularioYear(year);
 
-      if (!formulario) {
-        return res.status(404).json({ msg: "No se encontró el formulario" });
+      if (!formularios || formularios.length === 0) {
+        return res.status(NOT_FOUND_STATUS).json({ msg: "No se encontró el formulario" });
       }
 
-      // Consulta para obtener la información de los enajenantes
-      const enajenantesSQL = `
-        SELECT * FROM Enajenante
-        WHERE formulario_id = ?
-      `;
-      const [enajenantesRows] = await connection.query(enajenantesSQL, [
-        formulario.id,
-      ]);
-      const enajenantes = enajenantesRows;
+      const respuestas = await Promise.all(
+        formularios.map(async (formulario) => {
+          return await this.respuestaFormulario(formulario);
+        })
+      );
 
-      // Consulta para obtener la información de los adquirentes
-      const adquirentesSQL = `
-        SELECT * FROM Adquirente
-        WHERE formulario_id = ?
-      `;
-      const [adquirentesRows] = await connection.query(adquirentesSQL, [
-        formulario.id,
-      ]);
-      const adquirentes = adquirentesRows;
-
-      // Construye el JSON de respuesta
-      const respuesta = {
-        _comment: "",
-        CNE: formulario.cne,
-        bienRaiz: {
-          comuna: formulario.comuna,
-          manzana: formulario.manzana,
-          predio: formulario.predio,
-        },
-        enajenantes: enajenantes.map((enajenante) => ({
-          RUNRUT: enajenante.runrut,
-          porcDerecho: enajenante.porc_derecho,
-        })),
-        adquirentes: adquirentes.map((adquirente) => ({
-          RUNRUT: adquirente.runrut_adq,
-          porcDerecho: adquirente.porc_derecho_adq,
-        })),
-        fojas: formulario.fojas,
-        fechaInscripcion: formulario.fecha_inscripcion
-          .toISOString()
-          .split("T")[0], // Formatea la fecha como 'YYYY-MM-DD'
-        nroInscripcion: formulario.numero_inscripcion,
-      };
-
-      // Libera la conexión
       await connection.release();
 
-      // Envía la respuesta
-      res.json(respuesta);
+      res.json(respuestas);
+
     } catch (error) {
-      // Maneja el error si ocurre alguno
+      
       console.error("Error en búsqueda:", error);
-      res.status(500).json({ msg: "Error en búsqueda" });
+      res.status(SERVER_ERROR_STATUS).json({ msg: "Error en búsqueda" });
+
+    }
+  },
+
+  multipropietarioYear: async (req, res) => {
+    try {
+      
+      const { year } = req.body
+      const multipropietarios = lookupDBController.MultipropietarioYear(year);
+
+      if (!multipropietarios || multipropietarios.length === 0) {
+        return res.status(NOT_FOUND_STATUS).json({ msg: "No se encontró el multipropietario" });
+      }
+
+      const respuestas = await Promise.all(
+        multipropietarios.map(async (multipropietario) => {
+          return await this.respuestaMultipropietario(multipropietario);
+        })
+      );
+
+      await connection.release();
+
+      res.json(respuestas);
+
+    } catch (error) {
+      
+      console.error("Error en búsqueda:", error);
+      res.status(SERVER_ERROR_STATUS).json({ msg: "Error en búsqueda" });
+
     }
   },
   
-  atencion: async (req, res) => {
+  formularioAtencion: async (req, res) => {
     try {
+      
       const { numero_atencion } = req.body;
+      const formularios = lookupDBController.FormularioAtencion(numero_atencion);
 
-      // Obtiene una nueva conexión
-      const connection = await pool.getConnection();
-      console.log(numero_atencion);
-
-      // Consulta para obtener el formulario relacionado a la atención
-      const formularioSQL = `
-        SELECT * FROM Formulario
-        WHERE numero_atencion = ?
-      `;
-      const [formularioRows] = await connection.query(formularioSQL, [
-        numero_atencion,
-      ]);
-      const formulario = formularioRows[0];
-
-      if (!formulario) {
-        return res.status(404).json({
+      if (!formularios || formularios.length === 0) {
+        return res.status(NOT_FOUND_STATUS).json({
           msg: "No se encontró el formulario relacionado a la atención",
         });
       }
 
-      // Consulta para obtener la información de los enajenantes
-      const enajenantesSQL = `
-        SELECT * FROM Enajenante
-        WHERE formulario_id = ?
-      `;
-      const [enajenantesRows] = await connection.query(enajenantesSQL, [
-        formulario.id,
-      ]);
-      const enajenantes = enajenantesRows;
+      const respuestas = await Promise.all(
+        formularios.map(async (formulario) => {
+          return await this.respuestaFormulario(formulario);
+        })
+      );
 
-      // Consulta para obtener la información de los adquirentes
-      const adquirentesSQL = `
-        SELECT * FROM Adquirente
-        WHERE formulario_id = ?
-      `;
-      const [adquirentesRows] = await connection.query(adquirentesSQL, [
-        formulario.id,
-      ]);
-      const adquirentes = adquirentesRows;
-
-      // Construye el JSON de respuesta
-      const respuesta = {
-        _comment: "",
-        CNE: formulario.cne,
-        bienRaiz: {
-          comuna: formulario.comuna,
-          manzana: formulario.manzana,
-          predio: formulario.predio,
-        },
-        enajenantes: enajenantes.map((enajenante) => ({
-          RUNRUT: enajenante.runrut,
-          porcDerecho: enajenante.porc_derecho,
-        })),
-        adquirentes: adquirentes.map((adquirente) => ({
-          RUNRUT: adquirente.runrut_adq,
-          porcDerecho: adquirente.porc_derecho_adq,
-        })),
-        fojas: formulario.fojas,
-        fechaInscripcion: formulario.fecha_inscripcion
-          .toISOString()
-          .split("T")[0], // Formatea la fecha como 'YYYY-MM-DD'
-        nroInscripcion: formulario.numero_inscripcion,
-      };
-
-      // Cierra la conexión
       await connection.release();
 
-      // Envía la respuesta
-      res.json(respuesta);
+      res.json(respuestas);
+
     } catch (error) {
-      // Maneja el error si ocurre alguno
+      
       console.error("Error en búsqueda de atención:", error);
-      res.status(500).json({ msg: "Error en búsqueda de atención" });
+      res.status(SERVER_ERROR_STATUS).json({ msg: "Error en búsqueda de atención" });
+
     }
   },
 };
+
 module.exports = busquedaController;
