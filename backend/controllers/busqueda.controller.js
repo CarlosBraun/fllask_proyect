@@ -10,8 +10,8 @@ const busquedaController = {
   respuestaFormulario: async (formulario) => {
     
     const { id, cne, comuna, manzana, predio, fojas, fecha_inscripcion, numero_inscripcion } = formulario;
-    const enajenantes = lookupDBController.EnajenanteID(formulario.id);
-    const adquirentes = lookupDBController.AdquirienteID(formulario.id);
+    const enajenantes = await lookupDBController.EnajenanteID(formulario.id);
+    const adquirentes = await lookupDBController.AdquirienteID(formulario.id);
 
     return {
       _comment: "",
@@ -65,7 +65,7 @@ const busquedaController = {
     try {
 
       const { comuna, manzana, predio } = req.body;
-      const formularios = lookupDBController.FormularioCMP(comuna, manzana, predio);
+      const formularios = await lookupDBController.FormularioCMP(comuna, manzana, predio);
 
       if (!formularios || formularios.length === 0) {
         return res.status(NOT_FOUND_STATUS).json({ msg: "No se encontró el formulario" });
@@ -93,7 +93,7 @@ const busquedaController = {
     try {
 
       const { comuna, manzana, predio } = req.body;
-      const multipropietarios = lookupDBController.MultipropietarioCMP(comuna, manzana, predio);
+      const multipropietarios = await lookupDBController.MultipropietarioCMP(comuna, manzana, predio);
 
       if (!multipropietarios || multipropietarios.length === 0) {
         return res.status(NOT_FOUND_STATUS).json({ msg: "No se encontró el multipropietario" });
@@ -121,7 +121,7 @@ const busquedaController = {
     try {
       
       const { year } = req.body
-      const formularios = lookupDBController.FormularioYear(year);
+      const formularios = await lookupDBController.FormularioYear(year);
 
       if (!formularios || formularios.length === 0) {
         return res.status(NOT_FOUND_STATUS).json({ msg: "No se encontró el formulario" });
@@ -149,7 +149,7 @@ const busquedaController = {
     try {
       
       const { year } = req.body
-      const multipropietarios = lookupDBController.MultipropietarioYear(year);
+      const multipropietarios = await lookupDBController.MultipropietarioYear(year);
 
       if (!multipropietarios || multipropietarios.length === 0) {
         return res.status(NOT_FOUND_STATUS).json({ msg: "No se encontró el multipropietario" });
@@ -177,7 +177,7 @@ const busquedaController = {
     try {
       
       const { numero_atencion } = req.body;
-      const formularios = lookupDBController.FormularioAtencion(numero_atencion);
+      const formularios = await lookupDBController.FormularioAtencion(numero_atencion);
 
       if (!formularios || formularios.length === 0) {
         return res.status(NOT_FOUND_STATUS).json({
