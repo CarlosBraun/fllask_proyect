@@ -18,7 +18,7 @@
       <h1 class="text-3xl font-bold">Busqueda de información.</h1>
       <div class="p-6 flex align-middle items-center w-full">
         <form
-          action="/submit_form"
+          action="{{url_for('submit_form_busqueda')}}"
           method="post"
           id="formulario"
           class="max-w-[800px] w-[90%] mx-auto bg-slate-300 p-8 border rounded-md [&>div>input]:p-2 [&>div>input]:rounded-md"
@@ -80,8 +80,7 @@
             </div>
           </div>
           <button
-            type="button"
-            id="enviar-formulario"
+            type="submit"
             class="bg-blue-500 hover:bg-blue-700 text-white w-[50%] mx-[25%] font-bold py-4 mt-2 px-4 rounded"
           >
             Buscar
@@ -90,117 +89,40 @@
       </div>
       <div>
         <h1 class="text-xl font-semibold">Resultados</h1>
-        <div id="resultados-container"></div>
-      </div>
+        <div id="resultados-container" class="p-6 flex align-middle items-center w-full rounded-md">
+          <table class="min-w-full divide-y divide-gray-200 rounded-md">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CNE</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comuna</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manzana</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Predio</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Adquirentes</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">%</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fojas</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Inscripción</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número Inscripción</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for resultado in resultados %}
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">{{ resultado.CNE }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ resultado.bienRaiz.comuna }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ resultado.bienRaiz.manzana }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ resultado.bienRaiz.predio }}</td>
+                {% for adquirente in resultado.adquirentes %}
+                  <td class="px-6 py-4 whitespace-nowrap">{{ adquirente.RUNRUT }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ adquirente.porcDerecho }}</td>
+                {% endfor %}
+                <td class="px-6 py-4 whitespace-nowrap">{{ resultado.fojas }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ resultado.fechaInscripcion }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ resultado.nroInscripcion }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
     </div>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Capturar el contenedor de resultados
-        const resultadosContainer = document.getElementById(
-          "resultados-container"
-        );
-
-        // Capturar el formulario y el botón de envío
-        const formulario = document.getElementById("formulario");
-        const enviarFormulario = document.getElementById("enviar-formulario");
-
-        // Agregar un evento clic al botón de envío
-        enviarFormulario.addEventListener("click", function () {
-          // Obtener los valores del formulario
-          const comuna = document.getElementById("comuna").value;
-          const manzana = document.getElementById("manzana").value;
-          const predio = document.getElementById("predio").value;
-          const year = document.getElementById("year").value;
-
-          // Crear un objeto JSON con los datos del formulario
-          const data = {
-            comuna: comuna,
-            manzana: manzana,
-            predio: predio,
-            year: year,
-          };
-
-          //Realizar la solicitud HTTP
-          fetch("https://fllask-proyect-yccm.vercel.app/busqueda", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              // Limpiar los resultados anteriores
-              resultadosContainer.innerHTML = "";
-
-              // Crear elementos HTML para mostrar los resultados
-              const resultadosHTML = `
-                <div class="mb-2"><span class="font-semibold">CNE:</span> ${
-                  data.CNE
-                }</div>
-                <div class="mb-2">
-                  <span class="font-semibold">Bien Raíz:</span>
-                  <div class="ml-4">
-                    <div><span class="font-semibold">Comuna:</span> ${
-                      data.bienRaiz.comuna
-                    }</div>
-                    <div><span class="font-semibold">Manzana:</span> ${
-                      data.bienRaiz.manzana
-                    }</div>
-                    <div><span class="font-semibold">Predio:</span> ${
-                      data.bienRaiz.predio
-                    }</div>
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <span class="font-semibold">Enajenantes:</span>
-                  <div class="ml-4">
-                    ${data.enajenantes
-                      .map(
-                        (enajenante) => `
-                      <div class="mb-2">
-                        <span class="font-semibold">RUN/RUT:</span> ${enajenante.RUNRUT}
-                        <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${enajenante.porcDerecho}
-                      </div>
-                    `
-                      )
-                      .join("")}
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <span class="font-semibold">Adquirentes:</span>
-                  <div class="ml-4">
-                    ${data.adquirentes
-                      .map(
-                        (adquirente) => `
-                      <div class="mb-2">
-                        <span class="font-semibold">RUN/RUT:</span> ${adquirente.RUNRUT}
-                        <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${adquirente.porcDerecho}
-                      </div>
-                    `
-                      )
-                      .join("")}
-                  </div>
-                </div>
-                <div class="mb-2"><span class="font-semibold">Fojas:</span> ${
-                  data.fojas
-                }</div>
-                <div class="mb-2"><span class="font-semibold">Fecha Inscripción:</span> ${
-                  data.fechaInscripcion
-                }</div>
-                <div class="mb-2"><span class="font-semibold">Número Inscripción:</span> ${
-                  data.nroInscripcion
-                }</div>
-              `;
-
-              // Agregar los resultados al contenedor
-              resultadosContainer.innerHTML = resultadosHTML;
-            })
-            .catch((error) =>
-              console.error("Error al enviar los datos:", error)
-            );
-        });
-      });
-    </script>
   </body>
 </html>
