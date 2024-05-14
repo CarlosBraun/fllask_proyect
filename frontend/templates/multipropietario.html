@@ -15,58 +15,106 @@
   </head>
   <body class="bg-slate-900 w-full">
     <div class="bg-gray-400 p-10 rounded-md m-6 text-black">
-      <h1 class="text-3xl font-bold">Listado de Formularios Ingresados</h1>
-      <div class="mt-8">
-        <table
-          class="min-w-[80%] mx-auto border-2 border-separate border-white rounded-md"
-          id="formulariosTable"
+      <div>
+        <h1 class="text-xl font-semibold">Multipropietarios</h1>
+        <div
+          id="resultados-container"
+          class="p-6 flex align-middle items-center w-full rounded-md"
         >
-          <thead class="bg-slate-600 border border-separate rounded-md">
-            <tr class="rounded-md">
-              <th>N° Atención</th>
-              <th>CNE</th>
-              <th>Comuna</th>
-              <th>Manzana</th>
-              <th>Predio</th>
-              <th>Fojas</th>
-              <th>Fecha Inscripción</th>
-              <th>Número Inscripción</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody
-            id="formulariosBody"
-            class="text-center align-middle [&>tr>td]:p-2 bg-slate-400 [&>tr>td>button]:border [&>tr>td>button]:bg-blue-600 [&>tr>td>button]:my-auto [&>tr>td>button]:text-white [&>tr>td>button]:border-white [&>tr>td>button]:py-1 [&>tr>td>button]:px-4 [&>tr>td>button]:rounded-md"
-          >
-            {% for formulario in listado %}
-            <tr class="text-center align-middle bg-slate-400">
-              <td>{{ formulario.numero_atencion }}</td>
-              <td>{{ formulario.cne }}</td>
-              <td>{{ formulario.comuna }}</td>
-              <td>{{ formulario.manzana }}</td>
-              <td>{{ formulario.predio }}</td>
-              <td>{{ formulario.fojas }}</td>
-              <td>{{ formulario.fecha_inscripcion }}</td>
-              <td>{{ formulario.numero_inscripcion }}</td>
-              <td class="centre">
-                <button
-                  class="hover:bg-blue-500 mt-0"
-                  onclick="redirectToDetails('{{ formulario.numero_atencion }}')"
+          <table class="min-w-full divide-y divide-gray-200 rounded-md">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Más Información
-                </button>
-              </td>
-            </tr>
-            {% endfor %}
-            <script>
-              function redirectToDetails(numeroAtencion) {
-                // Redirigir a la página de detalles con el número de atención como parámetro en la URL
-                window.location.href =
-                  "/detalle?numero_atencion=" + numeroAtencion;
-              }
-            </script>
-          </tbody>
-        </table>
+                  CNE
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Comuna
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Manzana
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Predio
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Adquirentes
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  %
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Fojas
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Fecha Inscripción
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Número Inscripción
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for resultado in resultados %}
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">{{ resultado.CNE }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ resultado.bienRaiz.comuna }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ resultado.bienRaiz.manzana }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ resultado.bienRaiz.predio }}
+                </td>
+                {% for adquirente in resultado.adquirentes %}
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ adquirente.RUNRUT }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ adquirente.porcDerecho }}
+                </td>
+                {% endfor %}
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ resultado.fojas }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ resultado.fechaInscripcion }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ resultado.nroInscripcion }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </body>

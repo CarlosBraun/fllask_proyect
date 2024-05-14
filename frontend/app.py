@@ -29,6 +29,53 @@ with open(file_path, 'r', encoding='utf-8') as file:
     # Imprimir el diccionario para verificar
 
 
+def obtener_listado():
+    try:
+        # Hacer la solicitud a la API y obtener los datos
+        response = requests.get(
+            'https://fllask-proyect-yccm.vercel.app/tablas/tablas1')
+        # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
+        response.raise_for_status()
+        data = response.json()["body"]
+        print(data)
+        return data
+    except requests.RequestException as e:
+        # Manejar cualquier excepción de solicitud, como errores de conexión o tiempos de espera
+        print("Error al hacer la solicitud a la API")
+        return None  # Devolver None para indicar que hubo un error
+    except ValueError as e:
+        # Manejar excepciones al intentar analizar la respuesta JSON
+        print("Error al analizar")
+
+
+def obtener_multipropietario():
+    try:
+        # Hacer la solicitud a la API y obtener los datos
+        response = requests.get(
+            'https://fllask-proyect-yccm.vercel.app/tablas/tablas4')
+        # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
+        response.raise_for_status()
+        json_data = json.loads(response.text)
+        duplicated_data = []
+        for item in json_data:
+            # Por cada adquirente en el item, creamos un nuevo item
+            for adquirente in item['adquirentes']:
+                # Creamos una copia del item original
+                new_item = item.copy()
+                # Actualizamos la lista de adquirentes para tener solo el adquirente actual
+                new_item['adquirentes'] = [adquirente]
+                # Agregamos el nuevo item a la lista
+                duplicated_data.append(new_item)
+        return (duplicated_data)
+    except requests.RequestException as e:
+        # Manejar cualquier excepción de solicitud, como errores de conexión o tiempos de espera
+        print("Error al hacer la solicitud a la API")
+        return None  # Devolver None para indicar que hubo un error
+    except ValueError as e:
+        # Manejar excepciones al intentar analizar la respuesta JSON
+        print("Error al analizar")
+
+
 @app.route('/submit_form_busqueda', methods=['POST'])
 def submit_form_busqueda():
     # Obtener los datos del formulario
@@ -132,9 +179,8 @@ def submit_form():
 
 @app.route('/')
 def index():
-    datos = obtener_datos_de_api()
     # Pasa los datos a la plantilla y renderiza la plantilla
-    return render_template('index.html', datos=datos)
+    return render_template('index.html')
 
 
 @app.route('/formulario')
@@ -151,6 +197,12 @@ def json1():
 def listado():
     listado = obtener_listado()
     return render_template('listado.html', listado=listado)
+
+
+@app.route('/multipropietario')
+def multipropietario():
+    listado = obtener_multipropietario()
+    return render_template('multipropietario.html', multipropietario=listado)
 
 
 @app.route('/detalle')
