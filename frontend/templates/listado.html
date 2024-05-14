@@ -37,44 +37,37 @@
           <tbody
             id="formulariosBody"
             class="text-center align-middle [&>tr>td]:p-2 bg-slate-400 [&>tr>td>button]:border [&>tr>td>button]:bg-blue-600 [&>tr>td>button]:my-auto [&>tr>td>button]:text-white [&>tr>td>button]:border-white [&>tr>td>button]:py-1 [&>tr>td>button]:px-4 [&>tr>td>button]:rounded-md"
-          ></tbody>
+          >
+            {% for formulario in listado %}
+            <tr class="text-center align-middle bg-slate-400">
+              <td>{{ formulario.numero_atencion }}</td>
+              <td>{{ formulario.cne }}</td>
+              <td>{{ formulario.comuna }}</td>
+              <td>{{ formulario.manzana }}</td>
+              <td>{{ formulario.predio }}</td>
+              <td>{{ formulario.fojas }}</td>
+              <td>{{ formulario.fecha_inscripcion }}</td>
+              <td>{{ formulario.numero_inscripcion }}</td>
+              <td class="centre">
+                <button
+                  class="hover:bg-blue-500 mt-0"
+                  onclick="redirectToDetails('{{ formulario.numero_inscripcion }}')"
+                >
+                  Más Información
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+            <script>
+              function redirectToDetails(numeroAtencion) {
+                // Redirigir a la página de detalles con el número de atención como parámetro en la URL
+                window.location.href =
+                  "/detalle?numero_atencion=" + numeroAtencion;
+              }
+            </script>
+          </tbody>
         </table>
       </div>
     </div>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Realizar la solicitud HTTP al servidor
-        fetch("https://fllask-proyect-yccm.vercel.app/tablas/tablas1")
-          .then((response) => response.json()) // Convertir la respuesta a formato JSON
-          .then((data) => {
-            // Manipular el DOM para mostrar los datos recibidos
-            const formulariosBody = document.getElementById("formulariosBody");
-            console.log(data.msg);
-            data.msg.forEach((formulario) => {
-              const row = document.createElement("tr");
-              row.innerHTML = `
-                          <td>${formulario.numero_atencion}</td>
-                          <td>${formulario.cne}</td>
-                          <td>${formulario.comuna}</td>
-                          <td>${formulario.manzana}</td>
-                          <td>${formulario.predio}</td>
-                          <td>${formulario.fojas}</td>
-                          <td>${formulario.fecha_inscripcion}</td>
-                          <td>${formulario.numero_inscripcion}</td>
-                          <td class="centre"><button class="hover:bg-blue-500 mt-0" onclick="redirectToDetails(${formulario.numero_atencion})">Más Información</button></td>
-                      `;
-              formulariosBody.appendChild(row);
-            });
-          })
-          .catch((error) =>
-            console.error("Error al obtener los datos:", error)
-          );
-      });
-
-      function redirectToDetails(numeroAtencion) {
-        // Redirigir a la página de detalles con el número de atención como parámetro en la URL
-        window.location.href = "/detalle?numero_atencion=" + numeroAtencion;
-      }
-    </script>
   </body>
 </html>

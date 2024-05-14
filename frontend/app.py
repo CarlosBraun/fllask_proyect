@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+import pandas as pd
 import requests
 import json
 from datetime import datetime
 
 app = Flask(__name__)
-
+app.debug = True
 # Cejemplo de llamada
 
 
@@ -33,8 +34,8 @@ def obtener_listado():
             'https://fllask-proyect-yccm.vercel.app/tablas/tablas1')
         # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
         response.raise_for_status()
-        data = response.json()
-        print("lo hizo")
+        data = response.json()["body"]
+        print(data)
         return data
     except requests.RequestException as e:
         # Manejar cualquier excepción de solicitud, como errores de conexión o tiempos de espera
@@ -135,6 +136,16 @@ def submit_form():
             "porcDerecho": int(adquirentes_porcDerecho[i])
         })
     # Retornar una respuesta apropiada
+    url = 'https://fllask-proyect-yccm.vercel.app/formulario/crear'
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, json=json_data, headers=headers)
+
+    # Retornar una respuesta apropiada
+    if response.status_code == 200:
+        print("Formulario enviado exitosamente")
+        return redirect(url_for('listado'))
+    else:
+        return jsonify({"error": "Error al enviar el formulario"}), 500
     return json_data
 
 
@@ -147,7 +158,28 @@ def index():
 
 @app.route('/formulario')
 def index2():
-    return render_template('form.html')
+    file_path = 'static/css/comunas.txt'
+
+    # Diccionario para almacenar los códigos y nombres de las comunas
+    comunas_dict = {}
+
+    # Leer el archivo de texto línea por línea
+    with open(file_path, 'r', encoding='utf-8') as file:
+        # Saltar la primera línea que contiene encabezados
+        next(file)
+        for line in file:
+            # Dividir la línea en partes usando el separador adecuado
+            parts = line.split()
+            # El código de la comuna será la primera parte
+            codigo = parts[0]
+            # El nombre de la comuna será el resto de las partes unidas
+            nombre = ' '.join(parts[1:])
+            # Agregar al diccionario
+            comunas_dict[codigo] = nombre
+
+    # Imprimir el diccionario para verificar
+    print(comunas_dict)
+    return render_template('form.html', comunas_dict=comunas_dict)
 
 
 @app.route('/json')
@@ -158,7 +190,7 @@ def json1():
 @app.route('/listado')
 def listado():
     listado = obtener_listado()
-    return render_template('listado.html', listado=listado["body"])
+    return render_template('listado.html', listado=listado)
 
 
 @app.route('/detalle')
