@@ -22,8 +22,7 @@ const multipropietarioController = {
           formulario.fecha_inscripcion, null);
       }
 
-      res.status(200).send({ message: 'Multipropietario entries created successfully.' });
-      
+      res.status(200).send({ message: 'Multipropietario entries created successfully.' }); 
       
     } catch (error) {
       res.status(500).json({ msg: error.message });
