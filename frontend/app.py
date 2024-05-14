@@ -8,60 +8,41 @@ app = Flask(__name__)
 app.debug = True
 # Cejemplo de llamada
 
+file_path = 'static/css/comunas.txt'
 
-def obtener_datos_de_api():
-    try:
-        # Hacer la solicitud a la API y obtener los datos
-        response = requests.get('https://api.example.com/data')
-        # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
-        response.raise_for_status()
-        data = response.json()
-        print("lo hizo")
-        return data
-    except requests.RequestException as e:
-        # Manejar cualquier excepción de solicitud, como errores de conexión o tiempos de espera
-        print("Error al hacer la solicitud a la API")
-        return None  # Devolver None para indicar que hubo un error
-    except ValueError as e:
-        # Manejar excepciones al intentar analizar la respuesta JSON
-        print("Error al analizar")
+# Diccionario para almacenar los códigos y nombres de las comunas
+comunas_dict = {}
 
+# Leer el archivo de texto línea por línea
+with open(file_path, 'r', encoding='utf-8') as file:
+    next(file)
+    for line in file:
+        # Dividir la línea en partes usando el separador adecuado
+        parts = line.split()
+        # El código de la comuna será la primera parte
+        codigo = parts[0]
+        # El nombre de la comuna será el resto de las partes unidas
+        nombre = ' '.join(parts[1:])
+        # Agregar al diccionario
+        comunas_dict[int(codigo)] = nombre
 
-def obtener_listado():
-    try:
-        # Hacer la solicitud a la API y obtener los datos
-        response = requests.get(
-            'https://fllask-proyect-yccm.vercel.app/tablas/tablas1')
-        # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
-        response.raise_for_status()
-        data = response.json()["body"]
-        print(data)
-        return data
-    except requests.RequestException as e:
-        # Manejar cualquier excepción de solicitud, como errores de conexión o tiempos de espera
-        print("Error al hacer la solicitud a la API")
-        return None  # Devolver None para indicar que hubo un error
-    except ValueError as e:
-        # Manejar excepciones al intentar analizar la respuesta JSON
-        print("Error al analizar")
+    # Imprimir el diccionario para verificar
 
 
-def busqueda_ano():
-    try:
-        # Hacer la solicitud a la API y obtener los datos
-        response = requests.get('https://api.example.com/data')
-        # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
-        response.raise_for_status()
-        data = response.json()
-        print("lo hizo")
-        return data
-    except requests.RequestException as e:
-        # Manejar cualquier excepción de solicitud, como errores de conexión o tiempos de espera
-        print("Error al hacer la solicitud a la API")
-        return None  # Devolver None para indicar que hubo un error
-    except ValueError as e:
-        # Manejar excepciones al intentar analizar la respuesta JSON
-        print("Error al analizar")
+@app.route('/submit_form_busqueda', methods=['POST'])
+def submit_form_busqueda():
+    # Obtener los datos del formulario
+    comuna = request.form.get('comuna')
+    manzana = request.form.get('manzana')
+    predio = request.form.get('predio')
+    year = request.form.get('year')
+    if comuna is not None and manzana is not None and predio is not None and year is not None:
+        # Redirigir a una URL con los parámetros en la query string
+        return redirect(url_for('busqueda', comuna=comuna, manzana=manzana, predio=predio, year=year))
+    else:
+        # Al menos uno de los parámetros está ausente o es None
+        # Manejar este caso según tus necesidades
+        return "Faltan parámetros en el formulario", 400
 
 
 @app.route('/submit_json', methods=['POST'])
@@ -79,15 +60,15 @@ def submit_json():
         return redirect(url_for('json'))
 
     print(data)
-    return data
     # URL a la que enviar el JSON mediante POST
     url = "https://fllask-proyect-yccm.vercel.app/formulario/crear"
+    headers = {'Content-Type': 'application/json'}
     # Enviar el JSON como cuerpo de la solicitud POST a la URL especificada
     try:
         response = requests.post(url, json=data)
         response.raise_for_status()  # Lanzar una excepción si la solicitud no es exitosa
         print('Archivo JSON enviado correctamente')
-        return redirect(url_for('json'))
+        return redirect(url_for('listado'))
     except requests.RequestException as e:
         print("Error al enviar el JSON:")
         return
@@ -158,27 +139,6 @@ def index():
 
 @app.route('/formulario')
 def index2():
-    file_path = 'static/css/comunas.txt'
-
-    # Diccionario para almacenar los códigos y nombres de las comunas
-    comunas_dict = {}
-
-    # Leer el archivo de texto línea por línea
-    with open(file_path, 'r', encoding='utf-8') as file:
-        # Saltar la primera línea que contiene encabezados
-        next(file)
-        for line in file:
-            # Dividir la línea en partes usando el separador adecuado
-            parts = line.split()
-            # El código de la comuna será la primera parte
-            codigo = parts[0]
-            # El nombre de la comuna será el resto de las partes unidas
-            nombre = ' '.join(parts[1:])
-            # Agregar al diccionario
-            comunas_dict[codigo] = nombre
-
-    # Imprimir el diccionario para verificar
-    print(comunas_dict)
     return render_template('form.html', comunas_dict=comunas_dict)
 
 
@@ -200,13 +160,47 @@ def detalle():
         "numero_atencion": numero_atencion
     }
     response = requests.post(
-        "https://flask-proyect-yccm.vercel.app/busqueda/atencion", json=data)
-    print(response)
-    return render_template('detalle.html', n=numero_atencion)
+        "https://fllask-proyect-yccm.vercel.app/busqueda/formularioatencion", json=data)
+    json_data = json.loads(response.text)
+    comuna = json_data[0]["bienRaiz"]["comuna"]
+    print(comunas_dict.keys())
+    print(json_data[0]["bienRaiz"]["comuna"])
+    # print(json_data[0])
+    return render_template('detalle.html', data=json_data[0])
 
 
 @app.route('/busqueda')
 def busqueda():
+    # Obtener los parámetros de la URL
+    comuna = request.args.get('comuna')
+    manzana = request.args.get('manzana')
+    predio = request.args.get('predio')
+    year = request.args.get('year')
+
+    if comuna is not None and manzana is not None and predio is not None and year is not None:
+        data = {
+            "comuna": comuna,
+            "manzana": manzana,
+            "predio": predio,
+            "year": year
+        }
+        response = requests.post(
+            "https://fllask-proyect-yccm.vercel.app/busqueda/formularioCMP", json=data)
+        json_data = json.loads(response.text)
+        duplicated_data = []
+        for item in json_data:
+            # Por cada adquirente en el item, creamos un nuevo item
+            for adquirente in item['adquirentes']:
+                # Creamos una copia del item original
+                new_item = item.copy()
+                # Actualizamos la lista de adquirentes para tener solo el adquirente actual
+                new_item['adquirentes'] = [adquirente]
+                # Agregamos el nuevo item a la lista
+                duplicated_data.append(new_item)
+        print(duplicated_data)
+        return render_template('busqueda.html', resultados=duplicated_data)
+    # Aquí puedes hacer lo que necesites con los parámetros obtenidos
+
     return render_template('busqueda.html')
 
 

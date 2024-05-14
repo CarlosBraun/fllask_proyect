@@ -24,104 +24,66 @@
         <div
           id="infoContainer"
           class="border border-gray-300 rounded p-4 mb-4 mx-auto w-fit"
-        ></div>
-      </div>
-    </div>
-  </body>
-</html>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Obtener el número de atención
-    const urlParams = new URLSearchParams(window.location.search);
-    const numeroAtencion = urlParams.get("numero_atencion");
-
-    // URL de la API
-    const apiUrl = "https://fllask-proyect-yccm.vercel.app/busqueda/atencion";
-
-    // Objeto con el número de atención
-    const data = {
-      numero_atencion: numeroAtencion,
-    };
-
-    // Capturar el contenedor de información
-    const infoContainer = document.getElementById("infoContainer");
-
-    // Realizar la solicitud a la API
-    fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json()) // Convertir la respuesta a JSON
-      .then((data) => {
-        // Crear elementos HTML para mostrar los resultados
-        const resultadosHTML = `
-          <div class="mb-2"><span class="font-semibold">CNE:</span> ${
-            data.CNE
-          }</div>
+        >
+          <div class="mb-2">
+            <span class="font-semibold">CNE:</span> {{ data.CNE }}
+          </div>
           <div class="mb-2">
             <span class="font-semibold">Bien Raíz:</span>
             <div class="ml-4">
-              <div><span class="font-semibold">Comuna:</span> ${
-                data.bienRaiz.comuna
-              }</div>
-              <div><span class="font-semibold">Manzana:</span> ${
-                data.bienRaiz.manzana
-              }</div>
-              <div><span class="font-semibold">Predio:</span> ${
-                data.bienRaiz.predio
-              }</div>
+              <div>
+                <span class="font-semibold">Comuna:</span>
+                {{data.bienRaiz.comuna}}
+              </div>
+              <div>
+                <span class="font-semibold">Manzana:</span> {{
+                data.bienRaiz.manzana }}
+              </div>
+              <div>
+                <span class="font-semibold">Predio:</span> {{
+                data.bienRaiz.predio }}
+              </div>
             </div>
           </div>
           <div class="mb-2">
             <span class="font-semibold">Enajenantes:</span>
             <div class="ml-4">
-              ${data.enajenantes
-                .map(
-                  (enajenante) => `
-                <div class="mb-2">
-                  <span class="font-semibold">RUN/RUT:</span> ${enajenante.RUNRUT}
-                  <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${enajenante.porcDerecho}
-                </div>
-              `
-                )
-                .join("")}
+              {% for enajenante in data.enajenantes %}
+              <div class="mb-2">
+                <span class="font-semibold">RUN/RUT:</span>
+                {{ enajenante['RUNRUT'] }}
+                <span class="ml-2 font-semibold">Porcentaje Derecho:</span>
+                {{ enajenante['porcDerecho'] }}
+              </div>
+              {% endfor %}
             </div>
           </div>
           <div class="mb-2">
             <span class="font-semibold">Adquirentes:</span>
             <div class="ml-4">
-              ${data.adquirentes
-                .map(
-                  (adquirente) => `
-                <div class="mb-2">
-                  <span class="font-semibold">RUN/RUT:</span> ${adquirente.RUNRUT}
-                  <span class="ml-2 font-semibold">Porcentaje Derecho:</span> ${adquirente.porcDerecho}
-                </div>
-              `
-                )
-                .join("")}
+              {% for adquirente in data.adquirentes %}
+              <div class="mb-2">
+                <span class="font-semibold">RUN/RUT:</span>
+                {{ adquirente['RUNRUT'] }}
+                <span class="ml-2 font-semibold">Porcentaje Derecho:</span>
+                {{ adquirente['porcDerecho'] }}
+              </div>
+              {% endfor %}
             </div>
           </div>
-          <div class="mb-2"><span class="font-semibold">Fojas:</span> ${
-            data.fojas
-          }</div>
-          <div class="mb-2"><span class="font-semibold">Fecha Inscripción:</span> ${
-            data.fechaInscripcion
-          }</div>
-          <div class="mb-2"><span class="font-semibold">Número Inscripción:</span> ${
-            data.nroInscripcion
-          }</div>
-        `;
-
-        // Agregar los resultados al contenedor
-        infoContainer.innerHTML = resultadosHTML;
-      })
-      .catch((error) =>
-        console.error("Error al cargar los datos desde la API:", error)
-      );
-  });
-</script>
+          <div class="mb-2">
+            <span class="font-semibold">Fojas:</span> {{ data.fojas }}
+          </div>
+          <div class="mb-2">
+            <span class="font-semibold">Fecha Inscripción:</span> {{
+            data.fechaInscripcion }}
+          </div>
+          <div class="mb-2">
+            <span class="font-semibold">Número Inscripción:</span> {{
+            data.nroInscripcion }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
