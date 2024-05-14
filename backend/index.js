@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use("/tablas/", tablasRouter);
 app.use("/formulario/", formularioRouter);
 app.use("/busqueda/", busquedaRouter);
-app.use("/multipropietario/", busquedaRouter);
+app.use("/multipropietario/", multipropietarioRouter);
 app.get("/", (req, res) => {
   // HTML de ejemplo
   const htmlContent = `

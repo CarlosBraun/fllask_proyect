@@ -89,6 +89,8 @@ const formularioController = {
       await connection.commit();
 
       res.json({ msg: "Formularios creados exitosamente" });
+
+      
     } 
     catch (error) {
       if (connection) {

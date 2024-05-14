@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const cors = require("cors");
 
-const formularioController = require("../controllers/formulario.controller");
+const multipropietarioController = require("../controllers/multipropietario.controller");
 
 router.use(
   cors({
@@ -10,6 +10,6 @@ router.use(
   })
 );
 
-router.post("/crear", formularioController.createFormulario);
+router.post("/crear", multipropietarioController.createMultipropietario);
 
 module.exports = router;

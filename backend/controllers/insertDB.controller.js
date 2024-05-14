@@ -1,4 +1,5 @@
-const query = require("../helper/query")
+const query = require("../helper/query");
+const { MultipropietrioCMP } = require("./lookupDB.controller");
 
 const insertDBController = {
   Formulario: async (numeroAtencion, CNE, comuna, manzana, predio, fojas, fechaInscripcion, nroInscripcion) => {
@@ -27,6 +28,15 @@ const insertDBController = {
         (?, ?, ?)
     `;
     return await query(sql, [RUNRUT, porcDerecho, formularioId]);
+  },
+  Multipropietrio: async (comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f) => {
+    const sql = `
+    INSERT INTO Multipropietario
+        (comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f)
+    VALUES
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    return await query(sql, [comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f]);
   },
 };
 
