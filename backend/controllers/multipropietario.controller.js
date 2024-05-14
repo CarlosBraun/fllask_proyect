@@ -28,7 +28,7 @@ const multipropietarioController = {
           fecha_inscripcion: formulario.fecha_inscripcion,
           ano_inscripccion: new Date(formulario.fecha_inscripcion).getFullYear(),
           numero_inscripcion: formulario.numero_inscripcion,
-          ano_vigencia_i: formulario.fecha_inscripcion,
+          ano_vigencia_i: new Date(formulario.fecha_inscripcion).getFullYear(),
           ano_vigencia_f: null
         };
 
