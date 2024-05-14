@@ -56,17 +56,10 @@ def obtener_multipropietario():
         # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
         response.raise_for_status()
         json_data = json.loads(response.text)
-        duplicated_data = []
-        for item in json_data:
-            # Por cada adquirente en el item, creamos un nuevo item
-            for adquirente in item['adquirentes']:
-                # Creamos una copia del item original
-                new_item = item.copy()
-                # Actualizamos la lista de adquirentes para tener solo el adquirente actual
-                new_item['adquirentes'] = [adquirente]
-                # Agregamos el nuevo item a la lista
-                duplicated_data.append(new_item)
-        return (duplicated_data)
+        print(response)
+        if json_data == []:
+            return "No se pudo cargar la tabla multiplropietario"
+        return (json_data)
     except requests.RequestException as e:
         # Manejar cualquier excepción de solicitud, como errores de conexión o tiempos de espera
         print("Error al hacer la solicitud a la API")
@@ -202,7 +195,9 @@ def listado():
 @app.route('/multipropietario')
 def multipropietario():
     listado = obtener_multipropietario()
-    return render_template('multipropietario.html', multipropietario=listado)
+    if listado == []:
+        print("nada de nada")
+    return render_template('multipropietario.html', resultados=listado)
 
 
 @app.route('/detalle')
