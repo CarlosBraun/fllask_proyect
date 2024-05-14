@@ -195,7 +195,14 @@ def listado():
 
 @app.route('/detalle')
 def detalle():
-    return render_template('detalle.html')
+    numero_atencion = request.args.get('numero_atencion')
+    data = {
+        "numero_atencion": numero_atencion
+    }
+    response = requests.post(
+        "https://flask-proyect-yccm.vercel.app/busqueda/atencion", json=data)
+    print(response)
+    return render_template('detalle.html', n=numero_atencion)
 
 
 @app.route('/busqueda')
