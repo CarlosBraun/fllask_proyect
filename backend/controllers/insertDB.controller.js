@@ -8,7 +8,7 @@ const insertDBController = {
     VALUES 
         (?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    return await query.executeQuery(sql, [numeroAtencion, CNE, comuna, manzana, predio, fojas, fechaInscripcion, nroInscripcion]);
+    return await query(sql, [numeroAtencion, CNE, comuna, manzana, predio, fojas, fechaInscripcion, nroInscripcion]);
   },
   Enajenante: async (RUNRUT, porcDerecho, formularioId) => {
     const sql = `
@@ -17,7 +17,7 @@ const insertDBController = {
     VALUES 
         (?, ?, ?)
     `;
-    return await query.executeQuery(sql, [RUNRUT, porcDerecho, formularioId]);
+    return await query(sql, [RUNRUT, porcDerecho, formularioId]);
   },
   Adquiriente: async (RUNRUT, porcDerecho, formularioId) => {
     const sql = `
@@ -26,7 +26,7 @@ const insertDBController = {
     VALUES 
         (?, ?, ?)
     `;
-    return await query.executeQuery(sql, [RUNRUT, porcDerecho, formularioId]);
+    return await query(sql, [RUNRUT, porcDerecho, formularioId]);
   },
 };
 

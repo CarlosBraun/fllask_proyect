@@ -5,8 +5,7 @@ const lookupDBController = require("./lookupDB.controller")
 const NOT_FOUND_STATUS = 404;
 const SERVER_ERROR_STATUS = 500;
 
-const busquedaController = {
-  
+const respuestasBusqueda = {
   respuestaFormulario: async (formulario) => {
     
     const { id, cne, comuna, manzana, predio, fojas, fecha_inscripcion, numero_inscripcion } = formulario;
@@ -60,6 +59,9 @@ const busquedaController = {
       }
     };
   },
+};
+
+const busquedaController = {
   
   formularioCMP: async (req, res) => {
     try {
@@ -73,11 +75,11 @@ const busquedaController = {
       
       const respuestas = await Promise.all(
         formularios.map(async (formulario) => {
-          return await this.respuestaFormulario(formulario);
+          return await respuestasBusqueda.respuestaFormulario(formulario);
         })
       );
 
-      await connection.release();
+      
 
       res.json(respuestas);
 
@@ -101,11 +103,11 @@ const busquedaController = {
       
       const respuestas = await Promise.all(
         multipropietarios.map(async (multipropietario) => {
-          return await this.respuestaMultipropietario(multipropietario);
+          return await respuestasBusqueda.respuestaMultipropietario(multipropietario);
         })
       );
 
-      await connection.release();
+      
 
       res.json(respuestas);
 
@@ -129,11 +131,11 @@ const busquedaController = {
 
       const respuestas = await Promise.all(
         formularios.map(async (formulario) => {
-          return await this.respuestaFormulario(formulario);
+          return await respuestasBusqueda.respuestaFormulario(formulario);
         })
       );
 
-      await connection.release();
+      
 
       res.json(respuestas);
 
@@ -157,11 +159,11 @@ const busquedaController = {
 
       const respuestas = await Promise.all(
         multipropietarios.map(async (multipropietario) => {
-          return await this.respuestaMultipropietario(multipropietario);
+          return await respuestasBusqueda.respuestaMultipropietario(multipropietario);
         })
       );
 
-      await connection.release();
+      
 
       res.json(respuestas);
 
@@ -187,11 +189,11 @@ const busquedaController = {
 
       const respuestas = await Promise.all(
         formularios.map(async (formulario) => {
-          return await this.respuestaFormulario(formulario);
+          return await respuestasBusqueda.respuestaFormulario(formulario);
         })
       );
 
-      await connection.release();
+      
 
       res.json(respuestas);
 
