@@ -145,8 +145,8 @@ def submit_form():
         print("Formulario enviado exitosamente")
         return redirect(url_for('listado'))
     else:
-        return jsonify({"error": "Error al enviar el formulario"}), 500
-    return json_data
+        print("Error al enviar el formulario"), 500
+        return redirect(url_for('formulario'))
 
 
 @app.route('/')
