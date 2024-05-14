@@ -9,7 +9,10 @@ router.use(
   })
 );
 
-router.post("/", busquedaController.formularioCMP);
-router.post("/atencion", busquedaController.atencion);
+router.post("/formularioCMP", busquedaController.formularioCMP);
+router.post("/formularioYear", busquedaController.formularioYear);
+router.post("/multipropietarioCMP", busquedaController.multipropietarioCMP);
+router.post("/multipropietarioYear", busquedaController.multipropietarioYear);
+router.post("/formularioAtencion", busquedaController.formularioAtencion);
 
 module.exports = router;
