@@ -3,7 +3,8 @@ const router = express.Router();
 const cors = require("cors");
 
 const tablasController = require("../controllers/tablas.controller");
-const busquedaController2 = require("../controllers/lookupDB.controller2")
+const busquedaController2 = require("../controllers/lookupDB.controller2");
+const lookupDBController2 = require("../controllers/lookupDB.controller2");
 
 router.use(
   cors({
@@ -16,10 +17,10 @@ router.get("/tabla2", tablasController.createEnajenanteTable);
 router.get("/tabla3", tablasController.createAdquirenteTable);
 router.get("/tabla4", tablasController.createMultipropietarioTable);
 
-router.get("/tablas1", busquedaController2.FormularioTables);
-router.get("/tablas2", busquedaController2.AdquirienteTables);
-router.get("/tablas3", busquedaController2.EnajenanteTables);
-router.get("/tablas4", busquedaController2.MultipropietrioTables);
+router.get("/tablas1", lookupDBController2.FormularioTables);
+router.get("/tablas2", lookupDBController2.AdquirienteTables);
+router.get("/tablas3", lookupDBController2.EnajenanteTables);
+router.get("/tablas4", lookupDBController2.MultipropietrioTables);
 
 router.get("/deltablas1", tablasController.deltablas1);
 router.get("/deltablas2", tablasController.deltablas2);
