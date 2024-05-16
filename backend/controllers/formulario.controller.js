@@ -35,12 +35,10 @@ const formularioController = {
       await connection.beginTransaction();
 
       let numeroAtencion = await getNumeroAtencion();
-      numeroAtencion = numeroAtencion - 1;
 
       await Promise.all(
         formularios.map(async (formulario) => {
           try {
-            numeroAtencion = numeroAtencion + 1;
             if (!formulario.bienRaiz) {
               throw new Error("bienRaiz is not defined in the form");
             }

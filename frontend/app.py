@@ -253,12 +253,11 @@ def busqueda():
             fecha_str = elemento['fecha_inscripcion'][:-5]
             fecha_datetime = datetime.fromisoformat(fecha_str)
             elemento['fecha_inscripcion'] = fecha_datetime
-
         print(json_data)
         return render_template('busqueda.html', resultados=json_data, comunas_dict=comunas_dict)
     # Aquí puedes hacer lo que necesites con los parámetros obtenidos
 
-    return render_template('busqueda.html')
+    return render_template('busqueda.html', comunas_dict=comunas_dict)
 
 
 if __name__ == '__main__':
