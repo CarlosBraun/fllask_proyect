@@ -37,6 +37,7 @@ def obtener_listado():
         # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
         response.raise_for_status()
         data = response.json()["body"]
+        data = sorted(data, key=lambda x: int(x['numero_atencion']))
         print(data)
         return data
     except requests.RequestException as e:
