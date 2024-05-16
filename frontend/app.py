@@ -12,6 +12,7 @@ file_path = 'static/css/comunas.txt'
 
 # Diccionario para almacenar los códigos y nombres de las comunas
 comunas_dict = {}
+comunas_dict_nombre_codigo = {}
 
 # Leer el archivo de texto línea por línea
 with open(file_path, 'r', encoding='utf-8') as file:
@@ -25,6 +26,7 @@ with open(file_path, 'r', encoding='utf-8') as file:
         nombre = ' '.join(parts[1:])
         # Agregar al diccionario
         comunas_dict[int(codigo)] = nombre
+        comunas_dict_nombre_codigo[nombre] = codigo
     comunas_dict = dict(sorted(comunas_dict.items(), key=lambda item: item[1]))
     # Imprimir el diccionario para verificar
 
@@ -37,6 +39,13 @@ def obtener_listado():
         # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
         response.raise_for_status()
         data = response.json()["body"]
+        for elemento in data:
+            codigo_comuna = elemento.get("comuna")
+            # Buscar el nombre de la comuna correspondiente al código de comuna
+            nombre_comuna = comunas_dict.get(
+                codigo_comuna, "No se encuentra el código")
+            # Actualizar el valor de "codigo_comuna" por "nombre_comuna" en el elemento actual
+            elemento["comuna"] = nombre_comuna
         data = sorted(data, key=lambda x: int(x['numero_atencion']))
         print(data)
         return data
