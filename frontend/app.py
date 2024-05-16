@@ -55,8 +55,13 @@ def obtener_multipropietario():
             'https://fllask-proyect-yccm.vercel.app/tablas/tablas4')
         # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
         response.raise_for_status()
-        json_data = json.loads(response.text)
-        print(response)
+        json_data = json.loads(response.text)["body"]
+        print(json_data)
+        for elemento in json_data:
+            # Eliminar 'T00:00:00.000Z' del final
+            fecha_str = elemento['fecha_inscripcion'][:-5]
+            fecha_datetime = datetime.fromisoformat(fecha_str)
+            elemento['fecha_inscripcion'] = fecha_datetime
         if json_data == []:
             return "No se pudo cargar la tabla multiplropietario"
         return (json_data)
@@ -195,8 +200,7 @@ def listado():
 @app.route('/multipropietario')
 def multipropietario():
     listado = obtener_multipropietario()
-    if listado == []:
-        print("nada de nada")
+    print(listado)
     return render_template('multipropietario.html', resultados=listado)
 
 

@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
-    <title>Listado de Formularios Ingresados</title>
+    <title>Listado de Multipropietarios</title>
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/output.css') }}"
@@ -16,7 +16,7 @@
   <body class="bg-slate-900 w-full">
     <div class="bg-gray-400 p-10 rounded-md m-6 text-black">
       <div>
-        <h1 class="text-xl font-semibold">Multipropietarios</h1>
+        <h1 class="text-xl font-semibold">Tabla Multipropietario</h1>
         <div
           id="resultados-container"
           class="p-6 flex align-middle items-center w-full rounded-md"
@@ -24,12 +24,6 @@
           <table class="min-w-full divide-y divide-gray-200 rounded-md">
             <thead class="bg-gray-50">
               <tr>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  CNE
-                </th>
                 <th
                   scope="col"
                   class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -52,25 +46,13 @@
                   scope="col"
                   class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Adquirentes
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  %
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Fojas
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
                   Fecha Inscripción
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Año Inscripción
                 </th>
                 <th
                   scope="col"
@@ -78,37 +60,63 @@
                 >
                   Número Inscripción
                 </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  RUN
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Derecho
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Año Vigencia Inicial
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Año Vigencia Final
+                </th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               {% for resultado in resultados %}
               <tr>
-                <td class="px-6 py-4 whitespace-nowrap">{{ resultado.CNE }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  {{ resultado.bienRaiz.comuna }}
+                  {{ resultado.comuna }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  {{ resultado.bienRaiz.manzana }}
+                  {{ resultado.manzana }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  {{ resultado.bienRaiz.predio }}
-                </td>
-                {% for adquirente in resultado.adquirentes %}
-                <td class="px-6 py-4 whitespace-nowrap">
-                  {{ adquirente.RUNRUT }}
+                  {{ resultado.predio }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  {{ adquirente.porcDerecho }}
+                  {{ resultado.fecha_inscripcion.strftime("%Y%m%d") }}
                 </td>
-                {% endfor %}
+
                 <td class="px-6 py-4 whitespace-nowrap">
-                  {{ resultado.fojas }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  {{ resultado.fechaInscripcion }}
+                  {{ resultado.ano_inscripccion }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  {{ resultado.nroInscripcion }}
+                  {{ resultado.numero_inscripcion }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ resultado.run }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ resultado.derecho }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ resultado.ano_vigencia_i }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ resultado.ano_vigencia_f }}
                 </td>
               </tr>
               {% endfor %}
