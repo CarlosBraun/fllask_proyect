@@ -106,7 +106,7 @@ def submit_json():
 
     print(data)
     # URL a la que enviar el JSON mediante POST
-    url = "http://localhost:5000/formulario/crear"
+    url = "http://fllask-proyect-yccm.vercel.app/formulario/crear"
     headers = {'Content-Type': 'application/json'}
     # Enviar el JSON como cuerpo de la solicitud POST a la URL especificada
     try:
