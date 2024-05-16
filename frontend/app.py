@@ -25,7 +25,7 @@ with open(file_path, 'r', encoding='utf-8') as file:
         nombre = ' '.join(parts[1:])
         # Agregar al diccionario
         comunas_dict[int(codigo)] = nombre
-
+    comunas_dict = dict(sorted(comunas_dict.items(), key=lambda item: item[1]))
     # Imprimir el diccionario para verificar
 
 
@@ -245,7 +245,7 @@ def busqueda():
             elemento['fecha_inscripcion'] = fecha_datetime
 
         print(json_data)
-        return render_template('busqueda.html', resultados=json_data)
+        return render_template('busqueda.html', resultados=json_data, comunas_dict=comunas_dict)
     # Aquí puedes hacer lo que necesites con los parámetros obtenidos
 
     return render_template('busqueda.html')

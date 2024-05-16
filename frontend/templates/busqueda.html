@@ -32,12 +32,15 @@
                 class="block text-gray-700"
                 >Comuna:</label
               >
-              <input
-                type="text"
+              <select
                 id="comuna"
                 name="comuna"
-                class="form-input mt-1 block w-full"
-              />
+                class="form-select mt-1 block w-full p-2 rounded-md"
+              >
+                {% for codigo, nombre in comunas_dict.items() %}
+                <option value="{{ nombre }}">{{ nombre }}</option>
+                {% endfor %}
+              </select>
             </div>
             <div class="mb-4">
               <label
