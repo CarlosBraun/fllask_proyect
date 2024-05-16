@@ -12,16 +12,12 @@ const isValidDate = (dateString) => {
 
 const getNumeroAtencion = async () => {
   try {
-
     const rows = await lookupDBController.FormularioUltimoNumneroAtencion();
 
     if (rows.length > 0) {
-      
       const lastNumeroAtencion = Number(rows[0].numero_atencion);
       return isNaN(lastNumeroAtencion) ? 1 : lastNumeroAtencion + 1;
-
-    } 
-    else {     
+    } else {
       return 1;
     }
   } catch (error) {
@@ -34,7 +30,6 @@ const formularioController = {
   createFormulario: async (req, res) => {
     let connection;
     try {
-
       const formularios = req.body["F2890"];
       const connection = await pool.getConnection();
       await connection.beginTransaction();
@@ -65,22 +60,39 @@ const formularioController = {
               throw new Error("Fecha de inscripción inválida");
             }
 
-            const transactionData = await insertDBController.Formulario(numeroAtencion, CNE, comuna, manzana, predio, fojas, fechaInscripcion, nroInscripcion);
+            const transactionData = await insertDBController.Formulario(
+              numeroAtencion,
+              CNE,
+              comuna,
+              manzana,
+              predio,
+              fojas,
+              fechaInscripcion,
+              nroInscripcion
+            );
             const formularioId = transactionData.insertId;
+            numeroAtencion = numeroAtencion + 1;
 
             await Promise.all(
               enajenantes.map(async (enajenante) => {
-                await insertDBController.Enajenante(enajenante.RUNRUT, enajenante.porcDerecho, formularioId);
+                await insertDBController.Enajenante(
+                  enajenante.RUNRUT,
+                  enajenante.porcDerecho,
+                  formularioId
+                );
               })
             );
 
             await Promise.all(
               adquirentes.map(async (adquirente) => {
-                await insertDBController.Adquiriente(adquirente.RUNRUT, adquirente.porcDerecho, formularioId)
+                await insertDBController.Adquiriente(
+                  adquirente.RUNRUT,
+                  adquirente.porcDerecho,
+                  formularioId
+                );
               })
             );
-          } 
-          catch (error) {
+          } catch (error) {
             console.error("Error processing formulario:", error);
           }
         })
@@ -89,16 +101,12 @@ const formularioController = {
       await connection.commit();
 
       res.json({ msg: "Formularios creados exitosamente" });
-
-      
-    } 
-    catch (error) {
+    } catch (error) {
       if (connection) {
         await connection.rollback();
       }
       res.status(SERVER_ERROR_STATUS).json({ msg: error.message });
-    } 
-    finally {
+    } finally {
       if (connection) {
         connection.release();
       }
