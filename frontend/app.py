@@ -233,23 +233,19 @@ def busqueda():
             "comuna": comuna,
             "manzana": manzana,
             "predio": predio,
-            "year": year
+            "ano": year
         }
         response = requests.post(
-            "https://fllask-proyect-yccm.vercel.app/busqueda/formularioCMP", json=data)
+            "https://fllask-proyect-yccm.vercel.app/multipropietario/buscar", json=data)
         json_data = json.loads(response.text)
-        duplicated_data = []
-        for item in json_data:
-            # Por cada adquirente en el item, creamos un nuevo item
-            for adquirente in item['adquirentes']:
-                # Creamos una copia del item original
-                new_item = item.copy()
-                # Actualizamos la lista de adquirentes para tener solo el adquirente actual
-                new_item['adquirentes'] = [adquirente]
-                # Agregamos el nuevo item a la lista
-                duplicated_data.append(new_item)
-        print(duplicated_data)
-        return render_template('busqueda.html', resultados=duplicated_data)
+        for elemento in json_data:
+            # Eliminar 'T00:00:00.000Z' del final
+            fecha_str = elemento['fecha_inscripcion'][:-5]
+            fecha_datetime = datetime.fromisoformat(fecha_str)
+            elemento['fecha_inscripcion'] = fecha_datetime
+
+        print(json_data)
+        return render_template('busqueda.html', resultados=json_data)
     # Aquí puedes hacer lo que necesites con los parámetros obtenidos
 
     return render_template('busqueda.html')

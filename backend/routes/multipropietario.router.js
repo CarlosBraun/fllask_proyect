@@ -12,5 +12,6 @@ router.use(
 
 router.post("/crear", multipropietarioController.createMultipropietario);
 router.post("/crear2", multipropietarioController.createFormulario);
+router.post("/buscar", multipropietarioController.buscarMultipropietario);
 
 module.exports = router;
