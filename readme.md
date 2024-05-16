@@ -13,3 +13,5 @@ No es necesario correr el backend ya que se encuentra hosteado.
 De todas formas para correrlo basta con correr los siguientes comandos:
 $ npm install
 $ node index.js
+
+Para la busqueda, solo hay cargada información de la comuna de Maipu.
