@@ -28,6 +28,61 @@ const multipropietarioController = {
       res.status(500).json({ msg: error.message });
     }
   },
+  createFormulario: async (req, res) => {
+    let connection;
+    try {
+
+      const multipropietarios = req.body;
+      const connection = await pool.getConnection();
+      await connection.beginTransaction();
+      await Promise.all(
+        multipropietarios.map(async (multipropietario) => {
+          try {
+
+            const {
+              comuna,
+              manzana,
+              predio,
+              run,
+              derecho,
+              fojas,
+              fecha_inscripcion,
+              ano_inscripccion,
+              numero_inscripcion,
+              ano_vigencia_i,
+              ano_vigencia_f,
+              status
+            } = multipropietario;
+            console.log(multipropietario)
+            const transactionData = await insertDBController.Multipropietrio(comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f, status);
+            console.log(transactionData)
+            
+
+            
+          } 
+          catch (error) {
+            console.error("Error processing formulario:", error);
+          }
+        })
+      );
+
+      await connection.commit();
+
+      res.json({ msg: "Formularios creados exitosamente" });
+
+      
+    } 
+    catch (error) {
+      if (connection) {
+        await connection.rollback();
+      }
+    } 
+    finally {
+      if (connection) {
+        connection.release();
+      }
+    }
+  }
 };
 
 module.exports = multipropietarioController;

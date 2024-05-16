@@ -70,7 +70,7 @@ const tablasController = {
       const sql = `
         CREATE TABLE IF NOT EXISTS Multipropietario (
           id INT AUTO_INCREMENT PRIMARY KEY,
-          comuna INT,
+          comuna VARCHAR(255),
           manzana INT,
           predio INT,
           run VARCHAR(255),
@@ -80,7 +80,8 @@ const tablasController = {
           ano_inscripccion INT,
           numero_inscripcion VARCHAR(255),
           ano_vigencia_i INT,
-          ano_vigencia_f INT
+          ano_vigencia_f INT,
+          status VARCHAR(255)
         )
       `;
       const connection = await pool.getConnection();

@@ -29,14 +29,14 @@ const insertDBController = {
     `;
     return await query(sql, [RUNRUT, porcDerecho, formularioId]);
   },
-  Multipropietrio: async (comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f) => {
+  Multipropietrio: async (comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f, status) => {
     const sql = `
     INSERT INTO Multipropietario
-        (comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f)
+        (comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f, status)
     VALUES
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    return await query(sql, [comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f]);
+    return await query(sql, [comuna, manzana, predio, run, derecho, fojas, fecha_inscripcion, ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f, status]);
   },
 };
 
