@@ -38,7 +38,7 @@
                 class="form-select mt-1 block w-full p-2 rounded-md"
               >
                 {% for codigo, nombre in comunas_dict.items() %}
-                <option value="{{ nombre }}">{{ nombre }}</option>
+                <option value="{{ codigo }}">{{ nombre }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -165,7 +165,7 @@
               {% for resultado in resultados %}
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  {{ resultado.comuna }}
+                  {{resultado.comuna }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   {{ resultado.manzana }}
