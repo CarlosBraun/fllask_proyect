@@ -35,7 +35,7 @@ def obtener_listado():
     try:
         # Hacer la solicitud a la API y obtener los datos
         response = requests.get(
-            'https://fllask-proyect-yccm.vercel.app/tablas/tablas1')
+            'http://localhost:5000/formulario')
         # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
         response.raise_for_status()
         data = response.json()["body"]
@@ -60,28 +60,30 @@ def obtener_listado():
 
 def obtener_multipropietario():
     try:
-        # Hacer la solicitud a la API y obtener los datos
-        response = requests.get(
-            'https://fllask-proyect-yccm.vercel.app/tablas/tablas4')
-        # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
+        response = requests.get('http://localhost:5000/multipropietario/')
         response.raise_for_status()
-        json_data = json.loads(response.text)["body"]
-        print(json_data)
+        json_data = response.json()
+
         for elemento in json_data:
-            # Eliminar 'T00:00:00.000Z' del final
-            fecha_str = elemento['fecha_inscripcion'][:-5]
-            fecha_datetime = datetime.fromisoformat(fecha_str)
+            # Eliminar 'T00:00:00.000Z' del final y convertir a objeto datetime
+            fecha_str = elemento['fecha_inscripcion'].split(
+                ',')[1].strip()  # Eliminar el día de la semana
+            fecha_datetime = datetime.strptime(
+                fecha_str, '%d %b %Y %H:%M:%S %Z')
             elemento['fecha_inscripcion'] = fecha_datetime
-        if json_data == []:
-            return "No se pudo cargar la tabla multiplropietario"
-        return (json_data)
+            if elemento["ano_vigencia_f"] == None:
+                elemento["ano_vigencia_f"] = ""
+
+        if not json_data:
+            return "No se pudo cargar la tabla multipropietario"
+        return json_data
+
     except requests.RequestException as e:
-        # Manejar cualquier excepción de solicitud, como errores de conexión o tiempos de espera
-        print("Error al hacer la solicitud a la API")
-        return None  # Devolver None para indicar que hubo un error
+        print("Error al hacer la solicitud a la API:", str(e))
+        return None
     except ValueError as e:
-        # Manejar excepciones al intentar analizar la respuesta JSON
-        print("Error al analizar")
+        print("Error al analizar el JSON:", str(e))
+        return None
 
 
 @app.route('/submit_form_busqueda', methods=['POST'])
@@ -116,7 +118,7 @@ def submit_json():
 
     print(data)
     # URL a la que enviar el JSON mediante POST
-    url = "http://fllask-proyect-yccm.vercel.app/formulario/crear"
+    url = "http://localhost:5000/formulario/crear"
     headers = {'Content-Type': 'application/json'}
     # Enviar el JSON como cuerpo de la solicitud POST a la URL especificada
     try:
@@ -172,7 +174,7 @@ def submit_form():
             "porcDerecho": int(adquirentes_porcDerecho[i])
         })
     # Retornar una respuesta apropiada
-    url = 'https://fllask-proyect-yccm.vercel.app/formulario/crear'
+    url = 'http://localhost:5000/formulario/crear'
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=json_data, headers=headers)
 
@@ -246,13 +248,16 @@ def busqueda():
             "ano": year
         }
         response = requests.post(
-            "https://fllask-proyect-yccm.vercel.app/multipropietario/buscar", json=data)
+            "http://localhost:5000/multipropietario/buscar", json=data)
         json_data = json.loads(response.text)
         for elemento in json_data:
             # Eliminar 'T00:00:00.000Z' del final
             fecha_str = elemento['fecha_inscripcion'][:-5]
-            fecha_datetime = datetime.fromisoformat(fecha_str)
+            fecha_datetime = datetime.strptime(
+                fecha_str, '%a, %d %b %Y %H:%M:%S')
             elemento['fecha_inscripcion'] = fecha_datetime
+            if elemento["ano_vigencia_f"] == None:
+                elemento["ano_vigencia_f"] = ""
         print(json_data)
         return render_template('busqueda.html', resultados=json_data, comunas_dict=comunas_dict)
     # Aquí puedes hacer lo que necesites con los parámetros obtenidos
@@ -261,4 +266,4 @@ def busqueda():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=3000)

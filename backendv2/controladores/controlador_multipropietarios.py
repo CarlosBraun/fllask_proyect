@@ -90,6 +90,35 @@ def obtener_datos():
     return jsonify(rows)
 
 
+@controlador_multipropietarios_bp.route('/buscar', methods=['POST'])
+def buscar_datos():
+    # Obtener los datos del JSON
+    comuna = request.json.get("comuna")
+    manzana = request.json.get("manzana")
+    predio = request.json.get("predio")
+    ano = request.json.get("ano")
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Consulta SQL para obtener los elementos que coincidan con los criterios
+    query = """
+    SELECT * 
+    FROM Multipropietario 
+    WHERE comuna = %s 
+    AND manzana = %s 
+    AND predio = %s 
+    AND (ano_vigencia_f >= %s OR ano_vigencia_f IS NULL)
+    """
+    cursor.execute(query, (comuna, manzana, predio, ano))
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(rows)
+
+
 @controlador_multipropietarios_bp.route('/clean', methods=['GET'])
 def borrar_datos():
     conn = get_db_connection()
