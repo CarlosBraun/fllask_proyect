@@ -38,12 +38,12 @@ def obtener_listado():
             'http://localhost:5000/formulario')
         # Esto lanzará una excepción si la respuesta no es exitosa (código de estado diferente de 200)
         response.raise_for_status()
-        data = response.json()["body"]
+        data = response.json()
         for elemento in data:
             codigo_comuna = elemento.get("comuna")
             # Buscar el nombre de la comuna correspondiente al código de comuna
             nombre_comuna = comunas_dict.get(
-                codigo_comuna, "No se encuentra el código")
+                int(codigo_comuna), "No se encuentra el código")
             # Actualizar el valor de "codigo_comuna" por "nombre_comuna" en el elemento actual
             elemento["comuna"] = nombre_comuna
         data = sorted(data, key=lambda x: int(x['numero_atencion']))
@@ -212,6 +212,9 @@ def listado():
 @app.route('/multipropietario')
 def multipropietario():
     listado = obtener_multipropietario()
+    for elemento in listado:
+        elemento["comuna"] = comunas_dict.get(
+            int(elemento["comuna"]), "Comuna no encontrada")
     print(listado)
     return render_template('multipropietario.html', resultados=listado)
 
@@ -258,6 +261,8 @@ def busqueda():
             elemento['fecha_inscripcion'] = fecha_datetime
             if elemento["ano_vigencia_f"] == None:
                 elemento["ano_vigencia_f"] = ""
+            elemento["comuna"] = comunas_dict.get(
+                int(elemento["comuna"]), "Comuna no encontrada")
         print(json_data)
         return render_template('busqueda.html', resultados=json_data, comunas_dict=comunas_dict)
     # Aquí puedes hacer lo que necesites con los parámetros obtenidos
