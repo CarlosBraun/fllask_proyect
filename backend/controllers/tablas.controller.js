@@ -14,7 +14,12 @@ const tablasController = {
           predio INT,
           fojas INT,
           fecha_inscripcion DATE,
-          numero_inscripcion VARCHAR(255)
+          numero_inscripcion VARCHAR(255),
+          tipo VARCHAR(255),
+          RUNRUT VARCHAR(255),
+          derecho VARCHAR(255),
+          status VARCHAR(255),
+          herencia VARCHAR(255)
         )
       `;
       const connection = await pool.getConnection();
