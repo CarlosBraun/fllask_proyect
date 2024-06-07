@@ -23,6 +23,25 @@ def handle_99(value, propiedad):
     return result
 
 
+def handle_8(adquirentes, enajenantes, propiedad, value):
+    result = []
+    for adquirente in adquirentes:
+        row = {
+            'comuna': propiedad["comuna"],
+            'manzana': propiedad["manzana"],
+            'predio': propiedad["predio"],
+            'run': adquirente['RUNRUT'],
+            'derecho': adquirente['derecho'],
+            'fojas': value['fojas'],
+            'fecha_inscripcion': value['fecha_inscripcion'],
+            'ano_inscripccion': int(value['fecha_inscripcion'][:4]),
+            'numero_inscripcion': value['numero_inscripcion'],
+            'ano_vigencia_i': int(value['fecha_inscripcion'][:4])
+        }
+        result.append(row)
+    return result
+
+
 def actualizar_ano_vigencia_f(elementos, ano_actual):
     for lista in elementos:
         for elemento in lista:
@@ -55,19 +74,33 @@ def algoritmo(datos):
                 multipropietario_temp = []
 
             for key, value in defaultdict_item.items():
-                print("Temp inicial")
-                print(multipropietario_temp)
+                # print("Temp inicial")
+                # print(multipropietario_temp)
                 if int(value['fecha_inscripcion'][0:4]) <= 2019:
                     ano = 2019
                 else:
                     ano = int(value['fecha_inscripcion'][0:4])
-                print(ano)
+                # print(ano)
                 if value['cne'] == 99:
                     actualizar_ano_vigencia_f(multipropietario_temp, ano)
                     multipropietario_temp.append(handle_99(value, propiedad))
                     # Imprimir el resultado para verificación
                 elif value['cne'] == 8:
+
                     print("cne 8")
+                    print(value["enajenantes"])
+                    suma_derecho_enajenantes = 0
+                    suma_derecho_adquirentes = 0
+                    for enajenante in value["enajenantes"]:
+                        suma_derecho_enajenantes += int(enajenante["derecho"])
+                    print("suma derechos enajenantes " +
+                          str(suma_derecho_enajenantes))
+                    for adquirente in value["adquirentes"]:
+                        suma_derecho_adquirentes += int(adquirente["derecho"])
+                    print("suma derechos adquirentes " +
+                          str(suma_derecho_adquirentes))
+                    if (suma_derecho_adquirentes == 0 or suma_derecho_adquirentes == 100):
+                        print("Caso ADQ = 0 o = 100")
 
                 # ingresar a la multi
             print("Temp definitivo")
@@ -77,6 +110,18 @@ def algoritmo(datos):
             contador += 1
 
     return data
+
+
+def distribuir_100mas():
+    return
+
+
+def distribuir_100():
+    return
+
+
+def distribuir_100menos():
+    return
 
 
 @controlador_multipropietarios_bp.route('/', methods=['GET'])
@@ -134,3 +179,16 @@ def borrar_datos():
         cursor.close()
         conn.close()
     return jsonify(mensaje)
+
+
+@controlador_multipropietarios_bp.route('/reproces', methods=['POST'])
+def reprocesar_tabla():
+    comuna = int(request.json.get("comuna"))
+    manzana = int(request.json.get("manzana"))
+    predio = int(request.json.get("predio"))
+    ano = str(request.json.get("ano"))
+    if ano == "":
+        ano = "1000"
+    algoritmo([{'comuna': comuna, 'manzana': manzana,
+              'predio': predio, 'fecha_inscripcion': ano}])
+    return "reprocesado completo"

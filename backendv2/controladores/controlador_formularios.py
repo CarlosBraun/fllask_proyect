@@ -60,6 +60,57 @@ def obtener_datos():
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
+
+    # Diccionario para agrupar los datos por numero_atencion
+    grouped_data = {}
+
+    for row in rows:
+        numero_atencion = row['numero_atencion']
+        if numero_atencion not in grouped_data:
+            grouped_data[numero_atencion] = {
+                'numero_atencion': row['numero_atencion'],
+                'cne': row['cne'],
+                'comuna': row['comuna'],
+                'fecha_inscripcion': row['fecha_inscripcion'],
+                'fojas': row['fojas'],
+                'herencia': row['herencia'],
+                'id': row['id'],
+                'manzana': row['manzana'],
+                'numero_inscripcion': row['numero_inscripcion'],
+                'predio': row['predio'],
+                'status': row['status'],
+                'adquirentes': [],
+                'enajenantes': []
+            }
+
+        # Agregar a la lista de adquirentes o enajenantes según corresponda
+        persona = {
+            'RUNRUT': row['RUNRUT'],
+            'derecho': row['derecho']
+        }
+
+        if row['tipo'] == 'adquirente':
+            grouped_data[numero_atencion]['adquirentes'].append(persona)
+        elif row['tipo'] == 'enajenante':
+            grouped_data[numero_atencion]['enajenantes'].append(persona)
+
+    # Convertir el diccionario a una lista para poder ser retornada como JSON
+    response_data = list(grouped_data.values())
+    return jsonify(response_data)
+
+
+@controlador_formularios_bp.route('/<numero_atencion>', methods=['GET'])
+def obtener_formulario_unico(numero_atencion):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    query = 'SELECT * FROM Formulario WHERE numero_atencion = %s'
+    cursor.execute(query, (numero_atencion,))
+
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
     return jsonify(rows)
 
 
@@ -83,7 +134,7 @@ def borrar_datos():
 @controlador_formularios_bp.route('/algo', methods=['GET'])
 def ejecutar_algoritmo():
     data1 = algoritmo(
-        [{'comuna': 77, 'manzana': 64, 'predio': 32, 'fecha_inscripcion': '2000'}, {'comuna': 77, 'manzana': 65, 'predio': 32, 'fecha_inscripcion': '2000'}])
+        [{'comuna': 77, 'manzana': 64, 'predio': 32, 'fecha_inscripcion': '2000'}])
     return jsonify(data1)
 
 

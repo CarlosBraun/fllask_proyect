@@ -17,71 +17,83 @@
   <body class="bg-slate-900 w-full">
     <div class="bg-gray-400 p-10 rounded-md m-6 text-black">
       <div
-        class="max-w-[800px] w-[90%] mx-auto bg-slate-300 p-8 border-2 border-white rounded-md [&>div>input]:p-2 [&>div>input]:rounded-md"
+        class="w-[90%] mx-auto bg-slate-300 p-8 border-2 border-white rounded-md"
       >
-        <h1 class="text-3xl font-bold">Busqueda de información.</h1>
-        {{n}}
+        <h1 class="text-3xl font-bold mb-4">Búsqueda de información</h1>
         <div
           id="infoContainer"
-          class="border border-gray-300 rounded p-4 mb-4 mx-auto w-fit"
+          class="border border-gray-300 rounded p-4 mb-4 mx-auto w-full overflow-x-auto"
         >
-          <div class="mb-2">
-            <span class="font-semibold">CNE:</span> {{ data.CNE }}
-          </div>
-          <div class="mb-2">
-            <span class="font-semibold">Bien Raíz:</span>
-            <div class="ml-4">
-              <div>
-                <span class="font-semibold">Comuna:</span>
-                {{data.bienRaiz.comuna}}
-              </div>
-              <div>
-                <span class="font-semibold">Manzana:</span> {{
-                data.bienRaiz.manzana }}
-              </div>
-              <div>
-                <span class="font-semibold">Predio:</span> {{
-                data.bienRaiz.predio }}
-              </div>
-            </div>
-          </div>
-          <div class="mb-2">
-            <span class="font-semibold">Enajenantes:</span>
-            <div class="ml-4">
-              {% for enajenante in data.enajenantes %}
-              <div class="mb-2">
-                <span class="font-semibold">RUN/RUT:</span>
-                {{ enajenante['RUNRUT'] }}
-                <span class="ml-2 font-semibold">Porcentaje Derecho:</span>
-                {{ enajenante['porcDerecho'] }}
-              </div>
+          <table class="min-w-full bg-white">
+            <thead>
+              <tr>
+                <th class="py-2 px-4 border-b border-gray-200">CNE</th>
+                <th class="py-2 px-4 border-b border-gray-200">Comuna</th>
+                <th class="py-2 px-4 border-b border-gray-200">Manzana</th>
+                <th class="py-2 px-4 border-b border-gray-200">Predio</th>
+                <th class="py-2 px-4 border-b border-gray-200">RUN/RUT</th>
+                <th class="py-2 px-4 border-b border-gray-200">Derecho</th>
+                <th class="py-2 px-4 border-b border-gray-200">
+                  Fecha Inscripción
+                </th>
+                <th class="py-2 px-4 border-b border-gray-200">Fojas</th>
+                <th class="py-2 px-4 border-b border-gray-200">Herencia</th>
+                <th class="py-2 px-4 border-b border-gray-200">
+                  Número Atención
+                </th>
+                <th class="py-2 px-4 border-b border-gray-200">
+                  Número Inscripción
+                </th>
+                <th class="py-2 px-4 border-b border-gray-200">Status</th>
+                <th class="py-2 px-4 border-b border-gray-200">Tipo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in data %}
+              <tr>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.cne }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.comuna }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.manzana }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.predio }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.RUNRUT }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.derecho }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.fecha_inscripcion }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.fojas }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.herencia }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.numero_atencion }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.numero_inscripcion }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.status }}
+                </td>
+                <td class="py-2 px-4 border-b border-gray-200">
+                  {{ item.tipo }}
+                </td>
+              </tr>
               {% endfor %}
-            </div>
-          </div>
-          <div class="mb-2">
-            <span class="font-semibold">Adquirentes:</span>
-            <div class="ml-4">
-              {% for adquirente in data.adquirentes %}
-              <div class="mb-2">
-                <span class="font-semibold">RUN/RUT:</span>
-                {{ adquirente['RUNRUT'] }}
-                <span class="ml-2 font-semibold">Porcentaje Derecho:</span>
-                {{ adquirente['porcDerecho'] }}
-              </div>
-              {% endfor %}
-            </div>
-          </div>
-          <div class="mb-2">
-            <span class="font-semibold">Fojas:</span> {{ data.fojas }}
-          </div>
-          <div class="mb-2">
-            <span class="font-semibold">Fecha Inscripción:</span> {{
-            data.fechaInscripcion }}
-          </div>
-          <div class="mb-2">
-            <span class="font-semibold">Número Inscripción:</span> {{
-            data.nroInscripcion }}
-          </div>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

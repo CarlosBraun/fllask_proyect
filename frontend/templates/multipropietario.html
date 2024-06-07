@@ -16,6 +16,68 @@
   <body class="bg-slate-900 w-full">
     <div class="bg-gray-400 p-10 rounded-md m-6 text-black">
       <div>
+        <h1 class="text-xl font-semibold">
+          Re-proceso de la tabla Multipropietario
+        </h1>
+        <h4>Si el año se deja en blanco se procesarán los todos los formularios de ese Bien Raíz.</h4>
+        <div class="w-full flex justify-between p-4">
+          <div>
+            <form
+              id="reprocesar_bienraiz"
+              action="/reprocesar_bienraiz"
+              method="POST"
+              class="[&>input]:p-2 [&>input]:rounded-md"
+            >
+            <select
+            id="comuna"
+            name="comuna"
+            class="form-select mr-1 p-2 rounded-md"
+          >
+            {% for codigo, nombre in comunas_dict.items() %}
+            <option value="{{ codigo }}">{{ nombre }}</option>
+            {% endfor %}
+              <input
+                type="text"
+                name="manzana"
+                id="manzana"
+                placeholder="Manzana"
+              />
+              <input
+                type="text"
+                name="predio"
+                id="predio"
+                placeholder="Predio"
+              />
+              <input
+                type="text"
+                name="ano"
+                id="ano"
+                placeholder="Año"
+              />
+              <button
+                type="submit"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+              >
+                Re-procesar Bien Raíz Específico
+              </button>
+            </form>
+          </div>
+          <div>
+            <button
+              id="reprocesadoCompleto"
+              class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2"
+            >
+              Re-procesado Completo
+            </button>
+            <button
+              id="limpiarTabla"
+              class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Limpiar Tabla
+            </button>
+          </div>
+        </div>
+        
         <h1 class="text-xl font-semibold">Tabla Multipropietario</h1>
         <div
           id="resultados-container"
@@ -125,5 +187,75 @@
         </div>
       </div>
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("reprocesar_bienraiz").addEventListener("submit", function (event) {
+          event.preventDefault();
+          const comuna = document.getElementById("comuna").value;
+          const manzana = document.getElementById("manzana").value;
+          const predio = document.getElementById("predio").value;
+          const ano = document.getElementById("ano").value;
+          const formData = {
+            comuna: comuna,
+            manzana: manzana,
+            predio: predio,
+            ano: ano
+          };
+          console.log(formData);
+
+          // Enviar la solicitud fetch con el JSON en el cuerpo
+          fetch("http://localhost:5000/multipropietario/reproces", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Aquí puedes manejar la respuesta del servidor, como actualizar la tabla en la página
+              console.log(data);
+            })
+            .catch((error) => {
+              console.error("Error al buscar formulario:", error);
+            });
+        });
+
+        // Función para el re-procesado completo
+        document.getElementById("reprocesadoCompleto").addEventListener("click", function () {
+          fetch("/reprocesado_completo", {
+            method: "POST",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Aquí puedes manejar la respuesta del servidor, como actualizar la tabla en la página
+              console.log(data);
+            })
+            .catch((error) => {
+              console.error("Error en re-procesado completo:", error);
+            });
+        });
+
+        // Función para limpiar la tabla
+        document.getElementById("limpiarTabla").addEventListener("click", function () {
+          fetch("http://localhost:5000/multipropietario/clean", {
+            method: "GET",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Aquí puedes manejar la respuesta del servidor, como actualizar la tabla en la página
+              console.log(data);
+              reload_page();
+            })
+            .catch((error) => {
+              console.error("Error al limpiar tabla:", error);
+            });
+        });
+      });
+
+      function reload_page(){
+        window.location.reload();
+      }
+    </script>
   </body>
 </html>

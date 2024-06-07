@@ -31,12 +31,13 @@
               <th>Fojas</th>
               <th>Fecha Inscripción</th>
               <th>Número Inscripción</th>
+              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody
             id="formulariosBody"
-            class="text-center align-middle [&>tr>td]:p-2 bg-slate-400 [&>tr>td>button]:border [&>tr>td>button]:bg-blue-600 [&>tr>td>button]:my-auto [&>tr>td>button]:text-white [&>tr>td>button]:border-white [&>tr>td>button]:py-1 [&>tr>td>button]:px-4 [&>tr>td>button]:rounded-md"
+            class="text-center align-middle [&>tr>td]:p-2 bg-slate-400 [&>tr>td>button]:border [&>tr>td>button]:my-auto [&>tr>td>button]:text-white [&>tr>td>button]:border-white [&>tr>td>button]:py-1 [&>tr>td>button]:px-4 [&>tr>td>button]:rounded-md"
           >
             {% for formulario in listado %}
             <tr class="text-center align-middle bg-slate-400">
@@ -48,13 +49,32 @@
               <td>{{ formulario.fojas }}</td>
               <td>{{ formulario.fecha_inscripcion }}</td>
               <td>{{ formulario.numero_inscripcion }}</td>
+              <td>{{ formulario.status }}</td>
               <td class="centre">
                 <button
-                  class="hover:bg-blue-500 mt-0"
+                  class="hover:bg-blue-500 bg-blue-600 mt-0"
                   onclick="redirectToDetails('{{ formulario.numero_atencion }}')"
                 >
                   Más Información
                 </button>
+
+                {% if (formulario.status != 'vigente' or formulario.status !=
+                'rectificador') %}
+                <button
+                  class="hover:bg-red-500 bg-red-500 mt-0"
+                  onclick="anular_formulario('{{ formulario.numero_atencion }}')"
+                >
+                  Anular
+                </button>
+                {% endif %} {% if (formulario.status != 'vigente' or
+                formulario.status != 'rectificado') %}
+                <button
+                  class="hover:bg-blue-500 bg-blue-600 mt-0"
+                  onclick="habilitar_formulario('{{ formulario.numero_atencion }}')"
+                >
+                  Habilitar
+                </button>
+                {% endif %}
               </td>
             </tr>
             {% endfor %}
@@ -63,6 +83,12 @@
                 // Redirigir a la página de detalles con el número de atención como parámetro en la URL
                 window.location.href =
                   "/detalle?numero_atencion=" + numeroAtencion;
+              }
+              function anular_formulario(numeroAtencion) {
+                // Redirigir a la página de detalles con el número de atención como parámetro en la URL
+              }
+              function habilitar_formulario(numeroAtencion) {
+                // Redirigir a la página de detalles con el número de atención como parámetro en la URL
               }
             </script>
           </tbody>

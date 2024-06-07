@@ -1,5 +1,6 @@
 # controladores/__init__.py
 from flask import Flask
+from flask_cors import CORS
 from controladores.controlador_formularios import controlador_formularios_bp
 from controladores.controlador_multipropietarios import controlador_multipropietarios_bp
 # from controladores.controlador2 import controlador2_bp
@@ -7,6 +8,7 @@ from controladores.controlador_multipropietarios import controlador_multipropiet
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
 
     # Registrar los blueprints
     app.register_blueprint(controlador_formularios_bp,

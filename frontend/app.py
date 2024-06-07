@@ -216,23 +216,29 @@ def multipropietario():
         elemento["comuna"] = comunas_dict.get(
             int(elemento["comuna"]), "Comuna no encontrada")
     print(listado)
-    return render_template('multipropietario.html', resultados=listado)
+    return render_template('multipropietario.html', resultados=listado, comunas_dict=comunas_dict)
 
 
 @app.route('/detalle')
 def detalle():
     numero_atencion = request.args.get('numero_atencion')
-    data = {
-        "numero_atencion": numero_atencion
-    }
-    response = requests.post(
-        "https://fllask-proyect-yccm.vercel.app/busqueda/formularioatencion", json=data)
-    json_data = json.loads(response.text)
-    comuna = json_data[0]["bienRaiz"]["comuna"]
-    print(comunas_dict.keys())
-    print(json_data[0]["bienRaiz"]["comuna"])
-    # print(json_data[0])
-    return render_template('detalle.html', data=json_data[0])
+    try:
+        response = requests.get(
+            'http://localhost:5000/formulario/' + str(numero_atencion))
+        response.raise_for_status()
+        json_data = response.json()
+        for elemento in json_data:
+            elemento["comuna"] = comunas_dict.get(
+                int(elemento["comuna"]), "Comuna no encontrada")
+        print(json_data)
+    except requests.RequestException as e:
+        print("Error al hacer la solicitud a la API:", str(e))
+        return None
+    except ValueError as e:
+        print("Error al analizar el JSON:", str(e))
+        return None
+
+    return render_template('detalle.html', data=json_data, numero_atencion=numero_atencion, comunas_dict=comunas_dict)
 
 
 @app.route('/busqueda')
