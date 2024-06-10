@@ -212,10 +212,13 @@ def listado():
 @app.route('/multipropietario')
 def multipropietario():
     listado = obtener_multipropietario()
-    for elemento in listado:
-        elemento["comuna"] = comunas_dict.get(
-            int(elemento["comuna"]), "Comuna no encontrada")
     print(listado)
+    if listado == "No se pudo cargar la tabla multipropietario":
+        listado = []
+    else:
+        for elemento in listado:
+            elemento["comuna"] = comunas_dict.get(
+                int(elemento["comuna"]), "Comuna no encontrada")
     return render_template('multipropietario.html', resultados=listado, comunas_dict=comunas_dict)
 
 

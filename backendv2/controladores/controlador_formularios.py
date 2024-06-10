@@ -23,13 +23,15 @@ def get_atention_number():
 
 def preprocesamiento_de_datos(datos_propiedades):
     unique_properties = {}
+
     for prop in datos_propiedades:
         key = (prop['comuna'], prop['manzana'], prop['predio'])
         fecha_inscripcion = prop.get('fecha_inscripcion')
+
         if fecha_inscripcion:
             try:
                 fecha_inscripcion = datetime.strptime(
-                    fecha_inscripcion, '%Y-%m-%d')
+                    fecha_inscripcion, '%Y%m%d')
             except ValueError:
                 continue  # Ignorar fechas inválidas
         else:
@@ -46,9 +48,12 @@ def preprocesamiento_de_datos(datos_propiedades):
     resultado = []
     for (comuna, manzana, predio), fecha_inscripcion in unique_properties.items():
         entry = {'comuna': comuna, 'manzana': manzana, 'predio': predio}
+
         if fecha_inscripcion:
             entry['fecha_inscripcion'] = fecha_inscripcion.strftime('%Y')
+
         resultado.append(entry)
+
     return resultado
 
 
@@ -134,7 +139,7 @@ def borrar_datos():
 @controlador_formularios_bp.route('/algo', methods=['GET'])
 def ejecutar_algoritmo():
     data1 = algoritmo(
-        [{'comuna': 77, 'manzana': 64, 'predio': 32, 'fecha_inscripcion': '2000'}])
+        [{'comuna': 1101, 'manzana': 12, 'predio': 9, 'fecha_inscripcion': '2021'}])
     return jsonify(data1)
 
 
@@ -160,14 +165,25 @@ def agregar_dato():
             fojas = formulario.get('fojas')
             fecha_inscripcion = formulario.get('fechaInscripcion')
             numero_inscripcion = formulario.get('nroInscripcion')
-            print(datetime.strptime(fecha_inscripcion,
-                  '%Y-%m-%d').strftime('%Y%m%d'))
+            status = 'vigente'
+            # Intentar convertir la fecha de inscripción
+            try:
+                fecha_inscripcion_formateada = datetime.strptime(
+                    fecha_inscripcion, '%Y-%m-%d').strftime('%Y%m%d')
+            except ValueError:
+                fecha_inscripcion_formateada = '00000000'  # Fecha muy antigua
+                status = 'invalido'
+
+            if not str(manzana).isdigit() or not str(comuna).isdigit() or not str(predio).isdigit():
+                status = 'invalido'
+
             datos_propiedad = {
                 'comuna': comuna,
                 'manzana': manzana,
                 'predio': predio,
-                'fecha_inscripcion': fecha_inscripcion,
+                'fecha_inscripcion': fecha_inscripcion_formateada,
             }
+            print(datos_propiedad)
             propiedades_a_preprocesar.append(datos_propiedad)
 
             enajenantes = formulario.get('enajenantes', [])
@@ -178,8 +194,8 @@ def agregar_dato():
                                   (numero_atencion, cne, comuna, manzana, predio, fojas, fecha_inscripcion,
                                   numero_inscripcion, tipo, RUNRUT, derecho, status, herencia)
                                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''',
-                               (numero_atencion, cne, comuna, manzana, predio, fojas, datetime.strptime(fecha_inscripcion, '%Y-%m-%d').strftime('%Y%m%d'),
-                                numero_inscripcion, 'enajenante', RUNRUT, derecho, 'vigente', 'n/a'))
+                               (numero_atencion, cne, comuna, manzana, predio, fojas, fecha_inscripcion_formateada,
+                                numero_inscripcion, 'enajenante', RUNRUT, derecho, status, 'n/a'))
 
             adquirentes = formulario.get('adquirentes', [])
             for adquirente in adquirentes:
@@ -189,15 +205,17 @@ def agregar_dato():
                                   (numero_atencion, cne, comuna, manzana, predio, fojas, fecha_inscripcion,
                                   numero_inscripcion, tipo, RUNRUT, derecho, status, herencia)
                                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''',
-                               (numero_atencion, cne, comuna, manzana, predio, fojas, datetime.strptime(fecha_inscripcion, '%Y-%m-%d').strftime('%Y%m%d'),
-                                numero_inscripcion, 'adquirente', RUNRUT, derecho, 'n/a', 'vigente'))
+                               (numero_atencion, cne, comuna, manzana, predio, fojas, fecha_inscripcion_formateada,
+                                numero_inscripcion, 'adquirente', RUNRUT, derecho, status, 'n/a'))
             numero_atencion = numero_atencion + 1
         conn.commit()  # Confirmar la transacción
         propiedades_a_procesar = preprocesamiento_de_datos(
             propiedades_a_preprocesar)
-        # lunchear algoritmo
-        algoritmo(propiedades_a_procesar)
-        mensaje = {'mensaje': 'Datos agregados exitosamente'}
+        print(propiedades_a_procesar)
+        # Llamada al algoritmo (comentada en este caso)
+        # algoritmo(propiedades_a_procesar)
+        mensaje = {
+            'mensaje': 'Datos agregados exitosamente. Propiedades:' + str(propiedades_a_procesar)}
     except Exception as e:
         conn.rollback()  # Revertir la transacción en caso de error
         mensaje = {'error': str(e)}

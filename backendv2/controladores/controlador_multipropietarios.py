@@ -19,7 +19,10 @@ def handle_99(value, propiedad):
             'numero_inscripcion': value['numero_inscripcion'],
             'ano_vigencia_i': int(value['fecha_inscripcion'][:4])
         }
-        result.append(row)
+        if int(row["ano_vigencia_i"]) < 2019:
+            row["ano_vigencia_i"] = "2019"
+        if int(row["derecho"]) > 0:
+            result.append(row)
     return result
 
 
@@ -39,15 +42,135 @@ def handle_8(adquirentes, enajenantes, propiedad, value):
             'ano_vigencia_i': int(value['fecha_inscripcion'][:4])
         }
         result.append(row)
+    for enajenante in enajenantes:
+        row = {
+            'comuna': propiedad["comuna"],
+            'manzana': propiedad["manzana"],
+            'predio': propiedad["predio"],
+            'run': enajenante['RUNRUT'],
+            'derecho': enajenante['derecho'],
+            'fojas': value['fojas'],
+            'fecha_inscripcion': value['fecha_inscripcion'],
+            'ano_inscripccion': int(value['fecha_inscripcion'][:4]),
+            'numero_inscripcion': value['numero_inscripcion'],
+            'ano_vigencia_i': int(value['fecha_inscripcion'][:4])
+        }
+        result.append(row)
     return result
 
 
+def calcular_derechos(multipropietario_temp, value):
+    derechos = {}
+    total_enajenado = 0
+    total_adquirido = 0
+    fantasmas = {}
+
+    # Crear un diccionario inicial de derechos a partir de multipropietario_temp
+    print("TEMP PRE ERROR")
+    print(multipropietario_temp[0]["run"])
+    for prop in multipropietario_temp:
+        run = prop['run']
+        derecho = int(prop['derecho'])
+        if run in derechos:
+            derechos[run] += derecho
+        else:
+            derechos[run] = derecho
+
+    # Procesar enajenantes
+    for enajenante in value["enajenantes"]:
+        run = enajenante["RUNRUT"]
+        derecho = int(enajenante["derecho"])
+        total_enajenado += derecho
+        if run in derechos:
+            derechos[run] -= derecho
+        else:
+            derechos[run] = -derecho
+
+        # Verificar si el enajenante tiene un porcentaje negativo
+        if derechos[run] < 0:
+            derechos[run] = 0
+            fantasmas[run] = True
+
+    # Procesar adquirentes
+    for adquirente in value["adquirentes"]:
+        run = adquirente["RUNRUT"]
+        derecho = int(adquirente["derecho"])
+        total_adquirido += derecho
+        if run in derechos:
+            derechos[run] += derecho
+        else:
+            derechos[run] = derecho
+
+    total_derechos_post_transaccion = sum(derechos.values())
+    if total_derechos_post_transaccion > 100:
+        factor_ajuste = 100 / total_derechos_post_transaccion
+        for run in derechos:
+            derechos[run] = round(derechos[run] * factor_ajuste)
+    elif total_derechos_post_transaccion < 100:
+        sobrante = 100 - total_derechos_post_transaccion
+        personas_cero_participacion = [
+            run for run, derecho in derechos.items() if derecho == 0]
+        if len(personas_cero_participacion) > 0:
+            # Repartir el sobrante entre las personas con participación 0
+            sobrante_por_persona = sobrante / len(personas_cero_participacion)
+            for run in personas_cero_participacion:
+                derechos[run] += sobrante_por_persona
+
+    # Derechos a MULTI, se puede separar
+    multipropietarios = []
+
+    for run, derecho in derechos.items():
+        multipropietario_data = {}
+        # Buscar datos en multipropietario_temp si existen
+        for temp_prop in multipropietario_temp:
+            if temp_prop['run'] == run:
+                multipropietario_data.update(temp_prop)
+                break
+        # Actualizar con datos de value si existen y no están ya en multipropietario_temp
+        if 'run' not in multipropietario_data:
+            # Verificar en enajenantes de value
+            for value_prop in value["enajenantes"]:
+                if value_prop["RUNRUT"] == run:
+                    multipropietario_data.update({
+                        'run': run,
+                        'derecho': int(value_prop['derecho']),
+                        'fecha_inscripcion': value['fecha_inscripcion'],
+                        'ano_inscripccion': int(value['fecha_inscripcion'][:4]),
+                        'numero_inscripcion': value['numero_inscripcion'],
+                        'ano_vigencia_i': int(value['fecha_inscripcion'][:4]),
+                        'status': value['status']
+                    })
+                    break
+            # Verificar en adquirentes de value si no se encontró en enajenantes
+            if 'run' not in multipropietario_data:
+                for value_prop in value["adquirentes"]:
+                    if value_prop["RUNRUT"] == run:
+                        multipropietario_data.update({
+                            'run': run,
+                            'derecho': int(value_prop['derecho']),
+                            'fecha_inscripcion': value['fecha_inscripcion'],
+                            'ano_inscripccion': int(value['fecha_inscripcion'][:4]),
+                            'numero_inscripcion': value['numero_inscripcion'],
+                            'ano_vigencia_i': int(value['fecha_inscripcion'][:4]),
+                            'status': value['status']
+                        })
+                        break
+        # Asignar el derecho ajustado
+        multipropietario_data['derecho'] = derecho
+        if int(multipropietario_data['derecho']) > 0:
+            multipropietarios.append(multipropietario_data)
+    # print(multipropietarios)
+    return multipropietarios, total_enajenado, total_adquirido
+
+
 def actualizar_ano_vigencia_f(elementos, ano_actual):
-    for lista in elementos:
-        for elemento in lista:
-            if elemento.get("ano_vigencia_f") is None:
-                elemento["ano_vigencia_f"] = ano_actual
-    return elementos
+    elementos_temp = []
+    for elemento in elementos:
+        if elemento:
+            if (elemento.get("ano_vigencia_f") is None) and (int(elemento.get("ano_vigencia_i")) < ano_actual):
+                elemento["ano_vigencia_f"] = ano_actual - 1
+                elementos_temp.append(elemento)
+    return elementos_temp
 
 
 def algoritmo(datos):
@@ -60,13 +183,14 @@ def algoritmo(datos):
             limpiar_multipropietario(propiedad)
             multipropietario = datos_multipopietarios[contador]
             # Código usado para debuggear a base de prints
-            print("---------------------------------------------------------------------------------------------------")
+            """print("---------------------------------------------------------------------------------------------------")
             print(f"Datos de la propiedad: C: {propiedad['comuna']}, M: {
                   propiedad['manzana']}, P: {propiedad['predio']}")
             print("---------------------------------------------------------------------------------------------------")
             print("Multipropietarios Previa")
             print(multipropietario)
             print("---------------------------------------------------------------------------------------------------")
+            print(defaultdict_item) """
             # Fin del código de debuggeo
             if multipropietario is not None:
                 multipropietario_temp = multipropietario
@@ -74,35 +198,43 @@ def algoritmo(datos):
                 multipropietario_temp = []
 
             for key, value in defaultdict_item.items():
-                # print("Temp inicial")
-                # print(multipropietario_temp)
-                if int(value['fecha_inscripcion'][0:4]) <= 2019:
-                    ano = 2019
-                else:
-                    ano = int(value['fecha_inscripcion'][0:4])
-                # print(ano)
-                if value['cne'] == 99:
-                    actualizar_ano_vigencia_f(multipropietario_temp, ano)
-                    multipropietario_temp.append(handle_99(value, propiedad))
-                    # Imprimir el resultado para verificación
-                elif value['cne'] == 8:
+                if value["status"] != "invalido" or value["rectificado"]:
+                    print("CNE: " + str(value["cne"]))
+                    print("MULTIPROPIETARIO ITER")
+                    print(multipropietario_temp)
+                    print("VALUE")
+                    print(value)
+                    # print("Temp inicial")
+                    # print(multipropietario_temp)
+                    if int(value['fecha_inscripcion'][0:4]) <= 2019:
+                        ano = 2019
+                    else:
+                        ano = int(value['fecha_inscripcion'][0:4])
+                    # print(ano)
+                    if value['cne'] == 99:
+                        multipropietario_temp = actualizar_ano_vigencia_f(
+                            multipropietario_temp, ano)
+                        print("CALCULOCALCULOCALCULOCALCULOCALCULOCALCULOCALCULO")
+                        lista_multi = handle_99(value, propiedad)
+                        for multi in lista_multi:
+                            multipropietario_temp.append(multi)
+                        # Imprimir el resultado para verificación
+                    elif value['cne'] == 8:
+                        # print("PRE")
+                        # print(multipropietario_temp)
+                        # print("POST")
+                        calculo_derechos, suma_derecho_enajenantes, suma_derecho_adquirentes = calcular_derechos(
+                            multipropietario_temp, value)
+                        multipropietario_temp = actualizar_ano_vigencia_f(
+                            multipropietario_temp, ano)
+                        print("CALCULOCALCULOCALCULOCALCULOCALCULOCALCULOCALCULO")
+                        print(calculo_derechos)
+                        for multi in calculo_derechos:
+                            multipropietario_temp.append(multi)
 
-                    print("cne 8")
-                    print(value["enajenantes"])
-                    suma_derecho_enajenantes = 0
-                    suma_derecho_adquirentes = 0
-                    for enajenante in value["enajenantes"]:
-                        suma_derecho_enajenantes += int(enajenante["derecho"])
-                    print("suma derechos enajenantes " +
-                          str(suma_derecho_enajenantes))
-                    for adquirente in value["adquirentes"]:
-                        suma_derecho_adquirentes += int(adquirente["derecho"])
-                    print("suma derechos adquirentes " +
-                          str(suma_derecho_adquirentes))
-                    if (suma_derecho_adquirentes == 0 or suma_derecho_adquirentes == 100):
-                        print("Caso ADQ = 0 o = 100")
-
-                # ingresar a la multi
+                        if (suma_derecho_adquirentes == 0 or suma_derecho_adquirentes == 100):
+                            print("Caso ADQ = 0 o = 100")
+                        print("---------------------------------------------")
             print("Temp definitivo")
             print(multipropietario_temp)
             ingresar_multipropietarios(multipropietario_temp)
@@ -110,18 +242,6 @@ def algoritmo(datos):
             contador += 1
 
     return data
-
-
-def distribuir_100mas():
-    return
-
-
-def distribuir_100():
-    return
-
-
-def distribuir_100menos():
-    return
 
 
 @controlador_multipropietarios_bp.route('/', methods=['GET'])

@@ -109,7 +109,8 @@ def request_algorithm_data(data):
         grouped_formularios = defaultdict(
             lambda: {'enajenantes': [], 'adquirentes': [], 'cne': formulario['cne'], 'fecha_inscripcion': formulario['fecha_inscripcion'], 'numero_atencion': formulario['numero_atencion'], 'fojas': formulario['fojas'], 'numero_inscripcion': formulario['numero_inscripcion'], 'status': formulario['status'], 'herencia': formulario['herencia']})
         for formulario in total_data[indice]:
-            key = (formulario['fecha_inscripcion'])
+            key = (formulario['fecha_inscripcion'] +
+                   "_"+formulario['numero_atencion'])
             if formulario["tipo"] == "enajenante":
                 grouped_formularios[key]['enajenantes'].append(
                     {'RUNRUT': formulario['RUNRUT'], 'derecho': formulario['derecho']})
@@ -190,23 +191,23 @@ def ingresar_multipropietarios(data):
         ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f, status
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    for property in data:
-        for row in property:
-            print(row)
-            cursor.execute(query, (
-                row['comuna'],
-                row['manzana'],
-                row['predio'],
-                row['run'],
-                int(row['derecho']),
-                row['fojas'],
-                row['fecha_inscripcion'],
-                row['ano_inscripccion'],
-                row['numero_inscripcion'],
-                row['ano_vigencia_i'],
-                row.get('ano_vigencia_f', None),  # Puede ser None
-                row.get('status', None)  # Puede ser None
-            ))
+    for row in data:
+        print("ERROREOROEOROEOROE")
+        print(row)
+        cursor.execute(query, (
+            row['comuna'],
+            row['manzana'],
+            row['predio'],
+            row['run'],
+            int(row['derecho']),
+            row['fojas'],
+            row['fecha_inscripcion'],
+            row['ano_inscripccion'],
+            row['numero_inscripcion'],
+            row['ano_vigencia_i'],
+            row.get('ano_vigencia_f', None),  # Puede ser None
+            row.get('status', None)  # Puede ser None
+        ))
     conn.commit()
     cursor.close()
     return
