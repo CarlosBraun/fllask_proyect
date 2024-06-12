@@ -192,8 +192,7 @@ def ingresar_multipropietarios(data):
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     for row in data:
-        print("ERROREOROEOROEOROE")
-        print(row)
+
         cursor.execute(query, (
             row['comuna'],
             row['manzana'],

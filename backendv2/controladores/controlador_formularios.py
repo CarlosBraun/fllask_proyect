@@ -138,8 +138,10 @@ def borrar_datos():
 
 @controlador_formularios_bp.route('/algo', methods=['GET'])
 def ejecutar_algoritmo():
-    data1 = algoritmo(
-        [{'comuna': 1101, 'manzana': 12, 'predio': 9, 'fecha_inscripcion': '2021'}])
+    lista = [{'comuna': 88, 'manzana': 514, 'predio': 23, 'fecha_inscripcion': '2022'}, {'comuna': 88, 'manzana': 54,
+                                                                                         'predio': 456, 'fecha_inscripcion': '2014'}, {'comuna': 11214, 'manzana': 54, 'predio': 456, 'fecha_inscripcion': '2014'}]
+    for i in lista:
+        data1 = algoritmo([i])
     return jsonify(data1)
 
 
@@ -212,8 +214,8 @@ def agregar_dato():
         propiedades_a_procesar = preprocesamiento_de_datos(
             propiedades_a_preprocesar)
         print(propiedades_a_procesar)
-        # Llamada al algoritmo (comentada en este caso)
-        # algoritmo(propiedades_a_procesar)
+        for i in propiedades_a_procesar:
+            algoritmo(i)
         mensaje = {
             'mensaje': 'Datos agregados exitosamente. Propiedades:' + str(propiedades_a_procesar)}
     except Exception as e:

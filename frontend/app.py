@@ -179,7 +179,7 @@ def submit_form():
     response = requests.post(url, json=json_data, headers=headers)
 
     # Retornar una respuesta apropiada
-    if response.status_code == 200:
+    if response.status_code == 200 or response.status_code == 201:
         print("Formulario enviado exitosamente")
         return redirect(url_for('listado'))
     else:
@@ -194,7 +194,7 @@ def index():
 
 
 @app.route('/formulario')
-def index2():
+def formulario():
     return render_template('form.html', comunas_dict=comunas_dict)
 
 

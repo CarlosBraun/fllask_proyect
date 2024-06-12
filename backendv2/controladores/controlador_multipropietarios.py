@@ -59,7 +59,7 @@ def handle_8(adquirentes, enajenantes, propiedad, value):
     return result
 
 
-def calcular_derechos(multipropietario_temp, value):
+def calcular_derechos(multipropietario_temp, value, propiedad):
     derechos = {}
     total_enajenado = 0
     total_adquirido = 0
@@ -67,7 +67,6 @@ def calcular_derechos(multipropietario_temp, value):
 
     # Crear un diccionario inicial de derechos a partir de multipropietario_temp
     print("TEMP PRE ERROR")
-    print(multipropietario_temp[0]["run"])
     for prop in multipropietario_temp:
         run = prop['run']
         derecho = int(prop['derecho'])
@@ -118,20 +117,30 @@ def calcular_derechos(multipropietario_temp, value):
 
     # Derechos a MULTI, se puede separar
     multipropietarios = []
+    print(derechos)
+    print(multipropietario_temp)
 
     for run, derecho in derechos.items():
         multipropietario_data = {}
         # Buscar datos en multipropietario_temp si existen
         for temp_prop in multipropietario_temp:
             if temp_prop['run'] == run:
+                print(temp_prop)
                 multipropietario_data.update(temp_prop)
                 break
         # Actualizar con datos de value si existen y no están ya en multipropietario_temp
+        print(run)
+        print(multipropietario_data)
         if 'run' not in multipropietario_data:
             # Verificar en enajenantes de value
             for value_prop in value["enajenantes"]:
+                print(value_prop)
                 if value_prop["RUNRUT"] == run:
                     multipropietario_data.update({
+                        'comuna': propiedad["comuna"],
+                        'manzana': propiedad["manzana"],
+                        'predio': propiedad["predio"],
+                        'fojas': value['fojas'],
                         'run': run,
                         'derecho': int(value_prop['derecho']),
                         'fecha_inscripcion': value['fecha_inscripcion'],
@@ -146,6 +155,10 @@ def calcular_derechos(multipropietario_temp, value):
                 for value_prop in value["adquirentes"]:
                     if value_prop["RUNRUT"] == run:
                         multipropietario_data.update({
+                            'comuna': propiedad["comuna"],
+                            'manzana': propiedad["manzana"],
+                            'predio': propiedad["predio"],
+                            'fojas': value['fojas'],
                             'run': run,
                             'derecho': int(value_prop['derecho']),
                             'fecha_inscripcion': value['fecha_inscripcion'],
@@ -159,7 +172,8 @@ def calcular_derechos(multipropietario_temp, value):
         multipropietario_data['derecho'] = derecho
         if int(multipropietario_data['derecho']) > 0:
             multipropietarios.append(multipropietario_data)
-    # print(multipropietarios)
+    print("MULTIMULTIMULTIMULTIMULTIMULTIMULTIMULTIMULTI")
+    print(multipropietarios)
     return multipropietarios, total_enajenado, total_adquirido
 
 
@@ -198,7 +212,7 @@ def algoritmo(datos):
                 multipropietario_temp = []
 
             for key, value in defaultdict_item.items():
-                if value["status"] != "invalido" or value["rectificado"]:
+                if value["status"] != "invalido" or value["status"] != "rectificado":
                     print("CNE: " + str(value["cne"]))
                     print("MULTIPROPIETARIO ITER")
                     print(multipropietario_temp)
@@ -224,7 +238,7 @@ def algoritmo(datos):
                         # print(multipropietario_temp)
                         # print("POST")
                         calculo_derechos, suma_derecho_enajenantes, suma_derecho_adquirentes = calcular_derechos(
-                            multipropietario_temp, value)
+                            multipropietario_temp, value, propiedad)
                         multipropietario_temp = actualizar_ano_vigencia_f(
                             multipropietario_temp, ano)
                         print("CALCULOCALCULOCALCULOCALCULOCALCULOCALCULOCALCULO")
