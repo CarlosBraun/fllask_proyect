@@ -305,11 +305,11 @@ def algoritmo(datos):
                     total_enajenado, cantidad_ena = enajenado
 
 
-                    if (total_adquirido == 100 or total_adquirido == 0 and False):
+                    if (total_adquirido == 100 or total_adquirido == 0):
                         distribuir_100(total_enajenado, value, propiedad, multipropietario_temp)
                         print("Distribuir%=100();")
 
-                    elif (100>total_adquirido>0 and (cantidad_ena ==1 and cantidad_adq ==1) and False):
+                    elif (100>total_adquirido>0 and (cantidad_ena ==1 and cantidad_adq ==1)):
                         print("Distribuir%<100();")
                         distribuir_menos_100(value, propiedad, multipropietario_temp)
                     else:
