@@ -1,50 +1,68 @@
-# controladores/controlador1.py
-from flask import Blueprint, jsonify, request
-import mysql.connector
+'''
+Este controlador define las funciones que se realizan exclusivamente para
+el proceso de los formularios.
+
+Funciones:
+- get_atention_number: Retorna el número de atención.
+- obtener_propiedades_agrupadas: Procesa datos de propiedades y retorna una lista
+  con propiedades únicas y su año menor.
+- obtener_datos: Retorna todos los formularios.
+- obtener_formulario_unico: Retorna un formulario específico.
+- borrar_datos: Borra todos los formularios de la tabla Formulario.
+- ejecutar_algoritmo: Ejecuta un algoritmo con una lista de datos predefinida.
+- agregar_formulario_a_base_de_datos: Agrega un nuevo formulario a la base de datos.
+'''
 from datetime import datetime
-from config import DB_CONFIG
+from flask import Blueprint, jsonify, request
+# import mysql.connector  # type: ignore
+from mysql.connector import Error  # type: ignore
 from controladores.controlador_multipropietarios import algoritmo
-from controladores.controlador_requests import get_db_connection
+from controladores.controlador_requests import obtener_conexion_db
+from controladores.controlador_queries import (generar_query_obtener_ultimo_numero,
+                                              generar_query_obtener_formularios,
+                                              generar_query_obtener_formulario_unico,
+                                              generar_query_borrar_formularios,
+                                              generar_query_insertar_formularios)
 
 controlador_formularios_bp = Blueprint('controlador_formularios', __name__)
 
-
-def get_atention_number():
-    conn = get_db_connection()
+def ejecutar_query_obtener_ultimo_numero():
+    '''Ejecuta la consulta SQL para obtener el último número de atención desde la base de datos.'''
+    query = generar_query_obtener_ultimo_numero()
+    conn = obtener_conexion_db()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute(
-        'SELECT numero_atencion FROM Formulario ORDER BY numero_atencion DESC LIMIT 1')
+    cursor.execute(query)
     result = cursor.fetchone()
-    ultimo_numero_atencion = 0
-    if result is not None:
-        ultimo_numero_atencion = int(result['numero_atencion'])
-    return ultimo_numero_atencion + 1
+    cursor.close()
+    conn.close()
+    return int(result['numero_atencion']) if result else 0
 
+def obtener_numero_de_atencion():
+    '''Obtiene y retorna el número de atención incrementado en uno.'''
+    ultimo_numero_atencion = ejecutar_query_obtener_ultimo_numero()
+    nuevo_numero_atencion = ultimo_numero_atencion + 1
+    return nuevo_numero_atencion
 
-def preprocesamiento_de_datos(datos_propiedades):
-    unique_properties = {}
+def parsear_fecha(fecha):
+    '''Intenta parsear una fecha en formato YYYYMMDD y retorna un objeto datetime.'''
+    try:
+        return datetime.strptime(fecha, '%Y%m%d')
+    except ValueError:
+        return None
 
-    for prop in datos_propiedades:
-        key = (prop['comuna'], prop['manzana'], prop['predio'])
-        fecha_inscripcion = prop.get('fecha_inscripcion')
+def obtener_clave(propiedad):
+    '''Obtiene y retorna la clave única de la propiedad.'''
+    return (propiedad['comuna'], propiedad['manzana'], propiedad['predio'])
 
-        if fecha_inscripcion:
-            try:
-                fecha_inscripcion = datetime.strptime(
-                    fecha_inscripcion, '%Y%m%d')
-            except ValueError:
-                continue  # Ignorar fechas inválidas
-        else:
-            fecha_inscripcion = None
+def actualizar_fecha_inscripcion(unique_properties, key, fecha_inscripcion):
+    '''Actualiza la fecha de inscripción mínima en unique_properties para la clave dada.'''
+    current_fecha = unique_properties.get(key)
 
-        if key not in unique_properties:
-            unique_properties[key] = fecha_inscripcion
-        else:
-            current_fecha = unique_properties[key]
-            if current_fecha is None or (fecha_inscripcion and fecha_inscripcion < current_fecha):
-                unique_properties[key] = fecha_inscripcion
+    if current_fecha is None or (fecha_inscripcion and fecha_inscripcion < current_fecha):
+        unique_properties[key] = fecha_inscripcion
 
-    # Convertir el diccionario de vuelta a una lista de diccionarios
+def convertir_a_lista_de_diccionarios(unique_properties):
+    '''Convierte unique_properties en una lista de diccionarios con el formato requerido.'''
     resultado = []
     for (comuna, manzana, predio), fecha_inscripcion in unique_properties.items():
         entry = {'comuna': comuna, 'manzana': manzana, 'predio': predio}
@@ -56,19 +74,39 @@ def preprocesamiento_de_datos(datos_propiedades):
 
     return resultado
 
+def obtener_propiedades_agrupadas(datos_propiedades):
+    '''Recibe una lista de propiedades y retorna una lista con propiedades únicas y su año menor.'''
+    unique_properties = {}
 
+    for prop in datos_propiedades:
+        key = obtener_clave(prop)
+        fecha_inscripcion = prop.get('fecha_inscripcion')
+        fecha_inscripcion = parsear_fecha(fecha_inscripcion)
+        actualizar_fecha_inscripcion(unique_properties, key, fecha_inscripcion)
+
+    return convertir_a_lista_de_diccionarios(unique_properties)
+
+
+# CÓDIGO POR REFACTORIZAR
 @controlador_formularios_bp.route('/', methods=['GET'])
 def obtener_datos():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM Formulario')
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    '''Retorna todos los formularios agrupados por numero_atencion como JSON.'''
+    try:
+        conn = obtener_conexion_db()
+        cursor = conn.cursor(dictionary=True)
+        query = generar_query_obtener_formularios()
+        cursor.execute(query)
+        rows = cursor.fetchall()
 
-    # Diccionario para agrupar los datos por numero_atencion
+        grouped_data = agrupar_formularios(rows)
+        return jsonify(grouped_data)
+    finally:
+        cursor.close()
+        conn.close()
+
+def agrupar_formularios(rows):
+    '''Agrupa los datos de formularios por numero_atencion.'''
     grouped_data = {}
-
     for row in rows:
         numero_atencion = row['numero_atencion']
         if numero_atencion not in grouped_data:
@@ -88,7 +126,6 @@ def obtener_datos():
                 'enajenantes': []
             }
 
-        # Agregar a la lista de adquirentes o enajenantes según corresponda
         persona = {
             'RUNRUT': row['RUNRUT'],
             'derecho': row['derecho']
@@ -99,130 +136,132 @@ def obtener_datos():
         elif row['tipo'] == 'enajenante':
             grouped_data[numero_atencion]['enajenantes'].append(persona)
 
-    # Convertir el diccionario a una lista para poder ser retornada como JSON
-    response_data = list(grouped_data.values())
-    return jsonify(response_data)
-
+    return list(grouped_data.values())
 
 @controlador_formularios_bp.route('/<numero_atencion>', methods=['GET'])
 def obtener_formulario_unico(numero_atencion):
-    conn = get_db_connection()
+    '''Retorna un formulario específico por su número de atención.'''
+    conn = obtener_conexion_db()
     cursor = conn.cursor(dictionary=True)
 
-    query = 'SELECT * FROM Formulario WHERE numero_atencion = %s'
-    cursor.execute(query, (numero_atencion,))
+    try:
+        query = generar_query_obtener_formulario_unico()
+        cursor.execute(query, (numero_atencion,))
+        rows = cursor.fetchall()
+        return jsonify(rows)
 
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    return jsonify(rows)
+    finally:
+        cursor.close()
+        conn.close()
 
 
 @controlador_formularios_bp.route('/clean', methods=['GET'])
 def borrar_datos():
-    conn = get_db_connection()
+    '''Borra todos los formularios de la tabla Formulario.'''
+    query = generar_query_borrar_formularios()
+    try:
+        ejecutar_query_borrar_formularios(query)
+        mensaje = {'mensaje': 'Datos borrados exitosamente'}
+    except Error as e:
+        mensaje = {'error': str(e)}
+    return mensaje
+
+def ejecutar_query_borrar_formularios (query):
+    '''Ejecuta una consulta SQL y confirma la transacción.'''
+    conn = obtener_conexion_db()
     cursor = conn.cursor()
     try:
-        cursor.execute('DELETE FROM Formulario')
-        conn.commit()  # Confirmar la transacción
-        mensaje = {'mensaje': 'Datos borrados exitosamente'}
+        cursor.execute(query)
+        conn.commit()
     except Exception as e:
-        conn.rollback()  # Revertir la transacción en caso de error
-        mensaje = {'error': str(e)}
+        conn.rollback()
+        raise e
     finally:
         cursor.close()
         conn.close()
-    return jsonify(mensaje)
 
 
 @controlador_formularios_bp.route('/algo', methods=['GET'])
 def ejecutar_algoritmo():
-    lista = [{'comuna': 88, 'manzana': 514, 'predio': 23, 'fecha_inscripcion': '2022'}, {'comuna': 88, 'manzana': 54,
-                                                                                         'predio': 456, 'fecha_inscripcion': '2014'}, {'comuna': 11214, 'manzana': 54, 'predio': 456, 'fecha_inscripcion': '2014'}]
+    '''función de prueba que ejecuta el algoritmo con valor artificial'''
+    lista = [{'comuna': 88, 'manzana': 514, 'predio': 23, 'fecha_inscripcion': '2022'},
+             {'comuna': 88, 'manzana': 54, 'predio': 456,
+                 'fecha_inscripcion': '2014'},
+             {'comuna': 11214, 'manzana': 54, 'predio': 456, 'fecha_inscripcion': '2014'}]
     for i in lista:
         data1 = algoritmo([i])
     return jsonify(data1)
 
 
 @controlador_formularios_bp.route('/crear', methods=['POST'])
-def agregar_dato():
-    datos = request.json
-    formularios = datos.get('F2890', [])
-    numero_atencion = get_atention_number()
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    propiedades_a_preprocesar = []
-    propiedades_a_procesar = []
-
+def agregar_formulario_a_base_de_datos():
+    '''Agrega los formularios a la tabla Formulario'''
     try:
+        conn = obtener_conexion_db()
+        cursor = conn.cursor()
+
+        datos = request.json
+        formularios = datos.get('F2890', [])
+        numero_atencion = obtener_numero_de_atencion()
+
+        propiedades_a_preprocesar = []
+
         for formulario in formularios:
-            # Recuperar datos de cada formulario
-            bien_raiz = formulario.get('bienRaiz', {})
-            propiedades_a_preprocesar.append(bien_raiz)
-            comuna = bien_raiz.get('comuna')
-            manzana = bien_raiz.get('manzana')
-            predio = bien_raiz.get('predio')
-            cne = formulario.get('CNE')
-            fojas = formulario.get('fojas')
-            fecha_inscripcion = formulario.get('fechaInscripcion')
-            numero_inscripcion = formulario.get('nroInscripcion')
-            status = 'vigente'
-            # Intentar convertir la fecha de inscripción
-            try:
-                fecha_inscripcion_formateada = datetime.strptime(
-                    fecha_inscripcion, '%Y-%m-%d').strftime('%Y%m%d')
-            except ValueError:
-                fecha_inscripcion_formateada = '00000000'  # Fecha muy antigua
-                status = 'invalido'
-
-            if not str(manzana).isdigit() or not str(comuna).isdigit() or not str(predio).isdigit():
-                status = 'invalido'
-
-            datos_propiedad = {
-                'comuna': comuna,
-                'manzana': manzana,
-                'predio': predio,
-                'fecha_inscripcion': fecha_inscripcion_formateada,
-            }
-            print(datos_propiedad)
-            propiedades_a_preprocesar.append(datos_propiedad)
-
-            enajenantes = formulario.get('enajenantes', [])
-            for enajenante in enajenantes:
-                RUNRUT = enajenante.get('RUNRUT')
-                derecho = enajenante.get('porcDerecho')
-                cursor.execute('''INSERT INTO Formulario 
-                                  (numero_atencion, cne, comuna, manzana, predio, fojas, fecha_inscripcion,
-                                  numero_inscripcion, tipo, RUNRUT, derecho, status, herencia)
-                                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''',
-                               (numero_atencion, cne, comuna, manzana, predio, fojas, fecha_inscripcion_formateada,
-                                numero_inscripcion, 'enajenante', RUNRUT, derecho, status, 'n/a'))
-
-            adquirentes = formulario.get('adquirentes', [])
-            for adquirente in adquirentes:
-                RUNRUT = adquirente.get('RUNRUT')
-                derecho = adquirente.get('porcDerecho')
-                cursor.execute('''INSERT INTO Formulario 
-                                  (numero_atencion, cne, comuna, manzana, predio, fojas, fecha_inscripcion,
-                                  numero_inscripcion, tipo, RUNRUT, derecho, status, herencia)
-                                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''',
-                               (numero_atencion, cne, comuna, manzana, predio, fojas, fecha_inscripcion_formateada,
-                                numero_inscripcion, 'adquirente', RUNRUT, derecho, status, 'n/a'))
-            numero_atencion = numero_atencion + 1
-        conn.commit()  # Confirmar la transacción
-        propiedades_a_procesar = preprocesamiento_de_datos(
-            propiedades_a_preprocesar)
-        print(propiedades_a_procesar)
-        for i in propiedades_a_procesar:
-            algoritmo(i)
-        mensaje = {
-            'mensaje': 'Datos agregados exitosamente. Propiedades:' + str(propiedades_a_procesar)}
-    except Exception as e:
-        conn.rollback()  # Revertir la transacción en caso de error
+            numero_atencion = agregar_datos_formulario(cursor, formulario,
+                                                        numero_atencion, propiedades_a_preprocesar)
+        conn.commit()
+        propiedades_a_procesar = obtener_propiedades_agrupadas(propiedades_a_preprocesar)
+        for propiedad in propiedades_a_procesar:
+            algoritmo(propiedad)
+        mensaje = {'mensaje': f'Datos agregados exitosamente.Propiedades: {propiedades_a_procesar}'}
+    except Error as e:
+        conn.rollback()
         mensaje = {'error': str(e)}
     finally:
         cursor.close()
         conn.close()
 
     return jsonify(mensaje), 201
+
+def agregar_datos_formulario(cursor, formulario, numero_atencion, propiedades_a_preprocesar):
+    '''Recibe la información de los formularios, los inserta en la base de datos y retorna
+      el numero de atención para el siguiente formulario.'''
+    bien_raiz = formulario.get('bienRaiz', {})
+    comuna = bien_raiz.get('comuna')
+    manzana = bien_raiz.get('manzana')
+    predio = bien_raiz.get('predio')
+    cne = formulario.get('CNE')
+    fojas = formulario.get('fojas')
+    fecha_inscripcion = formulario.get('fechaInscripcion')
+    numero_inscripcion = formulario.get('nroInscripcion')
+    status = 'vigente'
+
+    try:
+        fecha_inscripcion_formateada = datetime.strptime(fecha_inscripcion,
+                                                          '%Y-%m-%d').strftime('%Y%m%d')
+    except ValueError:
+        fecha_inscripcion_formateada = '00000000'  # Fecha muy antigua
+        status = 'invalido'
+
+    if not str(manzana).isdigit() or not str(comuna).isdigit() or not str(predio).isdigit():
+        status = 'invalido'
+
+    datos_propiedad = {
+        'comuna': comuna,
+        'manzana': manzana,
+        'predio': predio,
+        'fecha_inscripcion': fecha_inscripcion_formateada,
+    }
+    propiedades_a_preprocesar.append(datos_propiedad)
+
+    for tipo, personas in [('enajenantes', formulario.get('enajenantes', [])),
+                            ('adquirentes', formulario.get('adquirentes', []))]:
+        for persona in personas:
+            rut = persona.get('RUNRUT')
+            derecho = persona.get('porcDerecho')
+            query = generar_query_insertar_formularios()
+            herencia = 'n/a' #valor inicial del campo herencia, para uso en caso de rectificación.
+            cursor.execute(query, (numero_atencion, cne, comuna, manzana, predio, fojas,
+                   fecha_inscripcion_formateada, numero_inscripcion, tipo,
+                     rut, derecho, status, herencia))
+    return numero_atencion + 1

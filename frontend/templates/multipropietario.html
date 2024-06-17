@@ -189,53 +189,6 @@
     </div>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("reprocesar_bienraiz").addEventListener("submit", function (event) {
-          event.preventDefault();
-          const comuna = document.getElementById("comuna").value;
-          const manzana = document.getElementById("manzana").value;
-          const predio = document.getElementById("predio").value;
-          const ano = document.getElementById("ano").value;
-          const formData = {
-            comuna: comuna,
-            manzana: manzana,
-            predio: predio,
-            ano: ano
-          };
-          console.log(formData);
-
-          // Enviar la solicitud fetch con el JSON en el cuerpo
-          fetch("http://localhost:5000/multipropietario/reproces", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData),
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              // Aquí puedes manejar la respuesta del servidor, como actualizar la tabla en la página
-              console.log(data);
-            })
-            .catch((error) => {
-              console.error("Error al buscar formulario:", error);
-            });
-        });
-
-        // Función para el re-procesado completo
-        document.getElementById("reprocesadoCompleto").addEventListener("click", function () {
-          fetch("/reprocesado_completo", {
-            method: "POST",
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              // Aquí puedes manejar la respuesta del servidor, como actualizar la tabla en la página
-              console.log(data);
-            })
-            .catch((error) => {
-              console.error("Error en re-procesado completo:", error);
-            });
-        });
-
         // Función para limpiar la tabla
         document.getElementById("limpiarTabla").addEventListener("click", function () {
           fetch("http://localhost:5000/multipropietario/clean", {
