@@ -35,11 +35,9 @@ def construir_fila_adquirente(adquirente, propiedad, value):
 
 def validar_y_ajustar_fila(row):
     '''Valida y ajusta los datos de la fila según las reglas de negocio.'''
-    if int(row["ano_vigencia_i"]) < 2019:
-        row["ano_vigencia_i"] = "2019"
     return row if int(row["derecho"]) > 0 else None
 
-def handle_99(value, propiedad):
+def procesar_resolucion_de_patrimonio(value, propiedad):
     '''Retorna un diccionario con datos para la multiporpietario. CNE 99'''
     result = []
     for adquirente in value['adquirentes']:
@@ -65,7 +63,7 @@ def construir_fila_general(persona, propiedad, value):
     }
 
 
-def handle_8(adquirentes, enajenantes, propiedad, value):
+def procesar_compra_venta(adquirentes, enajenantes, propiedad, value):
     '''Retorna un diccionario con datos para la multiporpietario. CNE 8'''
     result = []
     for adquirente in adquirentes:
@@ -148,7 +146,11 @@ def calcular_derechos(multipropietario_temp, value, propiedad):
     data = calcular_derechos_totales(multipropietario_temp, value)
     derechos, total_enajenado, total_adquirido = data
     total_derechos_post_transaccion = sum(derechos.values())
+
+
+
     if total_derechos_post_transaccion > 100:
+        ajustar_distribución()
         factor_ajuste = 100 / total_derechos_post_transaccion
         for run in derechos:
             derechos[run] = round(derechos[run] * factor_ajuste)
@@ -242,68 +244,47 @@ def algoritmo(datos):
     data = request_algorithm_data(datos)
     for lista in data:
         contador = 0
-        for defaultdict_item in lista:
+        ano_corte = 0
+        multipropietario_temp = None
+        for formularios_dict in lista:
             propiedad = datos[contador]
-            limpiar_multipropietario(propiedad)
-            multipropietario = datos_multipopietarios[contador]
+            #limpiar_multipropietario(propiedad)
             # Código usado para debuggear a base de prints
             print(f"Datos de la propiedad: C: {propiedad['comuna']}, "
                   f"M: {propiedad['manzana']}, "
                   f"P: {propiedad['predio']}")
-
-            print("Multipropietarios Previa")
-            print(multipropietario)
-            print(defaultdict_item)
+            print(formularios_dict)
             # Fin del código de debuggeo
-            if multipropietario is not None:
-                multipropietario_temp = multipropietario
-            else:
-                multipropietario_temp = []
+            for _,value in formularios_dict.items():
+                ano_form = int(value['fecha_inscripcion'][0:4])
+                cne = int(value["cne"])
+                if ano_corte == 0:
+                    ano_corte = ano_form
+                elif ano_corte < ano_form:
+                    print("ya loop")
+                    #ajustar_derechos()
+                    #Acotar registro anterior
+                    multipropietario_temp = []
 
-            for value in defaultdict_item.items():
-                if value["status"] != "invalido" or value["status"] != "rectificado":
-                    print("CNE: " + str(value["cne"]))
-                    print("MULTIPROPIETARIO ITER")
+                if multipropietario_temp is None:
+                    print(None)
+                    multipropietario_temp = datos_multipopietarios[contador] #asegurarse de cargar ultimo registro, es decir datos sin fecha f
+                if cne == 99:
+                    print(99)
+                    #overwrite a la temp
+                    multipropietario_temp = procesar_resolucion_de_patrimonio(value,propiedad)
                     print(multipropietario_temp)
-                    print("VALUE")
-                    print(value)
-                    # print("Temp inicial")
-                    # print(multipropietario_temp)
-                    if int(value['fecha_inscripcion'][0:4]) <= 2019:
-                        ano = 2019
-                    else:
-                        ano = int(value['fecha_inscripcion'][0:4])
-                    # print(ano)
-                    if value['cne'] == 99:
-                        multipropietario_temp = actualizar_ano_vigencia_f(
-                            multipropietario_temp, ano)
-                        print("CALCULOCALCULOCALCULOCALCULOCALCULOCALCULOCALCULO")
-                        lista_multi = handle_99(value, propiedad)
-                        for multi in lista_multi:
-                            multipropietario_temp.append(multi)
-                        # Imprimir el resultado para verificación
-                    elif value['cne'] == 8:
-                        # print("PRE")
-                        # print(multipropietario_temp)
-                        # print("POST")
-                        calculo_derechos, suma_der_enajenantes, suma_der_adq = calcular_derechos(
-                            multipropietario_temp, value, propiedad)
-                        multipropietario_temp = actualizar_ano_vigencia_f(
-                            multipropietario_temp, ano)
-                        print("CALCULOCALCULOCALCULOCALCULOCALCULOCALCULOCALCULO")
-                        print(calculo_derechos)
-                        for multi in calculo_derechos:
-                            multipropietario_temp.append(multi)
+                if cne == 8:
+                    print(8)
+                    data = procesar_compra_venta(value["adquirentes"], value["enajenantes"],
+                                                  propiedad, value)
+                    for i in data:
+                        multipropietario_temp.append(i)
+                    print(multipropietario_temp)
+                #agrupar_propietarios()
+                #limpiar_derechos_negativos()
 
-                        if (suma_der_adq == 0 or suma_der_adq == 100):
-                            print("Caso ADQ = 0 o = 100")
-                        if suma_der_enajenantes == 0:
-                            print("Caso ENJ 0")
 
-                        print("---------------------------------------------")
-            print("Temp definitivo")
-            print(multipropietario_temp)
-            ingresar_multipropietarios(multipropietario_temp)
 
             contador += 1
 

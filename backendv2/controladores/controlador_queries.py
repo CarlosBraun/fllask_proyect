@@ -14,7 +14,14 @@ def generar_query_obtener_formularios():
 def generar_query_obtener_formularios_asc():
     '''Genera la consulta SQL para obtener todos los formularios
       en orden por fecha de inscripción ascendente.'''
-    return 'SELECT * FROM Formulario'
+    return """
+        SELECT * FROM Formulario
+        WHERE comuna = %s
+        AND manzana = %s
+        AND predio = %s
+        AND fecha_inscripcion >= %s
+        ORDER BY fecha_inscripcion ASC
+    """
 
 def generar_query_obtener_formulario_unico():
     '''Genera la consulta SQL para obtener formulario único.'''

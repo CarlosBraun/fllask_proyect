@@ -184,10 +184,7 @@ def ejecutar_query_borrar_formularios (query):
 @controlador_formularios_bp.route('/algo', methods=['GET'])
 def ejecutar_algoritmo():
     '''función de prueba que ejecuta el algoritmo con valor artificial'''
-    lista = [{'comuna': 88, 'manzana': 514, 'predio': 23, 'fecha_inscripcion': '2022'},
-             {'comuna': 88, 'manzana': 54, 'predio': 456,
-                 'fecha_inscripcion': '2014'},
-             {'comuna': 11214, 'manzana': 54, 'predio': 456, 'fecha_inscripcion': '2014'}]
+    lista = [{'comuna': 88, 'manzana': 54, 'predio': 456,'fecha_inscripcion': '2014'}]
     for i in lista:
         data1 = algoritmo([i])
     return jsonify(data1)
