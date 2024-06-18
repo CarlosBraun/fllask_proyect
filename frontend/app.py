@@ -1,8 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
-import pandas as pd
-import requests
+'''
+Módulo principal de la aplicación de Frontend
+'''
 import json
 from datetime import datetime
+import pandas as pd
+import requests
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 app = Flask(__name__)
 app.debug = True
@@ -51,11 +54,11 @@ def obtener_listado():
         return data
     except requests.RequestException as e:
         # Manejar cualquier excepción de solicitud, como errores de conexión o tiempos de espera
-        print("Error al hacer la solicitud a la API")
+        print("Error al hacer la solicitud a la API",e)
         return None  # Devolver None para indicar que hubo un error
     except ValueError as e:
         # Manejar excepciones al intentar analizar la respuesta JSON
-        print("Error al analizar")
+        print("Error al analizar",e)
 
 
 def obtener_multipropietario():

@@ -222,6 +222,7 @@ def ejecutar_limpiar_multipropietario(cursor, propiedad, ano_inicio):
 def limpiar_multipropietario(propiedad):
     '''Elimina los registros de la tabla Multipropietario un año en adelante
     para cierta propiedad'''
+    print(propiedad['fecha_inscripcion'])
     ano_inicio = int(propiedad['fecha_inscripcion'][:4])
     conn = obtener_conexion_db()
     cursor = conn.cursor()
