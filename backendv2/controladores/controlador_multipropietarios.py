@@ -123,7 +123,14 @@ def generar_registros_form_a_multi(adquirentes, enajenantes, propiedad, value):
         row = construir_fila_general(enajenante, propiedad, value)
         result.append(row)
     return result
-
+def cargar_ultimo_registro(multipropietario):
+    '''Recibe todas las filas de la multipropietario y retorna las que no tienen ano_vigencia_f'''
+    print("CARGAR ULT REGISTRO")
+    result =[]
+    for i in multipropietario:
+        if i["ano_viencia_f"] is None:
+            result.append(i)
+    return result
 
 def inicializar_derechos(multipropietario_temp):
     '''
@@ -230,7 +237,7 @@ def algoritmo(datos):
 
                 if multipropietario_temp is None:
                     print(None)
-                    multipropietario_temp = datos_multipopietarios[contador]
+                    multipropietario_temp = cargar_ultimo_registro(datos_multipopietarios[contador])
                     #asegurarse de cargar ultimo registro, es decir datos sin fecha f
                 if cne == 99:
                     print(99)
