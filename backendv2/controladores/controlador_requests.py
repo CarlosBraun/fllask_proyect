@@ -192,7 +192,9 @@ def request_algorithm_data(data):
 def ejecutar_query_multipropietario(cursor, propiedades):
     '''Ejecuta la consulta SQL con los parámetros dados'''
     query = generar_query_busqueda_multipropietario_completa()
-    cursor.execute(query, (propiedades['comuna'], propiedades['manzana'], propiedades['predio']))
+    print(propiedades)
+    cursor.execute(query, (int(propiedades['comuna']),
+                            int(propiedades['manzana']), int(propiedades['predio'])))
     return cursor.fetchall()
 
 def obtener_multipropietario_data(data):
@@ -200,13 +202,24 @@ def obtener_multipropietario_data(data):
     conn = obtener_conexion_db()
     cursor = conn.cursor(dictionary=True)
     total_data = []
+    print(data)
     for propiedades in data:
         results = ejecutar_query_multipropietario(cursor, propiedades)
         total_data.append(results)
     cursor.close()
     conn.close()
-    return total_data
 
+    return procesar_data_multipropietario(total_data)
+
+def procesar_data_multipropietario(data):
+    '''Recibe la data de la llamada a la base de datos, y la retorna con el formato que 
+    se trabaja en el algoritmo fecha_inscripción pasa de datetime.date(2014, 11, 29) -> YYYYMMDD
+    '''
+    for propiedades in data:
+        for registro in propiedades:
+            registro['fecha_inscripcion'] = registro['fecha_inscripcion'].strftime('%Y%m%d')
+
+    return data
 
 
 def ejecutar_limpiar_multipropietario(cursor, propiedad, ano_inicio):

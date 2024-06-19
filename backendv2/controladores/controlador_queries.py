@@ -44,14 +44,14 @@ def generar_query_obtener_multipropietarios():
 
 def generar_query_busqueda_multipropietario():
     '''Genera la consulta SQL para buscar datos en la tabla Multipropietario'''
-    return """
+    return '''
     SELECT *
     FROM Multipropietario
     WHERE comuna = %s
     AND manzana = %s
     AND predio = %s
     AND (ano_vigencia_f >= %s OR ano_vigencia_f IS NULL)
-    """
+    '''
 
 
 def generar_query_busqueda_multipropietario_completa():

@@ -10,7 +10,6 @@ from controladores.controlador_requests import (
 )
 from controladores.controlador_queries import (
     generar_query_obtener_multipropietarios,
-    generar_query_busqueda_multipropietario,
     generar_query_borrar_multipropietario
     )
 from flask import Blueprint, jsonify, request
@@ -54,7 +53,6 @@ def construir_fila_general(persona, propiedad, value):
     }
 def construir_fila_distribuir_100(persona, propiedad, value, a_distribuir):
     '''Construye una fila con los datos de la persona (adquirente o enajenante) y la propiedad.'''
-    print(persona)
     return {
         'comuna': propiedad["comuna"],
         'manzana': propiedad["manzana"],
@@ -123,13 +121,22 @@ def generar_registros_form_a_multi(adquirentes, enajenantes, propiedad, value):
         row = construir_fila_general(enajenante, propiedad, value)
         result.append(row)
     return result
-def cargar_ultimo_registro(multipropietario):
+def obtener_ultimo_registro(multipropietario):
     '''Recibe todas las filas de la multipropietario y retorna las que no tienen ano_vigencia_f'''
-    print("CARGAR ULT REGISTRO")
+    for i in multipropietario:
+        # Asegurar que 'ano_vigencia_f' esté presente en cada diccionario
+        if 'ano_vigencia_f' not in i:
+            i['ano_vigencia_f'] = None  # Inicializar 'ano_vigencia_f' si no existe
+    result = [i for i in multipropietario if i['ano_vigencia_f'] is None]
+    return result
+
+def revisar_multipropietario(multipropietario):
+    '''Recibe todas las filas de la multipropietario y retorna un arreglo vacío en caso
+    de no existir registros
+    '''
     result =[]
     for i in multipropietario:
-        if i["ano_viencia_f"] is None:
-            result.append(i)
+        result.append(i)
     return result
 
 def inicializar_derechos(multipropietario_temp):
@@ -170,7 +177,7 @@ def calcular_derechos_adquirentes(adquirentes, derechos, total_adquirido):
     for adquirente in adquirentes:
         conteo += 1
         run = adquirente["RUNRUT"]
-        derecho = int(adquirente["derecho"])
+        derecho = float(adquirente["derecho"])
         total_adquirido += derecho
         if run in derechos:
             derechos[run] += derecho
@@ -200,11 +207,10 @@ def actualizar_ano_vigencia_f(elementos, ano):
     return elementos_temp
 
 
-def algoritmo(datos):
-    '''Es el algoritmo central, procesa los formularios y rellena la Multipropietario'''
-    print("datos")
+def ejecutar_algoritmo(datos):
+    '''Es el ejecutar_algoritmo central, procesa los formularios y rellena la Multipropietario'''
+    print("COMIENZO ejecutar_ALGORITMO------------")
     datos_multipopietarios = obtener_multipropietario_data(datos)
-    print(datos_multipopietarios)
     data = request_algorithm_data(datos)
     for lista in data:
         contador = 0
@@ -213,13 +219,11 @@ def algoritmo(datos):
         for formularios_dict in lista:
             propiedad = datos[contador]
             limpiar_multipropietario(propiedad)
-            print(f"Datos de la propiedad: C: {propiedad['comuna']}, "
-                  f"M: {propiedad['manzana']}, "
-                  f"P: {propiedad['predio']}")
-            print(formularios_dict)
             # Fin del código de debuggeo
             for _,value in formularios_dict.items():
                 print("OTRO FORM------------------------")
+                print("VALUEVALUEVALUEVALUE")
+                print(value)
                 ano_form = int(value['fecha_inscripcion'][0:4])
                 cne = int(value["cne"])
                 if ano_corte == 0:
@@ -237,11 +241,14 @@ def algoritmo(datos):
 
                 if multipropietario_temp is None:
                     print(None)
-                    multipropietario_temp = cargar_ultimo_registro(datos_multipopietarios[contador])
+                    multipropietario_temp=revisar_multipropietario(datos_multipopietarios[contador])
                     #asegurarse de cargar ultimo registro, es decir datos sin fecha f
+                #ultimo_registro =obtener_ultimo_registro(multipropietario_temp)
                 if cne == 99:
                     print(99)
                     multipropietario_temp = procesar_resolucion_de_patrimonio(value,propiedad)
+                    print(multipropietario_temp)
+                    print("----------------")
                 if cne == 8:
                     print(8)
                     procesar_compra_venta(multipropietario_temp,value, propiedad)
@@ -295,6 +302,8 @@ def procesar_compra_venta(multipropietario_temp,value, propiedad):
 def distribuir_100(total_enajenado, value, propiedad, multipropietario_temp):
     '''Esta función se encarga de manejar la distribución del caso Distribuir 100%'''
     a_distribuir = total_enajenado
+    #print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    print(a_distribuir)
     if a_distribuir == 0:
         a_distribuir = 100
     for adquirente in value["adquirentes"]:
@@ -375,7 +384,7 @@ def distribuir_general(value, propiedad, multipropietario_temp):
     # Insertar los adquirentes en multipropietario_temp
     for adquirente in value['adquirentes']:
         run = adquirente['RUNRUT']
-        derecho = int(adquirente['derecho'])
+        derecho = float(adquirente['derecho'])
         multipropietario_temp.append(construir_fila_general(adquirente, propiedad, value))
     print("Datos actualizados de multipropietario_temp:")
     print(multipropietario_temp)
@@ -384,8 +393,8 @@ def distribuir_general(value, propiedad, multipropietario_temp):
 
 def ajustar_derechos(multipropietario_temp):
     '''Ajusta los derechos de la multipropietario_temp para que la sumatoria de derechos sea 100'''
-    total_derechos = sum(int(prop['derecho']) for prop in multipropietario_temp)
-    fantasmas = [prop for prop in multipropietario_temp if int(prop['derecho']) == 0 and
+    total_derechos = sum(float(prop['derecho']) for prop in multipropietario_temp)
+    fantasmas = [prop for prop in multipropietario_temp if float(prop['derecho']) == 0 and
                  prop['fecha_inscripcion'] is None and
                  prop['ano_inscripccion'] is None and
                  prop['numero_inscripcion'] is None and
@@ -410,7 +419,7 @@ def ajustar_derechos(multipropietario_temp):
         factor_ajuste = 100 / total_derechos
 
     for prop in multipropietario_temp:
-        prop['derecho'] = round(int(prop['derecho']) * factor_ajuste)
+        prop['derecho'] = round(float(prop['derecho']) * factor_ajuste)
     return multipropietario_temp
 
 def eliminar_no_fantasmas_con_derecho_cero(multipropietario_temp):
@@ -420,8 +429,7 @@ def eliminar_no_fantasmas_con_derecho_cero(multipropietario_temp):
                                                           prop['ano_inscripccion'] is not None and
                                                           prop['numero_inscripcion'] is not None and
                                                           prop['fojas'] is not None and
-                                                          prop['ano_vigencia_i'] is not None and
-                                                          prop['status'] is not None)]
+                                                          prop['ano_vigencia_i'] is not None)]
 
 #refactorizado
 @ controlador_multipropietarios_bp.route('/', methods=['GET'])
@@ -457,14 +465,33 @@ def ejecutar_consulta_busqueda_multipropietario(comuna, manzana, predio, ano):
     '''Ejecuta la consulta SQL para buscar datos en la tabla Multipropietario'''
     conn = obtener_conexion_db()
     cursor = conn.cursor(dictionary=True)
-    query = generar_query_busqueda_multipropietario()
+    query = generar_query_obtener_multipropietarios()
     try:
-        cursor.execute(query, (comuna, manzana, predio, ano))
+        cursor.execute(query)
         rows = cursor.fetchall()
+        print(str(comuna),manzana,predio,ano)
+        rows = filtrar_datos_multipropietario(rows,str(comuna),int(manzana),int(predio),int(ano))
+        print(rows)
         return rows
     finally:
         cursor.close()
         conn.close()
+
+def filtrar_datos_multipropietario(rows, comuna, manzana, predio, ano):
+    """
+    Filtra los datos de la lista de diccionarios 'rows' según los parámetros especificados.
+    La necesidad de crear esta función nace de la incompatibilidad de realizar la búsqueda
+    mediante queries dinámicas.
+
+    """
+    resultado_filtrado = []
+    for row in rows:
+        if (row['comuna'] == comuna and
+            row['manzana'] == manzana and
+            row['predio'] == predio and
+            (row['ano_vigencia_f'] is None or row['ano_vigencia_f'] >= ano)):
+            resultado_filtrado.append(row)
+    return resultado_filtrado
 
 
 @ controlador_multipropietarios_bp.route('/clean', methods=['GET'])

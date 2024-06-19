@@ -66,16 +66,17 @@ def obtener_multipropietario():
         response = requests.get('http://localhost:5000/multipropietario/')
         response.raise_for_status()
         json_data = response.json()
-
         for elemento in json_data:
-            # Eliminar 'T00:00:00.000Z' del final y convertir a objeto datetime
-            fecha_str = elemento['fecha_inscripcion'].split(
-                ',')[1].strip()  # Eliminar el día de la semana
-            fecha_datetime = datetime.strptime(
-                fecha_str, '%d %b %Y %H:%M:%S %Z')
-            elemento['fecha_inscripcion'] = fecha_datetime
-            if elemento["ano_vigencia_f"] == None:
-                elemento["ano_vigencia_f"] = ""
+            print(elemento['fecha_inscripcion'])
+               # Eliminar 'T00:00:00.000Z' del final y convertir a objeto datetime
+            if elemento['fecha_inscripcion'] is not None:
+                fecha_str = elemento['fecha_inscripcion'].split(
+                    ',')[1].strip()  # Eliminar el día de la semana
+                fecha_datetime = datetime.strptime(
+                    fecha_str, '%d %b %Y %H:%M:%S %Z')
+                elemento['fecha_inscripcion'] = fecha_datetime
+                if elemento["ano_vigencia_f"] is None:
+                    elemento["ano_vigencia_f"] = ""
 
         if not json_data:
             return "No se pudo cargar la tabla multipropietario"
@@ -262,8 +263,10 @@ def busqueda():
             "predio": predio,
             "ano": year
         }
+        print(data)
         response = requests.post(
             "http://localhost:5000/multipropietario/buscar", json=data)
+        print(response)
         json_data = json.loads(response.text)
         for elemento in json_data:
             # Eliminar 'T00:00:00.000Z' del final

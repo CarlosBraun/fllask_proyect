@@ -16,7 +16,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 # import mysql.connector  # type: ignore
 from mysql.connector import Error  # type: ignore
-from controladores.controlador_multipropietarios import algoritmo
+from controladores.controlador_multipropietarios import ejecutar_algoritmo
 from controladores.controlador_requests import obtener_conexion_db
 from controladores.controlador_queries import (generar_query_obtener_ultimo_numero,
                                               generar_query_obtener_formularios,
@@ -182,11 +182,11 @@ def ejecutar_query_borrar_formularios (query):
 
 
 @controlador_formularios_bp.route('/algo', methods=['GET'])
-def ejecutar_algoritmo():
+def ejecutar_algoritmo1():
     '''función de prueba que ejecuta el algoritmo con valor artificial'''
-    lista = [{'comuna': 88, 'manzana': 54, 'predio': 456,'fecha_inscripcion': '2014'}]
+    lista = [{'comuna': 77, 'manzana': 64, 'predio': 32, 'fecha_inscripcion': '2021'}]
     for i in lista:
-        data1 = algoritmo([i])
+        data1 = ejecutar_algoritmo([i])
     return jsonify(data1)
 
 
@@ -204,12 +204,11 @@ def agregar_formulario_a_base_de_datos():
         propiedades_a_preprocesar = []
 
         for formulario in formularios:
+            print(formulario)
             numero_atencion = agregar_datos_formulario(cursor, formulario,
                                                         numero_atencion, propiedades_a_preprocesar)
         conn.commit()
         propiedades_a_procesar = obtener_propiedades_agrupadas(propiedades_a_preprocesar)
-        for propiedad in propiedades_a_procesar:
-            algoritmo(propiedad)
         mensaje = {'mensaje': f'Datos agregados exitosamente.Propiedades: {propiedades_a_procesar}'}
     except Error as e:
         conn.rollback()
@@ -217,8 +216,33 @@ def agregar_formulario_a_base_de_datos():
     finally:
         cursor.close()
         conn.close()
-
+        #for propiedad in revisar_propiedades(propiedades_a_procesar):
+            #algoritmo([propiedad]) """
     return jsonify(mensaje), 201
+
+def revisar_propiedades(propiedades):
+    '''Retorna un array con los datos de las propiedades revisadas.
+    Revisa la integridad de los datos de las propiedades, en especifico
+    que sean numericos'''
+    propiedades_numericas = []
+    for propiedad in propiedades:
+        datos_numericos = True
+        for _, value in propiedad.items():
+            try:
+                float_value = float(value)
+                if isinstance(float_value, (int, float)):
+                    continue
+                else:
+                    datos_numericos = False
+                    break 
+            except ValueError:
+                datos_numericos = False
+                break
+        if datos_numericos:
+            propiedades_numericas.append(propiedad)
+    print(propiedades_numericas)
+    return propiedades_numericas
+
 
 def agregar_datos_formulario(cursor, formulario, numero_atencion, propiedades_a_preprocesar):
     '''Recibe la información de los formularios, los inserta en la base de datos y retorna
@@ -251,8 +275,8 @@ def agregar_datos_formulario(cursor, formulario, numero_atencion, propiedades_a_
     }
     propiedades_a_preprocesar.append(datos_propiedad)
 
-    for tipo, personas in [('enajenantes', formulario.get('enajenantes', [])),
-                            ('adquirentes', formulario.get('adquirentes', []))]:
+    for tipo, personas in [('enajenante', formulario.get('enajenantes', [])),
+                            ('adquirente', formulario.get('adquirentes', []))]:
         for persona in personas:
             rut = persona.get('RUNRUT')
             derecho = persona.get('porcDerecho')

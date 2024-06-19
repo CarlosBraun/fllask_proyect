@@ -1,3 +1,4 @@
+'''El módulo config.py define variables de entorno y credenciales de la base de datos'''
 DB_CONFIG = {
     'user': 'avnadmin',
     'password': 'AVNS_LHyyUux2JxRT64CsmA5',
@@ -5,6 +6,7 @@ DB_CONFIG = {
     'database': 'defaultdb',
     'port': '18573'
 }
+
 PORT_CONFIG = {
     'port': 5000
 }

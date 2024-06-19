@@ -161,8 +161,10 @@
                   {{ resultado.predio }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  {{ resultado.fecha_inscripcion.strftime("%Y%m%d") }}
-                </td>
+                  {% if resultado.fecha_inscripcion %}
+                      {{ resultado.fecha_inscripcion.strftime("%Y%m%d") }}
+                  {% endif %}
+              </td>
 
                 <td class="px-6 py-4 whitespace-nowrap">
                   {{ resultado.ano_inscripccion }}
