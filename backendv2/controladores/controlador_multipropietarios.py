@@ -1,12 +1,14 @@
 '''
 En este módulo
 '''
+import copy
 from controladores.controlador_requests import (
     obtener_conexion_db,
     obtener_multipropietario_data,
     request_algorithm_data,
     limpiar_multipropietario,
     ingresar_multipropietarios
+
 )
 from controladores.controlador_queries import (
     generar_query_obtener_multipropietarios,
@@ -34,7 +36,7 @@ def construir_fila_adquirente(adquirente, propiedad, value):
 
 def validar_y_ajustar_fila(row):
     '''Valida y ajusta los datos de la fila según las reglas de negocio.'''
-    return row if int(row["derecho"]) > 0 else None
+    return row if float(row["derecho"]) > 0 else None
 
 def construir_fila_general(persona, propiedad, value):
     '''Construye una fila con los datos de la persona (adquirente o enajenante) y la propiedad.'''
@@ -58,7 +60,7 @@ def construir_fila_distribuir_100(persona, propiedad, value, a_distribuir):
         'manzana': propiedad["manzana"],
         'predio': propiedad["predio"],
         'run': persona['RUNRUT'],
-        'derecho':str(int(persona['derecho'])*a_distribuir),
+        'derecho':str(float(persona['derecho'])*a_distribuir/100),
         'fojas': value['fojas'],
         'fecha_inscripcion': value['fecha_inscripcion'],
         'ano_inscripccion': int(value['fecha_inscripcion'][:4]),
@@ -88,7 +90,7 @@ def construir_fila_adq(persona, propiedad, value, variacion_derecho_enajenante):
         'manzana': propiedad["manzana"],
         'predio': propiedad["predio"],
         'run': persona['RUNRUT'],
-        'derecho':int(persona['derecho']) * variacion_derecho_enajenante,
+        'derecho':float(persona['derecho']) * variacion_derecho_enajenante,
         'fojas': value['fojas'],
         'fecha_inscripcion': value['fecha_inscripcion'],
         'ano_inscripccion': int(value['fecha_inscripcion'][:4]),
@@ -121,14 +123,16 @@ def generar_registros_form_a_multi(adquirentes, enajenantes, propiedad, value):
         row = construir_fila_general(enajenante, propiedad, value)
         result.append(row)
     return result
-def obtener_ultimo_registro(multipropietario):
+def obtener_ultimo_registro(propiedad, ano_actual):
     '''Recibe todas las filas de la multipropietario y retorna las que no tienen ano_vigencia_f'''
-    for i in multipropietario:
-        # Asegurar que 'ano_vigencia_f' esté presente en cada diccionario
-        if 'ano_vigencia_f' not in i:
-            i['ano_vigencia_f'] = None  # Inicializar 'ano_vigencia_f' si no existe
-    result = [i for i in multipropietario if i['ano_vigencia_f'] is None]
+    result = []
+    data = obtener_multipropietario_data([propiedad])[0]
+    for i in data:
+        ano_vigencia_f = i.get('ano_vigencia_f')
+        if ano_vigencia_f is None and int(i['ano_vigencia_i'])< ano_actual:
+            result.append(i)
     return result
+
 
 def revisar_multipropietario(multipropietario):
     '''Recibe todas las filas de la multipropietario y retorna un arreglo vacío en caso
@@ -146,26 +150,33 @@ def inicializar_derechos(multipropietario_temp):
     derechos = {}
     for prop in multipropietario_temp:
         run = prop['run']
-        derecho = int(prop['derecho'])
+        derecho = float(prop['derecho'])
         if run in derechos:
             derechos[run] += derecho
         else:
             derechos[run] = derecho
     return derechos
 
-def calcular_derechos_enajenantes(enajenantes, derechos, total_enajenado):
+def calcular_derechos_enajenantes(enajenantes, derechos, total_enajenado, multipropietario_temp):
     '''
     Procesa la lista de enajenantes, actualizando el diccionario de derechos,
     el total enajenado. Además retorna un count() de los enajenantes.
     '''
     conteo = 0
+    derecho = 0
     for enajenante in enajenantes:
         conteo += 1
         run = enajenante["RUNRUT"]
-        derecho = int(enajenante["derecho"])
-        total_enajenado += derecho
+        for i in multipropietario_temp:
+            ano_vigencia_f = i.get('ano_vigencia_f')
+            if i['run'] == run and ano_vigencia_f is None:
+                derecho += float(i['derecho'])
+                total_enajenado += derecho
         if run in derechos:
             derechos[run] -= derecho
+        print("DERECHOS")
+        print(derechos)
+        print("--------------")
     return total_enajenado, conteo
 
 def calcular_derechos_adquirentes(adquirentes, derechos, total_adquirido):
@@ -190,7 +201,8 @@ def calcular_derechos_totales(multipropietario_temp, value):
     derechos = inicializar_derechos(multipropietario_temp)
     total_enajenado = 0
     total_adquirido = 0
-    total_enajenado = calcular_derechos_enajenantes(value["enajenantes"], derechos, total_enajenado)
+    total_enajenado = calcular_derechos_enajenantes(value["enajenantes"], derechos,
+                                                     total_enajenado , multipropietario_temp)
     total_adquirido = calcular_derechos_adquirentes(value["adquirentes"], derechos, total_adquirido)
 
     return derechos ,total_enajenado, total_adquirido
@@ -210,6 +222,7 @@ def actualizar_ano_vigencia_f(elementos, ano):
 def ejecutar_algoritmo(datos):
     '''Es el ejecutar_algoritmo central, procesa los formularios y rellena la Multipropietario'''
     print("COMIENZO ejecutar_ALGORITMO------------")
+    print(datos)
     datos_multipopietarios = obtener_multipropietario_data(datos)
     data = request_algorithm_data(datos)
     for lista in data:
@@ -219,31 +232,39 @@ def ejecutar_algoritmo(datos):
         for formularios_dict in lista:
             propiedad = datos[contador]
             limpiar_multipropietario(propiedad)
+            ultimo_registro = []
             # Fin del código de debuggeo
             for _,value in formularios_dict.items():
-                print("OTRO FORM------------------------")
-                print("VALUEVALUEVALUEVALUE")
+                print("Ciclo------------------------")
+                print("FORM")
                 print(value)
                 ano_form = int(value['fecha_inscripcion'][0:4])
                 cne = int(value["cne"])
                 if ano_corte == 0:
                     ano_corte = ano_form
                 elif ano_corte < ano_form:
-                    print("Multi LOOP")
                     print(multipropietario_temp)
                     multipropietario_temp = ajustar_derechos(multipropietario_temp)
+                    multipropietario_temp =eliminar_enas_con_derecho_cero(multipropietario_temp)
                     print("Ajuste")
-                    print(multipropietario_temp)
-                    #Acotar registro anterior
-                    ingresar_multipropietarios(multipropietario_temp)
-
+                    realizar_merge(multipropietario_temp)
+                    acotar_registro_anterior(ultimo_registro , ano_form - 1)
+                    multipropietario = ultimo_registro
+                    for i in multipropietario_temp:
+                        multipropietario.append(i)
+                    print("MULTIPROPIETARIO A INGRESAR")
+                    for i in multipropietario:
+                        print(i)
+                    ingresar_multipropietarios(multipropietario)
                     multipropietario_temp = []
-
                 if multipropietario_temp is None:
-                    print(None)
                     multipropietario_temp=revisar_multipropietario(datos_multipopietarios[contador])
                     #asegurarse de cargar ultimo registro, es decir datos sin fecha f
-                #ultimo_registro =obtener_ultimo_registro(multipropietario_temp)
+                    print(propiedad)
+                    ultimo_registro =obtener_ultimo_registro(propiedad, ano_form)
+                    print("ULTIMOREGISTRO")
+                    for i in ultimo_registro:
+                        print(i)
                 if cne == 99:
                     print(99)
                     multipropietario_temp = procesar_resolucion_de_patrimonio(value,propiedad)
@@ -254,18 +275,29 @@ def ejecutar_algoritmo(datos):
                     procesar_compra_venta(multipropietario_temp,value, propiedad)
 
             if multipropietario_temp is not None:
-                print(multipropietario_temp)
                 multipropietario_temp = ajustar_derechos(multipropietario_temp)
-                multipropietario_temp =eliminar_no_fantasmas_con_derecho_cero(multipropietario_temp)
-                print("Ajuste")
-                print(multipropietario_temp)
-                #Acotar registro anterior
-                ingresar_multipropietarios(multipropietario_temp)
+                multipropietario_temp =eliminar_enas_con_derecho_cero(multipropietario_temp)
+                print("-------MERGE---------")
+                realizar_merge(multipropietario_temp)
+                print("----------------")
+                print("---------------")
+                ultimo_registro =acotar_registro_anterior(ultimo_registro , ano_form)
+                multipropietario = []
+                for i in ultimo_registro:
+                    print("hay registro", i)
+                for i in multipropietario_temp:
+                    multipropietario.append(i)
+                print("MULTIPROPIETARIO A INGRESAR")
+                for i in multipropietario:
+                    print(i)
+                print("-------------------------")
+                ingresar_multipropietarios(multipropietario)
 
 
             contador += 1
 
     return data
+
 def procesar_resolucion_de_patrimonio(value, propiedad):
     '''Retorna un diccionario con datos para la multiporpietario. CNE 99'''
     result = []
@@ -277,17 +309,12 @@ def procesar_resolucion_de_patrimonio(value, propiedad):
     return result
 def procesar_compra_venta(multipropietario_temp,value, propiedad):
     '''Retorna un diccionario con datos para la multiporpietario. CNE 8'''
-    registros = generar_registros_form_a_multi(value["adquirentes"],
+    generar_registros_form_a_multi(value["adquirentes"],
                                             value["enajenantes"], propiedad, value)
-    for i in registros:
-        print(i)
-#                        multipropietario_temp.append(i)
     data_temp = calcular_derechos_totales(multipropietario_temp, value)
     _,enajenado, adquirido = data_temp
     total_adquirido , cantidad_adq = adquirido
     total_enajenado, cantidad_ena = enajenado
-
-
     if (total_adquirido == 100 or total_adquirido == 0):
         distribuir_100(total_enajenado, value, propiedad, multipropietario_temp)
         print("Distribuir%=100();")
@@ -301,14 +328,21 @@ def procesar_compra_venta(multipropietario_temp,value, propiedad):
 
 def distribuir_100(total_enajenado, value, propiedad, multipropietario_temp):
     '''Esta función se encarga de manejar la distribución del caso Distribuir 100%'''
+    #función que llevo a 0 el derecho en la TEMP si en value enajenante hace match
+    #  con el rut de la multipropietario en este caso
     a_distribuir = total_enajenado
-    #print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    print("Derecho a distribuir:")
     print(a_distribuir)
     if a_distribuir == 0:
         a_distribuir = 100
+    for enajenante in value["enajenantes"]:
+        for temp_row in multipropietario_temp:
+            if temp_row['run'] == enajenante['RUNRUT']:
+                temp_row['derecho'] = 0
     for adquirente in value["adquirentes"]:
         row = construir_fila_distribuir_100(adquirente, propiedad, value, a_distribuir )
-        multipropietario_temp.append(row)
+        multipropietario_temp.append(row)#Se argegan las filas nuevas, pero no se maneja
+        #la resta de las viejas enagenadas
 
 def distribuir_menos_100(value, propiedad, multipropietario_temp):
     '''Esta función se encarga de manejar la distribución del caso Distribuir <100%'''
@@ -320,17 +354,17 @@ def distribuir_menos_100(value, propiedad, multipropietario_temp):
     for prop in multipropietario_temp:
         run = prop['run']
         if run in multipropietario_dict:
-            multipropietario_dict[run] += int(prop['derecho'])
+            multipropietario_dict[run] += float(prop['derecho'])
         else:
-            multipropietario_dict[run] = int(prop['derecho'])
+            multipropietario_dict[run] = float(prop['derecho'])
 
     # Iterar sobre los enajenantes y restar sus derechos en multipropietario_dict
     for enajenante in value['enajenantes']:
         run = enajenante['RUNRUT']
-        derecho = int(enajenante['derecho'])
+        derecho = float(enajenante['derecho'])
         if run in multipropietario_dict and derecho>0:
             variacion_derecho_enajenante = multipropietario_dict[run]
-            derecho_enajenante = variacion_derecho_enajenante * (100-int(derecho))
+            derecho_enajenante = variacion_derecho_enajenante * (100-float(derecho))
             multipropietario_dict[run] = derecho_enajenante
         else:
             variacion_derecho_enajenante = 100
@@ -362,14 +396,14 @@ def distribuir_general(value, propiedad, multipropietario_temp):
     for prop in multipropietario_temp:
         run = prop['run']
         if run in multipropietario_dict:
-            multipropietario_dict[run] += int(prop['derecho'])
+            multipropietario_dict[run] += float(prop['derecho'])
         else:
-            multipropietario_dict[run] = int(prop['derecho'])
+            multipropietario_dict[run] = float(prop['derecho'])
 
     # Iterar sobre los enajenantes y restar sus derechos en multipropietario_dict
     for enajenante in value['enajenantes']:
         run = enajenante['RUNRUT']
-        derecho = int(enajenante['derecho'])
+        derecho = float(enajenante['derecho'])
         if run in multipropietario_dict:
             multipropietario_dict[run] -= derecho
         else:
@@ -390,6 +424,19 @@ def distribuir_general(value, propiedad, multipropietario_temp):
     print(multipropietario_temp)
 
     return 200
+
+def acotar_registro_anterior(multipropietario_temp, ano):
+    '''Retorna la tabla multipropietario con los años anteriores acotados'''
+    multi_temp = copy.deepcopy(multipropietario_temp)
+    for i in multi_temp:
+        ano_vigencia_f = i.get('ano_vigencia_f')
+        if ano_vigencia_f is None:
+            i['ano_vigencia_f'] = ano -1
+    return multi_temp
+
+def realizar_merge(multipropietario_temp):
+    '''Realiza y retorna el merge de los particulares en la multipropietario'''
+    return multipropietario_temp
 
 def ajustar_derechos(multipropietario_temp):
     '''Ajusta los derechos de la multipropietario_temp para que la sumatoria de derechos sea 100'''
@@ -422,9 +469,9 @@ def ajustar_derechos(multipropietario_temp):
         prop['derecho'] = round(float(prop['derecho']) * factor_ajuste)
     return multipropietario_temp
 
-def eliminar_no_fantasmas_con_derecho_cero(multipropietario_temp):
+def eliminar_enas_con_derecho_cero(multipropietario_temp):
     '''Elimina las filas que no pertenecen a los fantasmas y tienen derecho 0 y negativo'''
-    return [prop for prop in multipropietario_temp if not (int(prop['derecho']) <= 0 and
+    return [prop for prop in multipropietario_temp if not (float(prop['derecho']) <= 0 and
                                                           prop['fecha_inscripcion'] is not None and
                                                           prop['ano_inscripccion'] is not None and
                                                           prop['numero_inscripcion'] is not None and

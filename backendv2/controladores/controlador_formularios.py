@@ -234,7 +234,7 @@ def revisar_propiedades(propiedades):
                     continue
                 else:
                     datos_numericos = False
-                    break 
+                    break
             except ValueError:
                 datos_numericos = False
                 break

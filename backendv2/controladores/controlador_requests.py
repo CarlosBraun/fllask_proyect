@@ -31,6 +31,7 @@ Este archivo define operaciones para interactuar con la base de datos y procesar
 con formularios de multipropietario, manteniendo una estructura organizada y coherente.
 '''
 from collections import defaultdict
+from datetime import date
 import mysql.connector
 from config import DB_CONFIG
 from controladores.controlador_queries import(
@@ -192,7 +193,6 @@ def request_algorithm_data(data):
 def ejecutar_query_multipropietario(cursor, propiedades):
     '''Ejecuta la consulta SQL con los parámetros dados'''
     query = generar_query_busqueda_multipropietario_completa()
-    print(propiedades)
     cursor.execute(query, (int(propiedades['comuna']),
                             int(propiedades['manzana']), int(propiedades['predio'])))
     return cursor.fetchall()
@@ -202,7 +202,6 @@ def obtener_multipropietario_data(data):
     conn = obtener_conexion_db()
     cursor = conn.cursor(dictionary=True)
     total_data = []
-    print(data)
     for propiedades in data:
         results = ejecutar_query_multipropietario(cursor, propiedades)
         total_data.append(results)
@@ -217,7 +216,11 @@ def procesar_data_multipropietario(data):
     '''
     for propiedades in data:
         for registro in propiedades:
-            registro['fecha_inscripcion'] = registro['fecha_inscripcion'].strftime('%Y%m%d')
+            fecha_inscripcion = registro['fecha_inscripcion']
+            if isinstance(fecha_inscripcion, date):
+                registro['fecha_inscripcion'] = fecha_inscripcion.strftime('%Y%m%d')
+            elif isinstance(fecha_inscripcion, str):
+                registro['fecha_inscripcion'] = fecha_inscripcion
 
     return data
 
@@ -235,7 +238,6 @@ def ejecutar_limpiar_multipropietario(cursor, propiedad, ano_inicio):
 def limpiar_multipropietario(propiedad):
     '''Elimina los registros de la tabla Multipropietario un año en adelante
     para cierta propiedad'''
-    print(propiedad['fecha_inscripcion'])
     ano_inicio = int(propiedad['fecha_inscripcion'][:4])
     conn = obtener_conexion_db()
     cursor = conn.cursor()
@@ -261,7 +263,7 @@ def ejecutar_ingresar_multipropietarios(cursor, row):
         row['manzana'],
         row['predio'],
         row['run'],
-        int(row['derecho']),
+        float(row['derecho']),
         row['fojas'],
         row['fecha_inscripcion'],
         row['ano_inscripccion'],
