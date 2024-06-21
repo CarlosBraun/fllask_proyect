@@ -245,11 +245,13 @@ def detalle():
         print("Error al analizar el JSON:", str(e))
         return None
 
-    return render_template('detalle.html', data=json_data, numero_atencion=numero_atencion, comunas_dict=comunas_dict)
+    return render_template('detalle.html', data=json_data, numero_atencion=numero_atencion,
+                            comunas_dict=comunas_dict)
 
 
 @app.route('/busqueda')
 def busqueda():
+    '''En este método se define la url /busqueda'''
     # Obtener los parámetros de la URL
     comuna = request.args.get('comuna')
     manzana = request.args.get('manzana')
@@ -270,11 +272,17 @@ def busqueda():
         json_data = json.loads(response.text)
         for elemento in json_data:
             # Eliminar 'T00:00:00.000Z' del final
-            fecha_str = elemento['fecha_inscripcion'][:-5]
-            fecha_datetime = datetime.strptime(
-                fecha_str, '%a, %d %b %Y %H:%M:%S')
+            if elemento['fecha_inscripcion'] is not None:
+                fecha_str = elemento['fecha_inscripcion'][:-5]
+            else:
+                fecha_str = None
+            if fecha_str is None:
+                fecha_datetime = None
+            else:
+                fecha_datetime = datetime.strptime(
+                    fecha_str, '%a, %d %b %Y %H:%M:%S')
             elemento['fecha_inscripcion'] = fecha_datetime
-            if elemento["ano_vigencia_f"] == None:
+            if elemento["ano_vigencia_f"] is None:
                 elemento["ano_vigencia_f"] = ""
             elemento["comuna"] = comunas_dict.get(
                 int(elemento["comuna"]), "Comuna no encontrada")

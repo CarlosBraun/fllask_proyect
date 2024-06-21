@@ -38,7 +38,8 @@ from controladores.controlador_queries import(
     generar_query_obtener_formularios_asc,
     generar_query_busqueda_multipropietario_completa,
     generar_query_limpiar_multipropietario,
-    generar_query_ingresar_multipropietarios
+    generar_query_ingresar_multipropietarios,
+    generar_query_eliminar_ultimo_registro_multipropietario
 )
 
 
@@ -46,7 +47,6 @@ def obtener_conexion_db():
     '''Retorna la configuración de la conexión con la base de datos'''
     conn = mysql.connector.connect(**DB_CONFIG)
     return conn
-
 
 def inicializar_formularios_agrupados():
     '''Inicializa la estructura de datos para agrupar los formularios'''
@@ -209,6 +209,25 @@ def obtener_multipropietario_data(data):
     conn.close()
 
     return procesar_data_multipropietario(total_data)
+
+def ejecutar_query_eliminar_multipropietario(cursor, propiedad):
+    '''Ejecuta la consulta SQL con los parámetros dados'''
+    query = generar_query_eliminar_ultimo_registro_multipropietario()
+    cursor.execute(query, (int(propiedad['comuna']),
+                            int(propiedad['manzana']), int(propiedad['predio'])))
+    print(cursor.fetchall())
+    return cursor.fetchall()
+
+def eliminar_ultimo_registro_multipropietario(propiedad):
+    '''Retorna las filas en la Multipropietario de cierta propiedad'''
+    conn = obtener_conexion_db()
+    cursor = conn.cursor(dictionary=True)
+    results = ejecutar_query_eliminar_multipropietario(cursor, propiedad)
+    conn.commit()
+    print(results)
+    cursor.close()
+    conn.close()
+
 
 def procesar_data_multipropietario(data):
     '''Recibe la data de la llamada a la base de datos, y la retorna con el formato que 

@@ -14,10 +14,9 @@ Funciones:
 '''
 from datetime import datetime
 from flask import Blueprint, jsonify, request
-# import mysql.connector  # type: ignore
 from mysql.connector import Error  # type: ignore
 from controladores.controlador_multipropietarios import ejecutar_algoritmo
-from controladores.controlador_requests import obtener_conexion_db
+from controladores.controlador_requests import (obtener_conexion_db)
 from controladores.controlador_queries import (generar_query_obtener_ultimo_numero,
                                               generar_query_obtener_formularios,
                                               generar_query_obtener_formulario_unico,
@@ -184,7 +183,7 @@ def ejecutar_query_borrar_formularios (query):
 @controlador_formularios_bp.route('/algo', methods=['GET'])
 def ejecutar_algoritmo1():
     '''función de prueba que ejecuta el algoritmo con valor artificial'''
-    lista = [{'comuna': 77, 'manzana': 64, 'predio': 32, 'fecha_inscripcion': '2021'}]
+    lista = [{'comuna': 77, 'manzana': 266, 'predio': 32, 'fecha_inscripcion': '2000'}]
     for i in lista:
         data1 = ejecutar_algoritmo([i])
     return jsonify(data1)
@@ -216,8 +215,8 @@ def agregar_formulario_a_base_de_datos():
     finally:
         cursor.close()
         conn.close()
-        #for propiedad in revisar_propiedades(propiedades_a_procesar):
-            #algoritmo([propiedad]) """
+        for propiedad in revisar_propiedades(propiedades_a_procesar):
+            ejecutar_algoritmo([propiedad])
     return jsonify(mensaje), 201
 
 def revisar_propiedades(propiedades):

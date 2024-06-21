@@ -1,5 +1,24 @@
 {
     "python.pythonPath": "bin/python",
     "python.linting.pep8Enabled": true,
-    "python.linting.pylintEnabled": true
+    "python.linting.pylintEnabled": true,
+    "cSpell.language": "es,en-US",
+    "cSpell.words": [
+        "enagenadas",
+        "multipropietario",
+        "mysql",
+        "numericas",
+        "numericos",
+        "raiz",
+        "REFACTORIZAR",
+        "renderiza",
+        "unico"
+    ],
+    "cSpell.enableFiletypes": [
+        "!json",
+        "!jsonc",
+        "!php",
+        "!yaml",
+        "!yml"
+    ]
 }
