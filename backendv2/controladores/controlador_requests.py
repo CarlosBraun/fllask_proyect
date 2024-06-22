@@ -271,9 +271,6 @@ def limpiar_multipropietario(propiedad):
         cursor.close()
         conn.close()
 
-
-
-
 def ejecutar_ingresar_multipropietarios(cursor, row):
     '''Ejecuta la consulta SQL para insertar un registro en la tabla Multipropietario'''
     query = generar_query_ingresar_multipropietarios()

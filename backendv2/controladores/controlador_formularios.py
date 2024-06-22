@@ -183,7 +183,7 @@ def ejecutar_query_borrar_formularios (query):
 @controlador_formularios_bp.route('/algo', methods=['GET'])
 def ejecutar_algoritmo1():
     '''función de prueba que ejecuta el algoritmo con valor artificial'''
-    lista = [{'comuna': 77, 'manzana': 266, 'predio': 32, 'fecha_inscripcion': '2000'}]
+    lista = [{'comuna': 77, 'manzana': 268, 'predio': 32, 'fecha_inscripcion': '2000'}]
     for i in lista:
         data1 = ejecutar_algoritmo([i])
     return jsonify(data1)
@@ -203,7 +203,6 @@ def agregar_formulario_a_base_de_datos():
         propiedades_a_preprocesar = []
 
         for formulario in formularios:
-            print(formulario)
             numero_atencion = agregar_datos_formulario(cursor, formulario,
                                                         numero_atencion, propiedades_a_preprocesar)
         conn.commit()
@@ -239,7 +238,6 @@ def revisar_propiedades(propiedades):
                 break
         if datos_numericos:
             propiedades_numericas.append(propiedad)
-    print(propiedades_numericas)
     return propiedades_numericas
 
 
