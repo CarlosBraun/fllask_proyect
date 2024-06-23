@@ -87,7 +87,8 @@ def generar_query_ingresar_multipropietarios():
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 def generar_query_eliminar_ultimo_registro_multipropietario():
-    '''Genera la consulta SQL para eliminar los datos de una Multipropietario con ano_vigencia_f nulo'''
+    '''Genera la consulta SQL para eliminar los datos de una
+      Multipropietario con ano_vigencia_f nulo'''
     return """
     DELETE FROM Multipropietario
     WHERE comuna = %s

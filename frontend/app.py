@@ -11,14 +11,14 @@ app = Flask(__name__)
 app.debug = True
 # Cejemplo de llamada
 
-file_path = 'static/css/comunas.txt'
+FILE_PATH = 'static/css/comunas.txt'
 
 # Diccionario para almacenar los códigos y nombres de las comunas
 comunas_dict = {}
 comunas_dict_nombre_codigo = {}
 
-# Leer el archivo de texto línea por línea
-with open(file_path, 'r', encoding='utf-8') as file:
+# Leer el archivo de texto línea por línea 
+with open(FILE_PATH, 'r', encoding='utf-8') as file:
     next(file)
     for line in file:
         # Dividir la línea en partes usando el separador adecuado

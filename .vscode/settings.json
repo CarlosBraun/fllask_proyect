@@ -4,14 +4,17 @@
     "python.linting.pylintEnabled": true,
     "cSpell.language": "es,en-US",
     "cSpell.words": [
+        "bbdd",
         "enagenadas",
         "multipropietario",
         "mysql",
         "numericas",
         "numericos",
+        "ordenacion",
         "raiz",
         "REFACTORIZAR",
         "renderiza",
+        "rutea",
         "unico"
     ],
     "cSpell.enableFiletypes": [

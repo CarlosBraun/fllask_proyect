@@ -109,8 +109,6 @@ def reagrupar_formularios(json_data):
     for formulario in json_data:
         procesar_formulario(formulario, formularios_agrupados)
     return convertir_formulario_diccionario_a_lista(formularios_agrupados)
-# En este archivo se finen las request a la bbdd, pero no se rutea.
-
 
 def definir_clave_ordenacion(item):
     '''Define la clave de ordenación basada en las claves del diccionario'''
