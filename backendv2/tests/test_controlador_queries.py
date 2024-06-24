@@ -17,57 +17,62 @@ from controladores.controlador_queries import (generar_query_obtener_ultimo_nume
 # pip install pytest-mock
 
 class TestGenerarQueryObtenerUltimoNumero:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # Returns correct SQL query string
     def test_returns_correct_sql_query_string(self):
-        expected_query = 'SELECT numero_atencion FROM Formulario ORDER BY numero_atencion DESC LIMIT 1'
-        assert generar_query_obtener_ultimo_numero() == expected_query
-
-    # Handles empty database scenario
-    def test_handles_empty_database_scenario(self):
-        # This function generates a query, it does not interact with the database directly.
-        # Therefore, it should always return the same query regardless of the database state.
+        '''En esta clase se testan funciones de el controlador queries'''
         expected_query = 'SELECT numero_atencion FROM Formulario ORDER BY numero_atencion DESC LIMIT 1'
         assert generar_query_obtener_ultimo_numero() == expected_query
 
 class TestGenerarQueryObtenerFormularios:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # returns a valid SQL query string
     def test_returns_valid_sql_query_string(self):
+        '''En esta clase se testan funciones de el controlador queries'''
         query = generar_query_obtener_formularios()
         assert query.strip().lower().startswith('select * from formulario')
 
     # function returns a non-empty string
     def test_returns_non_empty_string(self):
+        '''En esta clase se testan funciones de el controlador queries'''
         query = generar_query_obtener_formularios()
         assert isinstance(query, str) and len(query) > 0
 
     # query string selects all columns from Formulario table
     def test_query_selects_all_columns(self):
+        '''En esta clase se testan funciones de el controlador queries'''
         query = generar_query_obtener_formularios()
         assert query.strip().lower().startswith('select * from formulario')
 
     # query string does not include any WHERE clause
     def test_query_string_no_where_clause(self):
+        '''En esta clase se testan funciones de el controlador queries'''
         query = generar_query_obtener_formularios()
         assert query.strip().lower() == 'select * from formulario'
 
     # query string does not include any ORDER BY clause
     def test_query_string_does_not_include_order_by_clause(self):
+        '''En esta clase se testan funciones de el controlador queries'''
         query = generar_query_obtener_formularios()
         assert 'ORDER BY' not in query
 
     # function handles unexpected input gracefully (though it takes no parameters)
     def test_handles_unexpected_input_gracefully(self):
+        '''En esta clase se testan funciones de el controlador queries'''
         query = generar_query_obtener_formularios()
         assert query.strip().lower().startswith('select * from formulario')
 
 class TestGenerarQueryObtenerFormulariosAsc:
+    '''En esta clase se testan funciones de el controlador queries'''
     def test_handles_empty_strings_for_placeholders(self):
+        '''En esta clase se testan funciones de el controlador queries'''
         query = generar_query_obtener_formularios_asc()
         assert "%s" in query
 
 class TestGenerarQueryObtenerFormularioUnico:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # returns correct SQL query string
     def test_returns_correct_sql_query_string(self):
@@ -142,6 +147,7 @@ class TestGenerarQueryObtenerFormularioUnico:
         assert generar_query_obtener_formulario_unico() == expected_query
 
 class TestGenerarQueryBorrarFormularios:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # Returns a valid SQL DELETE statement
     def test_returns_valid_sql_delete_statement(self):
@@ -155,6 +161,7 @@ class TestGenerarQueryBorrarFormularios:
             assert generar_query_borrar_formularios() == expected_query
 
 class TestGenerarQueryInsertarFormularios:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # function does not return an empty string
     def test_does_not_return_empty_string(self):
@@ -167,6 +174,7 @@ class TestGenerarQueryInsertarFormularios:
         assert expected_table_name in generated_query, f"Table name '{expected_table_name}' not found in generated query: {generated_query}"
 
 class TestGenerarQueryObtenerMultipropietarios:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # Returns correct SQL query string
     def test_returns_correct_sql_query_string(self):
@@ -182,6 +190,7 @@ class TestGenerarQueryObtenerMultipropietarios:
             pytest.fail(f"Function raised an unexpected exception: {e}")
 
 class TestGenerarQueryBusquedaMultipropietarioCompleta:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # function handles unexpected input types gracefully
     def test_handles_unexpected_input_types_gracefully(self):
@@ -213,6 +222,7 @@ class TestGenerarQueryBusquedaMultipropietarioCompleta:
         pass
 
 class TestGenerarQueryBorrarMultipropietario:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # Returns correct SQL query string
     def test_returns_correct_sql_query_string(self):
@@ -227,6 +237,7 @@ class TestGenerarQueryBorrarMultipropietario:
             pytest.fail(f"Function raised an unexpected exception: {e}")
 
 class TestGenerarQueryLimpiarMultipropietario:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # Handles empty strings for parameters
     def test_handles_empty_strings_for_parameters(self):
@@ -259,6 +270,7 @@ class TestGenerarQueryLimpiarMultipropietario:
         assert 'FROM Othertable' not in query
 
 class TestGenerarQueryIngresarMultipropietarios:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # Handles case where no values are provided
     def test_handles_no_values_provided(self):
@@ -281,6 +293,7 @@ class TestGenerarQueryIngresarMultipropietarios:
         assert "INSERT INTO" in query
 
 class TestGenerarQueryEliminarUltimoRegistroMultipropietario:
+    '''En esta clase se testan funciones de el controlador queries'''
 
     # Handles case when 'comuna' is an empty string
     def test_handles_empty_comuna(self):
@@ -299,13 +312,3 @@ class TestGenerarQueryEliminarUltimoRegistroMultipropietario:
         assert "INSERT INTO" not in query
         assert "UPDATE" not in query
         assert "DELETE FROM" in query
-
-
-
-
-
-
-
-
-
-

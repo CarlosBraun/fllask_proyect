@@ -5,17 +5,24 @@
     "cSpell.language": "es,en-US",
     "cSpell.words": [
         "bbdd",
+        "behaviour",
         "enagenadas",
         "multipropietario",
         "mysql",
         "numericas",
         "numericos",
         "ordenacion",
+        "parseo",
         "raiz",
         "REFACTORIZAR",
         "renderiza",
+        "runrut",
+        "runruts",
         "rutea",
-        "unico"
+        "testea",
+        "testeo",
+        "unico",
+        "YYYYMMDDDD"
     ],
     "cSpell.enableFiletypes": [
         "!json",
