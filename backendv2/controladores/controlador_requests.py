@@ -123,7 +123,6 @@ def ordenar_json_por_claves_ascendente(data):
     sorted_data = ordenar_datos_por_claves(data)
     return sorted_data
 
-
 def ejecutar_query_formulario(cursor, propiedades):
     '''Ejecuta la consulta SQL con los parámetros dados'''
     query = generar_query_obtener_formularios_asc()
@@ -226,7 +225,6 @@ def eliminar_ultimo_registro_multipropietario(propiedad):
     cursor.close()
     conn.close()
 
-
 def procesar_data_multipropietario(data):
     '''Recibe la data de la llamada a la base de datos, y la retorna con el formato que 
     se trabaja en el algoritmo fecha_inscripción pasa de datetime.date(2014, 11, 29) -> YYYYMMDD
@@ -240,7 +238,6 @@ def procesar_data_multipropietario(data):
                 registro['fecha_inscripcion'] = fecha_inscripcion
 
     return data
-
 
 def ejecutar_limpiar_multipropietario(cursor, propiedad, ano_inicio):
     '''Ejecuta la consulta SQL para eliminar registros de la tabla Multipropietario'''
@@ -289,6 +286,9 @@ def ejecutar_ingresar_multipropietarios(cursor, row):
 
 def ingresar_multipropietarios(data):
     '''Ingresa datos a la tabla Multipropietario'''
+
+    if not data:
+        return
     conn = obtener_conexion_db()
     cursor = conn.cursor()
 

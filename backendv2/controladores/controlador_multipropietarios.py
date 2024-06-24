@@ -599,6 +599,15 @@ def ejecutar_consulta_multipropietario(conn):
         cursor.execute(query)
         return cursor.fetchall()
 
+@ controlador_multipropietarios_bp.route('/buscar_total', methods=['POST'])
+def buscar_datos_total():
+    '''Retorna filas de la tabla Multipropietario según una búsqueda'''
+    comuna = request.json.get("comuna")
+    manzana = request.json.get("manzana")
+    predio = request.json.get("predio")
+    rows = ejecutar_consulta_busqueda_multipropietario_total(comuna, manzana, predio, 10)
+    return jsonify(rows)
+
 @ controlador_multipropietarios_bp.route('/buscar', methods=['POST'])
 def buscar_datos():
     '''Retorna filas de la tabla Multipropietario según una búsqueda'''
@@ -607,7 +616,13 @@ def buscar_datos():
     predio = request.json.get("predio")
     ano = request.json.get("ano")
     rows = ejecutar_consulta_busqueda_multipropietario(comuna, manzana, predio, ano)
-    return jsonify(rows)
+    selected_rows = []
+    for i in rows:
+        cond1 = (int(i["ano_vigencia_i"])<= int(ano) <= int(i["ano_vigencia_f"]))
+        cond2 = (int(i["ano_vigencia_i"])<= int(ano) and i["ano_vigencia_f"] is None)
+        if cond1 or cond2:
+            selected_rows.append(i)
+    return jsonify(selected_rows)
 
 def ejecutar_consulta_busqueda_multipropietario(comuna, manzana, predio, ano):
     '''Ejecuta la consulta SQL para buscar datos en la tabla Multipropietario'''
@@ -618,6 +633,20 @@ def ejecutar_consulta_busqueda_multipropietario(comuna, manzana, predio, ano):
         cursor.execute(query)
         rows = cursor.fetchall()
         rows = filtrar_datos_multipropietario(rows,str(comuna),int(manzana),int(predio),int(ano))
+        return rows
+    finally:
+        cursor.close()
+        conn.close()
+def ejecutar_consulta_busqueda_multipropietario_total(comuna, manzana, predio, ano):
+    '''Ejecuta la consulta SQL para buscar datos en la tabla Multipropietario'''
+    conn = obtener_conexion_db()
+    cursor = conn.cursor(dictionary=True)
+    query = generar_query_obtener_multipropietarios()
+    try:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        rows = filtrar_datos_multipropietario_total(rows,str(comuna),
+                                                    int(manzana),int(predio),int(ano))
         return rows
     finally:
         cursor.close()
@@ -638,7 +667,21 @@ def filtrar_datos_multipropietario(rows, comuna, manzana, predio, ano):
             (row['ano_vigencia_f'] is None or row['ano_vigencia_f'] >= ano)):
             resultado_filtrado.append(row)
     return resultado_filtrado
+def filtrar_datos_multipropietario_total(rows, comuna, manzana, predio, ano):
+    """
+    Filtra los datos de la lista de diccionarios 'rows' según los parámetros especificados.
+    La necesidad de crear esta función nace de la incompatibilidad de realizar la búsqueda
+    mediante queries dinámicas.
 
+    """
+    resultado_filtrado = []
+    for row in rows:
+        if (row['comuna'] == comuna and
+            row['manzana'] == manzana and
+            row['predio'] == predio and
+            (row['ano_vigencia_f'] is None or row['ano_vigencia_f'] >= ano)):
+            resultado_filtrado.append(row)
+    return resultado_filtrado
 @ controlador_multipropietarios_bp.route('/clean', methods=['GET'])
 def borrar_datos():
     '''Elimina todas las filas de la tabla Multipropietario'''

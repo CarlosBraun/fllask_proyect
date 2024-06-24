@@ -1,0 +1,6 @@
+[run]
+omit =
+    # Excluir todos los archivos de un directorio específico
+    backendv2/tests/*
+    # Excluir todos los archivos de un directorio específico y sus subdirectorios
+    backendv2/tests/**

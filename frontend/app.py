@@ -9,7 +9,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 app = Flask(__name__)
 app.debug = True
-# Cejemplo de llamada
+
 
 FILE_PATH = 'static/css/comunas.txt'
 
@@ -17,7 +17,7 @@ FILE_PATH = 'static/css/comunas.txt'
 comunas_dict = {}
 comunas_dict_nombre_codigo = {}
 
-# Leer el archivo de texto línea por línea 
+# Leer el archivo de texto línea por línea
 with open(FILE_PATH, 'r', encoding='utf-8') as file:
     next(file)
     for line in file:
@@ -100,6 +100,20 @@ def submit_form_busqueda():
     if comuna is not None and manzana is not None and predio is not None and year is not None:
         # Redirigir a una URL con los parámetros en la query string
         return redirect(url_for('busqueda', comuna=comuna, manzana=manzana, predio=predio, year=year))
+    else:
+        # Al menos uno de los parámetros está ausente o es None
+        # Manejar este caso según tus necesidades
+        return "Faltan parámetros en el formulario", 400
+    
+@app.route('/submit_form_busqueda_total', methods=['POST'])
+def submit_form_busqueda_total():
+    # Obtener los datos del formulario
+    comuna = request.form.get('comuna')
+    manzana = request.form.get('manzana')
+    predio = request.form.get('predio')
+    if comuna is not None and manzana is not None and predio is not None:
+        # Redirigir a una URL con los parámetros en la query string
+        return redirect(url_for('busqueda_total', comuna=comuna, manzana=manzana, predio=predio))
     else:
         # Al menos uno de los parámetros está ausente o es None
         # Manejar este caso según tus necesidades
@@ -291,6 +305,47 @@ def busqueda():
     # Aquí puedes hacer lo que necesites con los parámetros obtenidos
 
     return render_template('busqueda.html', comunas_dict=comunas_dict)
+
+@app.route('/busqueda_total')
+def busqueda_total():
+    '''En este método se define la url /busqueda'''
+    # Obtener los parámetros de la URL
+    comuna = request.args.get('comuna')
+    manzana = request.args.get('manzana')
+    predio = request.args.get('predio')
+
+    if comuna is not None and manzana is not None and predio is not None:
+        data = {
+            "comuna": comuna,
+            "manzana": manzana,
+            "predio": predio
+        }
+        print(data)
+        response = requests.post(
+            "http://localhost:5000/multipropietario/buscar_total", json=data)
+        print(response)
+        json_data = json.loads(response.text)
+        for elemento in json_data:
+            # Eliminar 'T00:00:00.000Z' del final
+            if elemento['fecha_inscripcion'] is not None:
+                fecha_str = elemento['fecha_inscripcion'][:-5]
+            else:
+                fecha_str = None
+            if fecha_str is None:
+                fecha_datetime = None
+            else:
+                fecha_datetime = datetime.strptime(
+                    fecha_str, '%a, %d %b %Y %H:%M:%S')
+            elemento['fecha_inscripcion'] = fecha_datetime
+            if elemento["ano_vigencia_f"] is None:
+                elemento["ano_vigencia_f"] = ""
+            elemento["comuna"] = comunas_dict.get(
+                int(elemento["comuna"]), "Comuna no encontrada")
+        print(json_data)
+        return render_template('busqueda_completa.html', resultados=json_data, comunas_dict=comunas_dict)
+    # Aquí puedes hacer lo que necesites con los parámetros obtenidos
+
+    return render_template('busqueda_completa.html', comunas_dict=comunas_dict)
 
 
 if __name__ == '__main__':

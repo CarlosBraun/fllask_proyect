@@ -1,5 +1,8 @@
 '''Este módulo se encarga de hacer el testeo al controlador requests'''
+from datetime import date
+from collections import defaultdict
 import pytest
+
 from controladores.controlador_requests import (obtener_conexion_db,
                                                  inicializar_formularios_agrupados,
                                                  procesar_formulario,
@@ -15,13 +18,14 @@ from controladores.controlador_requests import (obtener_conexion_db,
                                                  request_algorithm_data,
                                                  ejecutar_query_multipropietario,
                                                  procesar_data_multipropietario,
-                                                 ejecutar_limpiar_multipropietario
+                                                 ejecutar_limpiar_multipropietario,
+                                                 ejecutar_ingresar_multipropietarios,
+                                                 ingresar_multipropietarios
                                                  )
 from controladores.controlador_queries import (generar_query_obtener_formularios_asc)
 
 import mysql.connector
 from config import DB_CONFIG
-from collections import defaultdict
 # Dependencies:
 # pip install pytest-mock
 
@@ -1283,4 +1287,261 @@ class TestEjecutarLimpiarMultipropietario:
             ejecutar_limpiar_multipropietario(cursor, propiedad, ano_inicio)
 
 
+class TestEjecutarIngresarMultipropietarios:
 
+    # Insert a valid row with all fields populated
+    def test_insert_valid_row(self, mocker):
+        # Arrange
+        cursor = mocker.Mock()
+        row = {
+            'comuna': 'Comuna1',
+            'manzana': 'Manzana1',
+            'predio': 'Predio1',
+            'run': '12345678-9',
+            'derecho': '50.0',
+            'fojas': '123',
+            'fecha_inscripcion': date(2023, 1, 1),
+            'ano_inscripccion': 2023,
+            'numero_inscripcion': '456',
+            'ano_vigencia_i': 2023,
+            'ano_vigencia_f': 2024,
+            'status': 'active'
+        }
+        # Act
+        ejecutar_ingresar_multipropietarios(cursor, row)
+        # Assert
+        cursor.execute.assert_called_once_with(
+            mocker.ANY, 
+            (
+                row['comuna'],
+                row['manzana'],
+                row['predio'],
+                row['run'],
+                float(row['derecho']),
+                row['fojas'],
+                row['fecha_inscripcion'],
+                row['ano_inscripccion'],
+                row['numero_inscripcion'],
+                row['ano_vigencia_i'],
+                row.get('ano_vigencia_f', None),
+                row.get('status', None)
+            )
+        )
+
+    # Insert a row with missing mandatory fields
+    def test_insert_row_missing_mandatory_fields(self, mocker):
+        # Arrange
+        cursor = mocker.Mock()
+        row = {
+            'comuna': 'Comuna1',
+            'manzana': 'Manzana1',
+            # Missing 'predio'
+            'run': '12345678-9',
+            'derecho': '50.0',
+            'fojas': '123',
+            'fecha_inscripcion': date(2023, 1, 1),
+            'ano_inscripccion': 2023,
+            'numero_inscripcion': '456',
+            'ano_vigencia_i': 2023,
+            'ano_vigencia_f': 2024,
+            'status': 'active'
+        }
+        # Act & Assert
+        with pytest.raises(KeyError):
+            ejecutar_ingresar_multipropietarios(cursor, row)
+
+    # Insert a row with optional fields 'ano_vigencia_f' and 'status' as None
+    def test_insert_row_with_optional_fields_as_none(self, mocker):
+        # Arrange
+        cursor = mocker.Mock()
+        row = {
+            'comuna': 'Comuna1',
+            'manzana': 'Manzana1',
+            'predio': 'Predio1',
+            'run': '12345678-9',
+            'derecho': '50.0',
+            'fojas': '123',
+            'fecha_inscripcion': date(2023, 1, 1),
+            'ano_inscripccion': 2023,
+            'numero_inscripcion': '456',
+            'ano_vigencia_i': 2023,
+            'ano_vigencia_f': None,
+            'status': None
+        }
+
+        # Act
+        ejecutar_ingresar_multipropietarios(cursor, row)
+        # Assert
+        cursor.execute.assert_called_once_with(
+            mocker.ANY,
+            (
+                row['comuna'],
+                row['manzana'],
+                row['predio'],
+                row['run'],
+                float(row['derecho']),
+                row['fojas'],
+                row['fecha_inscripcion'],
+                row['ano_inscripccion'],
+                row['numero_inscripcion'],
+                row['ano_vigencia_i'],
+                row.get('ano_vigencia_f', None),
+                row.get('status', None)
+            )
+        )
+
+    # Insert a row with 'derecho' as a float value
+    def test_insert_row_with_float_derecho(self, mocker):
+        # Arrange
+        cursor = mocker.Mock()
+        row = {
+            'comuna': 'Comuna1',
+            'manzana': 'Manzana1',
+            'predio': 'Predio1',
+            'run': '12345678-9',
+            'derecho': 50.0,
+            'fojas': '123',
+            'fecha_inscripcion': date(2023, 1, 1),
+            'ano_inscripccion': 2023,
+            'numero_inscripcion': '456',
+            'ano_vigencia_i': 2023,
+            'ano_vigencia_f': 2024,
+            'status': 'active'
+        }
+
+        # Act
+        ejecutar_ingresar_multipropietarios(cursor, row)
+
+        # Assert
+        cursor.execute.assert_called_once_with(
+            mocker.ANY,
+            (
+                row['comuna'],
+                row['manzana'],
+                row['predio'],
+                row['run'],
+                float(row['derecho']),
+                row['fojas'],
+                row['fecha_inscripcion'],
+                row['ano_inscripccion'],
+                row['numero_inscripcion'],
+                row['ano_vigencia_i'],
+                row.get('ano_vigencia_f', None),
+                row.get('status', None)
+            )
+        )
+
+    # Insert multiple rows sequentially without errors
+    def test_insert_multiple_rows_sequentially_without_errors(self, mocker):
+        # Arrange
+        cursor = mocker.Mock()
+        rows = [
+            {
+                'comuna': 'Comuna1',
+                'manzana': 'Manzana1',
+                'predio': 'Predio1',
+                'run': '12345678-9',
+                'derecho': '50.0',
+                'fojas': '123',
+                'fecha_inscripcion': date(2023, 1, 1),
+                'ano_inscripccion': 2023,
+                'numero_inscripcion': '456',
+                'ano_vigencia_i': 2023,
+                'ano_vigencia_f': 2024,
+                'status': 'active'
+            },
+            {
+                'comuna': 'Comuna2',
+                'manzana': 'Manzana2',
+                'predio': 'Predio2',
+                'run': '98765432-1',
+                'derecho': '30.0',
+                'fojas': '456',
+                'fecha_inscripcion': date(2022, 5, 10),
+                'ano_inscripccion': 2022,
+                'numero_inscripcion': '789',
+                'ano_vigencia_i': 2022,
+                'ano_vigencia_f': 2023,
+                'status': 'inactive'
+            }
+        ]
+
+        # Act
+        for row in rows:
+            ejecutar_ingresar_multipropietarios(cursor, row)
+
+        # Assert
+        expected_calls = [
+            mocker.call(
+                mocker.ANY,
+                (
+                    row['comuna'],
+                    row['manzana'],
+                    row['predio'],
+                    row['run'],
+                    float(row['derecho']),
+                    row['fojas'],
+                    row['fecha_inscripcion'],
+                    row['ano_inscripccion'],
+                    row['numero_inscripcion'],
+                    row['ano_vigencia_i'],
+                    row.get('ano_vigencia_f', None),
+                    row.get('status', None)
+                )
+            ) for row in rows
+        ]
+        cursor.execute.assert_has_calls(expected_calls)
+
+    # Validate if the function logs the insertion process
+    def test_logs_insertion_process(self, mocker):
+        # Arrange
+        cursor = mocker.Mock()
+        row = {
+            'comuna': 'Comuna1',
+            'manzana': 'Manzana1',
+            'predio': 'Predio1',
+            'run': '12345678-9',
+            'derecho': '50.0',
+            'fojas': '123',
+            'fecha_inscripcion': date(2023, 1, 1),
+            'ano_inscripccion': 2023,
+            'numero_inscripcion': '456',
+            'ano_vigencia_i': 2023,
+            'ano_vigencia_f': 2024,
+            'status': 'active'
+        }
+
+        # Act
+        ejecutar_ingresar_multipropietarios(cursor, row)
+
+        # Assert
+        cursor.execute.assert_called_once_with(
+            mocker.ANY,
+            (
+                row['comuna'],
+                row['manzana'],
+                row['predio'],
+                row['run'],
+                float(row['derecho']),
+                row['fojas'],
+                row['fecha_inscripcion'],
+                row['ano_inscripccion'],
+                row['numero_inscripcion'],
+                row['ano_vigencia_i'],
+                row.get('ano_vigencia_f', None),
+                row.get('status', None)
+            )
+        )
+
+class TestIngresarMultipropietarios:
+
+    # Handles empty data input gracefully
+    def test_handles_empty_data_input_gracefully(self, mocker):
+        data = []
+    
+        mock_conn = mocker.patch('controladores.controlador_requests.obtener_conexion_db')
+        mock_cursor = mocker.Mock()
+        mock_conn.return_value.cursor.return_value = mock_cursor
+        ingresar_multipropietarios(data)
+        mock_conn.assert_not_called()
+        mock_cursor.assert_not_called()

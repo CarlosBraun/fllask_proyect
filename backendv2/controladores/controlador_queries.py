@@ -50,8 +50,13 @@ def generar_query_busqueda_multipropietario():
     WHERE comuna = %s
     AND manzana = %s
     AND predio = %s
-    AND (ano_vigencia_f >= %s OR ano_vigencia_f IS NULL)
+    AND (
+        (ano_vigencia_i <= %s AND ano_vigencia_f >= %s )
+        OR
+        (ano_vigencia_i <= %s AND ano_vigencia_f IS NULL)
+    )
     '''
+
 
 
 def generar_query_busqueda_multipropietario_completa():
@@ -78,6 +83,7 @@ def generar_query_limpiar_multipropietario():
     AND predio = %s
     AND ano_inscripccion >= %s
     """
+
 def generar_query_ingresar_multipropietarios():
     '''Genera la consulta SQL para insertar registros en la tabla Multipropietario'''
     return """
@@ -86,6 +92,7 @@ def generar_query_ingresar_multipropietarios():
         ano_inscripccion, numero_inscripcion, ano_vigencia_i, ano_vigencia_f, status
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
+
 def generar_query_eliminar_ultimo_registro_multipropietario():
     '''Genera la consulta SQL para eliminar los datos de una
       Multipropietario con ano_vigencia_f nulo'''
