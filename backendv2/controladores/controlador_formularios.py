@@ -25,6 +25,12 @@ from controladores.controlador_queries import (generar_query_obtener_ultimo_nume
 
 controlador_formularios_bp = Blueprint('controlador_formularios', __name__)
 
+def obtener_numero_de_atencion():
+    '''Obtiene y retorna el número de atención incrementado en uno.'''
+    ultimo_numero_atencion = obtener_ultimo_numero_atencion()
+    nuevo_numero_atencion = incrementar_numero_atencion(ultimo_numero_atencion)
+    return nuevo_numero_atencion
+
 def ejecutar_query_obtener_ultimo_numero():
     '''Ejecuta la consulta SQL para obtener el último número de atención desde la base de datos.'''
     query = generar_query_obtener_ultimo_numero()
@@ -34,13 +40,17 @@ def ejecutar_query_obtener_ultimo_numero():
     result = cursor.fetchone()
     cursor.close()
     conn.close()
+    return result
+
+def obtener_ultimo_numero_atencion():
+    '''Obtiene el último número de atención desde la base de datos.'''
+    result = ejecutar_query_obtener_ultimo_numero()
     return int(result['numero_atencion']) if result else 0
 
-def obtener_numero_de_atencion():
-    '''Obtiene y retorna el número de atención incrementado en uno.'''
-    ultimo_numero_atencion = ejecutar_query_obtener_ultimo_numero()
-    nuevo_numero_atencion = ultimo_numero_atencion + 1
-    return nuevo_numero_atencion
+def incrementar_numero_atencion(ultimo_numero_atencion):
+    '''Incrementa el número de atención en uno.'''
+    return ultimo_numero_atencion + 1
+
 
 def parsear_fecha(fecha):
     '''Intenta parsear una fecha en formato YYYYMMDD y retorna un objeto datetime.'''
@@ -183,7 +193,7 @@ def ejecutar_query_borrar_formularios (query):
 @controlador_formularios_bp.route('/algo', methods=['GET'])
 def ejecutar_algoritmo1():
     '''función de prueba que ejecuta el algoritmo con valor artificial'''
-    lista = [{'comuna': 77, 'manzana': 264, 'predio': 32, 'fecha_inscripcion': '2000'}]
+    lista = [{'comuna': 77, 'manzana': 65, 'predio': 32, 'fecha_inscripcion': '2000'}]
     for i in lista:
         data1 = ejecutar_algoritmo([i])
     return jsonify(data1)

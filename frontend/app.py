@@ -67,7 +67,8 @@ def obtener_multipropietario():
         response.raise_for_status()
         json_data = response.json()
         for elemento in json_data:
-            print(elemento['fecha_inscripcion'])
+            print(elemento['comuna'])
+
                # Eliminar 'T00:00:00.000Z' del final y convertir a objeto datetime
             if elemento['fecha_inscripcion'] is not None:
                 fecha_str = elemento['fecha_inscripcion'].split(
@@ -281,7 +282,7 @@ def busqueda():
         }
         print(data)
         response = requests.post(
-            "http://localhost:5000/multipropietario/buscar", json=data)
+            "http://localhost:5000/multipropietario/buscar", json=data, timeout=10)
         print(response)
         json_data = json.loads(response.text)
         for elemento in json_data:
@@ -322,7 +323,7 @@ def busqueda_total():
         }
         print(data)
         response = requests.post(
-            "http://localhost:5000/multipropietario/buscar_total", json=data)
+            "http://localhost:5000/multipropietario/buscar_total", json=data, timeout=10)
         print(response)
         json_data = json.loads(response.text)
         for elemento in json_data:
