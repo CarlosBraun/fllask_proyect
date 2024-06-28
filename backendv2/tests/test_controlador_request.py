@@ -1,8 +1,9 @@
 '''Este módulo se encarga de hacer el testeo al controlador requests'''
 from datetime import date
+import datetime
 from collections import defaultdict
 import pytest
-
+import controladores.controlador_requests
 from controladores.controlador_requests import (obtener_conexion_db,
                                                  inicializar_formularios_agrupados,
                                                  procesar_formulario,
@@ -30,15 +31,18 @@ from config import DB_CONFIG
 # pip install pytest-mock
 
 class TestObtenerConexionDb:
+    '''Se testean funciones del módulo'''
 
     # successfully establishes a connection with the database using valid DB_CONFIG
     def test_successful_connection_with_valid_db_config(self, mocker):
+        '''Se testean funciones del módulo'''
         mocker.patch('controladores.controlador_requests.DB_CONFIG', DB_CONFIG)
         conn = obtener_conexion_db()
         assert conn.is_connected()
         conn.close()
 
     def test_multiple_sequential_connections(self, mocker):
+        '''Se testean funciones del módulo'''
         mocker.patch('controladores.controlador_requests.DB_CONFIG', DB_CONFIG)
         conn1 = obtener_conexion_db()
         conn2 = obtener_conexion_db()
@@ -48,6 +52,7 @@ class TestObtenerConexionDb:
         conn2.close()
 
     def test_connection_is_open_and_usable(self, mocker):
+        '''Se testean funciones del módulo'''
         mocker.patch('controladores.controlador_requests.DB_CONFIG', DB_CONFIG)
         conn = obtener_conexion_db()
         cursor = conn.cursor()
@@ -58,6 +63,7 @@ class TestObtenerConexionDb:
         conn.close()
 
     def test_network_issues_or_timeouts(self, mocker):
+        '''Se testean funciones del módulo'''
         mocker.patch('controladores.controlador_requests.DB_CONFIG', DB_CONFIG)
         mocker.patch('mysql.connector.connect', side_effect=mysql.connector.errors.InterfaceError)
         with pytest.raises(mysql.connector.errors.InterfaceError):
@@ -67,6 +73,7 @@ class TestInicializarFormulariosAgrupados:
 
     # returns a defaultdict structure with three levels of nesting
     def test_returns_defaultdict_with_three_levels_of_nesting(self):
+        '''Se testean funciones del módulo'''
         result = inicializar_formularios_agrupados()
         assert isinstance(result, defaultdict)
         assert isinstance(result['key'], defaultdict)
@@ -77,6 +84,7 @@ class TestInicializarFormulariosAgrupados:
 
     # calling the function multiple times returns independent defaultdict instances
     def test_multiple_calls_return_independent_instances(self):
+        '''Se testean funciones del módulo'''
         result1 = inicializar_formularios_agrupados()
         result2 = inicializar_formularios_agrupados()
         assert result1 is not result2
@@ -85,15 +93,18 @@ class TestInicializarFormulariosAgrupados:
 
     # 'enajenantes' and 'adquirentes' keys are initialized as empty lists
     def test_enajenantes_and_adquirentes_initialized_as_empty_lists(self):
+        '''Se testean funciones del módulo'''
         result = inicializar_formularios_agrupados()
         assert isinstance(result, defaultdict)
         assert 'enajenantes' in result['']['']['']
         assert 'adquirentes' in result['']['']['']
 
 class TestProcesarFormulario:
+    '''Se testean funciones del módulo'''
 
     # correctly processes a single enajenante property
     def test_correctly_processes_single_enajenante_property(self):
+        '''Se testean funciones del módulo'''
         formulario = [{
             'comuna': 'Comuna1',
             'manzana': 'Manzana1',
@@ -124,13 +135,15 @@ class TestProcesarFormulario:
 
     # handles empty formulario without errors
     def test_handles_empty_formulario_without_errors(self):
+        '''Se testean funciones del módulo'''
         formulario = []
         formularios_agrupados = {}
         procesar_formulario(formulario, formularios_agrupados)
-        assert formularios_agrupados == {}
+        assert not formularios_agrupados
 
     # correctly processes a single adquirente property
     def test_correctly_processes_single_adquirente_property(self):
+        '''Se testean funciones del módulo'''
         formulario = [{
             'comuna': 'Comuna1',
             'manzana': 'Manzana1',
@@ -161,6 +174,7 @@ class TestProcesarFormulario:
 
     # maintains existing data in formularios_agrupados if no new properties are added
     def test_maintains_existing_data_if_no_new_properties_added(self):
+        '''Se testean funciones del módulo'''
         formulario = [{
             'comuna': 'Comuna1',
             'manzana': 'Manzana1',
@@ -193,6 +207,7 @@ class TestProcesarFormulario:
 
     # handles formulario with missing keys
     def test_handles_formulario_with_missing_keys(self):
+        '''Se testean funciones del módulo'''
         formulario = [{
             'comuna': 'Comuna1',
             'manzana': 'Manzana1',
@@ -221,6 +236,7 @@ class TestProcesarFormulario:
 
     # handles properties with null values
     def test_handles_properties_with_null_values(self):
+        '''Se testean funciones del módulo'''
         formulario = [{
             'comuna': 'Comuna1',
             'manzana': 'Manzana1',
@@ -253,6 +269,7 @@ class TestProcesarFormulario:
 
     # ensures no data loss when processing multiple formularios
     def test_no_data_loss_when_processing_multiple_formularios(self):
+        '''Se testean funciones del módulo'''
         formulario1 = [{
             'comuna': 'Comuna1',
             'manzana': 'Manzana1',
@@ -307,9 +324,11 @@ class TestProcesarFormulario:
         assert formularios_agrupados['Comuna2']['Manzana2']['Predio2']['456']['fecha_inscripcion'] == '2023-02-01'
 
 class TestConvertirFormularioDiccionarioALista:
+    '''Se testean funciones del módulo'''
 
     # converts a single entry dictionary to a list with one element
     def test_single_entry_dictionary(self):
+        '''Se testean funciones del módulo'''
         formularios_agrupados = {
             'comuna1': {
                 'manzana1': {
@@ -346,12 +365,14 @@ class TestConvertirFormularioDiccionarioALista:
 
     # handles empty dictionary input gracefully
     def test_empty_dictionary(self):
+        '''Se testean funciones del módulo'''
         formularios_agrupados = {}
         expected_result = []
         assert convertir_formulario_diccionario_a_lista(formularios_agrupados) == expected_result
 
     # correctly maps all fields from dictionary to list elements
     def test_correctly_maps_all_fields(self):
+        '''Se testean funciones del módulo'''
         formularios_agrupados = {
             'comuna1': {
                 'manzana1': {
@@ -388,6 +409,7 @@ class TestConvertirFormularioDiccionarioALista:
 
     # converts multiple entries in different comunas correctly
     def test_convertir_multiple_entries_different_comunas_correctly(self):
+        '''Se testean funciones del módulo'''
         formularios_agrupados = {
             'comuna1': {
                 'manzana1': {
@@ -454,6 +476,7 @@ class TestConvertirFormularioDiccionarioALista:
 
     # handles dictionaries with deeply nested structures
     def test_handles_deeply_nested_structures(self):
+        '''Se testean funciones del módulo'''
         formularios_agrupados = {
             'comuna1': {
                 'manzana1': {
@@ -490,6 +513,7 @@ class TestConvertirFormularioDiccionarioALista:
 
     # processes dictionaries with non-string keys or values
     def test_process_non_string_keys_values(self):
+        '''Se testean funciones del módulo'''
         formularios_agrupados = {
             1: {
                 2: {
@@ -525,47 +549,56 @@ class TestConvertirFormularioDiccionarioALista:
         assert convertir_formulario_diccionario_a_lista(formularios_agrupados) == expected_result
 
 class TestReagruparFormularios:
+    '''Se testean funciones del módulo'''
 
     # Ensure the function handles empty input gracefully
     def test_correctly_handles_empty_input(self):
+        '''Se testean funciones del módulo'''
         json_data = []
         expected_output = []
         assert reagrupar_formularios(json_data) == expected_output
 
 class TestDefinirClaveOrdenacion:
+    '''Se testean funciones del módulo'''
 
     # returns sorted list of keys for a dictionary with multiple keys
     def test_returns_sorted_keys_for_multiple_keys(self):
+        '''Se testean funciones del módulo'''
         data = {'b': 2, 'a': 1, 'c': 3}
         result = definir_clave_ordenacion(data)
         assert result == ['a', 'b', 'c']
 
     # handles empty dictionary without errors
     def test_handles_empty_dictionary(self):
+        '''Se testean funciones del módulo'''
         data = {}
         result = definir_clave_ordenacion(data)
         assert result == []
 
     # works with dictionaries containing string keys
     def test_works_with_string_keys(self):
+        '''Se testean funciones del módulo'''
         data = {'b': 2, 'a': 1, 'c': 3}
         result = definir_clave_ordenacion(data)
         assert result == ['a', 'b', 'c']
 
     # handles dictionary with single key correctly
     def test_handles_dictionary_with_single_key_correctly(self):
+        '''Se testean funciones del módulo'''
         data = {'a': 1}
         result = definir_clave_ordenacion(data)
         assert result == ['a']
 
     # works with dictionaries containing integer keys
     def test_works_with_integer_keys(self):
+        '''Se testean funciones del módulo'''
         data = {2: 'b', 1: 'a', 3: 'c'}
         result = definir_clave_ordenacion(data)
         assert result == [1, 2, 3]
 
     # maintains order consistency for dictionaries with same keys but different values
     def test_maintains_order_consistency_for_dicts_with_same_keys(self):
+        '''Se testean funciones del módulo'''
         data1 = {'b': 2, 'a': 1, 'c': 3}
         data2 = {'c': 3, 'a': 1, 'b': 2}
         result1 = definir_clave_ordenacion(data1)
@@ -575,14 +608,17 @@ class TestDefinirClaveOrdenacion:
 
     # handles dictionaries with duplicate keys gracefully
     def test_handles_duplicate_keys_gracefully(self):
+        '''Se testean funciones del módulo'''
         data = {'b': 2, 'a': 1, 'b': 3}
         result = definir_clave_ordenacion(data)
         assert result == ['a', 'b']
 
 class TestOrdenarDatosPorClaves:
+    '''Se testean funciones de ordenamiento'''
 
     # sorts list of dictionaries by keys in ascending order
     def test_sorts_list_of_dicts_by_keys_ascending(self):
+        '''Se testean funciones del módulo'''
         data = [
             {'b': 2, 'a': 1},
             {'d': 4, 'c': 3}
@@ -596,6 +632,7 @@ class TestOrdenarDatosPorClaves:
 
     # handles dictionaries with non-string keys
     def test_handles_dicts_with_non_string_keys(self):
+        '''Se testean funciones del módulo'''
         data = [
             {1: 'one', 2: 'two'},
             {3: 'three', 4: 'four'}
@@ -609,6 +646,7 @@ class TestOrdenarDatosPorClaves:
 
     # handles large datasets efficiently
     def test_handles_large_datasets_efficiently(self):
+        '''Se testean funciones del módulo'''
         data = [
             {'b': 2, 'a': 1},
             {'d': 4, 'c': 3}
@@ -621,6 +659,7 @@ class TestOrdenarDatosPorClaves:
 
     # handles dictionaries with numeric keys
     def test_handles_dicts_with_numeric_keys(self):
+        '''Se testean funciones del módulo'''
         data = [
             {2: 'b', 1: 'a'},
             {4: 'd', 3: 'c'}
@@ -634,6 +673,7 @@ class TestOrdenarDatosPorClaves:
 
     # returns empty list when input is empty
     def test_returns_empty_list_when_input_is_empty(self):
+        '''Se testean funciones del módulo'''
         data = []
         expected = []
         result = ordenar_datos_por_claves(data)
@@ -641,6 +681,7 @@ class TestOrdenarDatosPorClaves:
 
     # maintains order for dictionaries with identical keys
     def test_maintains_order_for_dicts_with_identical_keys(self):
+        '''Se testean funciones del módulo'''
         data = [
             {'b': 2, 'a': 1},
             {'b': 4, 'a': 3}
@@ -654,6 +695,7 @@ class TestOrdenarDatosPorClaves:
 
     # handles dictionaries with multiple keys
     def test_handles_dicts_with_multiple_keys(self):
+        '''Se testean funciones del módulo'''
         data = [
             {'b': 2, 'a': 1},
             {'d': 4, 'c': 3}
@@ -666,9 +708,11 @@ class TestOrdenarDatosPorClaves:
         assert result == expected
 
 class TestOrdenarJsonPorClavesAscendente:
+    '''Se testean funciones del módulo'''
 
     # correctly sorts a list of dictionaries by their keys in ascending order
     def test_sorts_dictionaries_by_keys_ascending(self):
+        '''Se testean funciones del módulo'''
         data = [
             {"b": 2, "a": 1},
             {"d": 4, "c": 3}
@@ -682,6 +726,7 @@ class TestOrdenarJsonPorClavesAscendente:
 
     # handles dictionaries with nested dictionaries
     def test_handles_nested_dictionaries(self):
+        '''Se testean funciones del módulo'''
         data = [
             {"b": {"y": 2, "x": 1}, "a": {"z": 3}},
             {"d": {"w": 4}, "c": {"v": 5}}
@@ -695,6 +740,7 @@ class TestOrdenarJsonPorClavesAscendente:
 
     # processes dictionaries with null values
     def test_processes_dictionaries_with_null_values(self):
+        '''Se testean funciones del módulo'''
         data = [
             {"b": 2, "a": None},
             {"d": None, "c": 3}
@@ -708,6 +754,7 @@ class TestOrdenarJsonPorClavesAscendente:
 
     # processes dictionaries with mixed data types as values
     def test_process_mixed_data_types(self):
+        '''Se testean funciones del módulo'''
         data = [
             {"b": 2, "a": "1"},
             {"d": "4", "c": 3}
@@ -721,6 +768,7 @@ class TestOrdenarJsonPorClavesAscendente:
 
     # maintains the original data structure after sorting
     def test_maintains_original_data_structure(self):
+        '''Se testean funciones del módulo'''
         data = [
             {"b": 2, "a": 1},
             {"d": 4, "c": 3}
@@ -731,8 +779,10 @@ class TestOrdenarJsonPorClavesAscendente:
 class TestEjecutarQueryFormulario:
     '''Este módulo testea la función ejecutar_query_formulario'''
 
-    # Executes query with valid properties and returns expected results with the fixed mocker.patch statement
+    # Executes query with valid properties and returns expected
+    # results with the fixed mocker.patch statement
     def test_executes_query_with_valid_properties_fixed(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         propiedades = {
@@ -754,6 +804,7 @@ class TestEjecutarQueryFormulario:
 
     # Handles properties with special characters or SQL injection attempts
     def test_handles_properties_with_special_characters_or_sql_injection_attempts(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         propiedades = {
@@ -778,6 +829,7 @@ class TestAgruparFormularios:
 
     # correctly groups formularios by 'fecha_inscripcion' and 'numero_atencion'
     def test_correctly_groups_formularios_by_fecha_inscripcion_and_numero_atencion(self):
+        '''Se testean funciones del módulo'''
         formularios = [
             {
                 'fecha_inscripcion': '2023-01-01',
@@ -821,12 +873,14 @@ class TestAgruparFormularios:
 
     # handles empty list of formularios
     def test_handles_empty_list_of_formularios(self):
+        '''Se testean funciones del módulo'''
         formularios = []
         expected_output = {}
         assert agrupar_formularios(formularios) == expected_output
 
     # assigns 'enajenantes' and 'adquirentes' to their respective lists
     def test_assigns_enajenantes_and_adquirentes(self):
+        '''Se testean funciones del módulo'''
         formularios = [
             {
                 'fecha_inscripcion': '2023-01-01',
@@ -870,6 +924,7 @@ class TestAgruparFormularios:
 
     # handles formularios with special characters or unusual strings in fields
     def test_handles_special_characters_in_formularios(self):
+        '''Se testean funciones del módulo'''
         formularios = [
             {
                 'fecha_inscripcion': '2023-01-01',
@@ -913,6 +968,7 @@ class TestAgruparFormularios:
 
     # processes formularios with duplicate 'RUNRUT' values within the same group
     def test_process_formularios_with_duplicate_RUNRUT_values(self):
+        '''Se testean funciones del módulo'''
         formularios = [
             {
                 'fecha_inscripcion': '2023-01-01',
@@ -956,6 +1012,7 @@ class TestAgruparFormularios:
 
     # validates that non-string fields like 'derecho' are processed correctly
     def test_non_string_fields_processing(self):
+        '''Se testean funciones del módulo'''
         formularios = [
             {
                 'fecha_inscripcion': '2023-01-01',
@@ -1001,6 +1058,7 @@ class TestObtenerFormularios:
     '''Este módulo testea la función obtener_formularios'''
     # retrieves forms when valid properties are provided
     def test_retrieves_forms_with_valid_properties(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         propiedades = {
@@ -1024,6 +1082,7 @@ class TestObtenerFormularios:
 
     # properties dictionary missing one or more keys
     def test_properties_missing_keys(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         propiedades = {
@@ -1039,8 +1098,10 @@ class TestObtenerFormularios:
 
 class TestProcesarFormularios:
     '''Este módulo testea la función procesar_formularios'''
-    # Ensure that the function 'procesar_formularios' correctly processes a list of formularios and returns grouped data
+    # Ensure that the function 'procesar_formularios' correctly processes
+    #  a list of formularios and returns grouped data
     def test_correctly_processes_formularios_and_returns_grouped_data(self, mocker):
+        '''Se testean funciones del módulo'''
         mock_agrupar_formularios = mocker.patch('controladores.controlador_requests.agrupar_formularios')
         mock_ordenar_json_por_claves_ascendente = mocker.patch('controladores.controlador_requests.ordenar_json_por_claves_ascendente')
 
@@ -1056,6 +1117,7 @@ class TestProcesarFormularios:
 
     # handles formularios with missing or null fields
     def test_handles_formularios_with_missing_or_null_fields(self, mocker):
+        '''Se testean funciones del módulo'''
         mock_agrupar_formularios = mocker.patch('controladores.controlador_requests.agrupar_formularios')
         mock_ordenar_json_por_claves_ascendente = mocker.patch('controladores.controlador_requests.ordenar_json_por_claves_ascendente')
 
@@ -1070,9 +1132,11 @@ class TestProcesarFormularios:
         mock_ordenar_json_por_claves_ascendente.assert_called_once_with(formularios)
 
 class TestRequestAlgorithmData:
+    '''Se testean funciones del módulo'''
 
     # Ensure correct import of request_algorithm_data function with the recommended fix
     def test_correct_import_request_algorithm_data_fixed(self, mocker):
+        '''Se testean funciones del módulo'''
         # Mock dependencies
         mock_conn = mocker.patch('controladores.controlador_requests.obtener_conexion_db')
         mock_cursor = mock_conn.return_value.cursor
@@ -1095,9 +1159,11 @@ class TestRequestAlgorithmData:
         mock_procesar_formularios.assert_called_once_with([{'formulario': 'data'}, {'formulario': 'data'}])
 
 class TestEjecutarQueryMultipropietario:
+    '''Se testean funciones del módulo'''
 
     # Executes query with valid 'comuna', 'manzana', and 'predio' values with correct newline and indentation
     def test_executes_query_with_valid_values_with_newline_and_indentation(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         propiedades = {'comuna': 1, 'manzana': 2, 'predio': 3}
@@ -1114,22 +1180,23 @@ class TestEjecutarQueryMultipropietario:
 
     # Handles empty 'propiedades' dictionary gracefully
     def test_handles_empty_propiedades_gracefully(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         propiedades = {}
         expected_query = "SELECT * FROM multipropietario WHERE comuna=%s AND manzana=%s AND predio=%s"
         mocker.patch('controladores.controlador_queries.generar_query_busqueda_multipropietario_completa', return_value=expected_query)
-    
         # Act & Assert
         with pytest.raises(KeyError):
             ejecutar_query_multipropietario(cursor, propiedades)
 
 class TestObtenerMultipropietarioData:
+    '''Se testean funciones del módulo'''
 
-    # Ensure that processed data is returned correctly with valid input data after fixing the import issue
+    # Ensure that processed data is returned correctly with valid
+    #  input data after fixing the import issue
     def test_returns_processed_data_with_valid_input_fixed(self, mocker):
-        import controladores.controlador_requests
-
+        '''Se testean funciones del módulo'''
         # Mock dependencies
         mocker.patch('controladores.controlador_requests.obtener_conexion_db')
         mocker.patch('controladores.controlador_requests.ejecutar_query_multipropietario')
@@ -1157,10 +1224,11 @@ class TestObtenerMultipropietarioData:
         controladores.controlador_requests.procesar_data_multipropietario.assert_called_once_with([[{'id': 1, 'name': 'Test'}]])
 
 class TestProcesarDataMultipropietario:
+    '''Se testean funciones del módulo'''
 
     # correctly formats 'fecha_inscripcion' from datetime.date to YYYYMMDD
     def test_correctly_formats_fecha_inscripcion(self):
-        import datetime
+        '''Se testean funciones del módulo'''
         data = [
             [
                 {'fecha_inscripcion': datetime.date(2014, 11, 29)},
@@ -1177,82 +1245,36 @@ class TestProcesarDataMultipropietario:
 
     # handles empty data list gracefully
     def test_handles_empty_data_list(self):
+        '''Se testean funciones del módulo'''
         data = []
         expected_output = []
         assert procesar_data_multipropietario(data) == expected_output
 
     # handles typical date formats without errors
-    def test_correctly_formats_fecha_inscripcion(self):
-        import datetime
-        data = [
-            [
-                {'fecha_inscripcion': datetime.date(2014, 11, 29)},
-                {'fecha_inscripcion': datetime.date(2020, 1, 15)}
-            ]
-        ]
-        expected_output = [
-            [
-                {'fecha_inscripcion': '20141129'},
-                {'fecha_inscripcion': '20200115'}
-            ]
-        ]
-        assert procesar_data_multipropietario(data) == expected_output
 
-    # returns data in the expected structure
-    def test_correctly_formats_fecha_inscripcion(self):
-        import datetime
-        data = [
-            [
-                {'fecha_inscripcion': datetime.date(2014, 11, 29)},
-                {'fecha_inscripcion': datetime.date(2020, 1, 15)}
-            ]
-        ]
-        expected_output = [
-            [
-                {'fecha_inscripcion': '20141129'},
-                {'fecha_inscripcion': '20200115'}
-            ]
-        ]
-        assert procesar_data_multipropietario(data) == expected_output
-
-    # handles large datasets efficiently
     def test_handles_large_datasets_efficiently(self):
-        import datetime
+        '''Se testean funciones del módulo'''
         data = [
             [
-                {'fecha_inscripcion': datetime.date(2014, 11, 29)},
+                {'fecha_inscripcion': datetime.date(2014, 11, 27)},
                 {'fecha_inscripcion': datetime.date(2020, 1, 15)}
             ]
         ]
         expected_output = [
             [
-                {'fecha_inscripcion': '20141129'},
+                {'fecha_inscripcion': '20141127'},
                 {'fecha_inscripcion': '20200115'}
             ]
         ]
         assert procesar_data_multipropietario(data) == expected_output
 
-    # ensures no data loss during processing
-    def test_correctly_formats_fecha_inscripcion(self):
-        import datetime
-        data = [
-            [
-                {'fecha_inscripcion': datetime.date(2014, 11, 29)},
-                {'fecha_inscripcion': datetime.date(2020, 1, 15)}
-            ]
-        ]
-        expected_output = [
-            [
-                {'fecha_inscripcion': '20141129'},
-                {'fecha_inscripcion': '20200115'}
-            ]
-        ]
-        assert procesar_data_multipropietario(data) == expected_output
 
 class TestEjecutarLimpiarMultipropietario:
+    '''Se testean funciones del módulo'''
 
     # Executes SQL query correctly with valid inputs after applying the recommended fix
     def test_executes_sql_query_correctly_with_valid_inputs_with_fix(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         propiedad = {
@@ -1274,23 +1296,24 @@ class TestEjecutarLimpiarMultipropietario:
 
     # Handles empty 'propiedad' dictionary
     def test_handles_empty_propiedad_dictionary(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         propiedad = {}
         ano_inicio = 2022
         query = "DELETE FROM Multipropietario WHERE comuna=%s AND manzana=%s AND predio=%s AND ano >= %s"
-    
         mocker.patch('controladores.controlador_queries.generar_query_limpiar_multipropietario', return_value=query)
-    
         # Act & Assert
         with pytest.raises(KeyError):
             ejecutar_limpiar_multipropietario(cursor, propiedad, ano_inicio)
 
 
 class TestEjecutarIngresarMultipropietarios:
+    '''Se testean funciones del módulo'''
 
     # Insert a valid row with all fields populated
     def test_insert_valid_row(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         row = {
@@ -1311,7 +1334,7 @@ class TestEjecutarIngresarMultipropietarios:
         ejecutar_ingresar_multipropietarios(cursor, row)
         # Assert
         cursor.execute.assert_called_once_with(
-            mocker.ANY, 
+            mocker.ANY,
             (
                 row['comuna'],
                 row['manzana'],
@@ -1330,6 +1353,7 @@ class TestEjecutarIngresarMultipropietarios:
 
     # Insert a row with missing mandatory fields
     def test_insert_row_missing_mandatory_fields(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         row = {
@@ -1352,6 +1376,7 @@ class TestEjecutarIngresarMultipropietarios:
 
     # Insert a row with optional fields 'ano_vigencia_f' and 'status' as None
     def test_insert_row_with_optional_fields_as_none(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         row = {
@@ -1392,6 +1417,7 @@ class TestEjecutarIngresarMultipropietarios:
 
     # Insert a row with 'derecho' as a float value
     def test_insert_row_with_float_derecho(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         row = {
@@ -1433,6 +1459,7 @@ class TestEjecutarIngresarMultipropietarios:
 
     # Insert multiple rows sequentially without errors
     def test_insert_multiple_rows_sequentially_without_errors(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         rows = [
@@ -1494,6 +1521,7 @@ class TestEjecutarIngresarMultipropietarios:
 
     # Validate if the function logs the insertion process
     def test_logs_insertion_process(self, mocker):
+        '''Se testean funciones del módulo'''
         # Arrange
         cursor = mocker.Mock()
         row = {
@@ -1534,11 +1562,12 @@ class TestEjecutarIngresarMultipropietarios:
         )
 
 class TestIngresarMultipropietarios:
+    '''Se testean funciones del módulo'''
 
     # Handles empty data input gracefully
     def test_handles_empty_data_input_gracefully(self, mocker):
+        '''Se testean funciones del módulo'''
         data = []
-    
         mock_conn = mocker.patch('controladores.controlador_requests.obtener_conexion_db')
         mock_cursor = mocker.Mock()
         mock_conn.return_value.cursor.return_value = mock_cursor
