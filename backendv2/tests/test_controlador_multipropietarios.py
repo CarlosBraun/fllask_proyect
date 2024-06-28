@@ -4,7 +4,6 @@ from controladores.controlador_multipropietarios import (construir_fila_adquiren
                                                          validar_y_ajustar_fila,
                                                          construir_fila_general,
                                                          construir_fila_distribuir_100,
-                                                         construir_fila_var_ena_100,
                                                          generar_registros_form_a_multi,
                                                          revisar_multipropietario,
                                                          inicializar_derechos,
@@ -26,7 +25,6 @@ from controladores.controlador_multipropietarios import (construir_fila_adquiren
                                                          obtener_fecha_mas_antigua,
                                                          obtener_total_derecho_enajenado,
                                                          obtener_fantasmas,
-                                                         filtrar_datos_multipropietario,
                                                          eliminar_enas_con_derecho_cero,
                                                          ajustar_derechos_por_factor)
 
@@ -170,58 +168,6 @@ class TestConstruirFilaDistribuir100:
         }
         result = construir_fila_distribuir_100(persona, propiedad, value, a_distribuir)
         assert result == expected_row
-
-class TestConstruirFilaVarEna100:
-    '''En este módulo se testea la construcción de las filas de ena100'''
-
-    # constructs a dictionary with correct keys and values from valid inputs
-    def test_constructs_correct_dict_from_valid_inputs(self):
-        '''Testeo de función'''
-        persona = {'RUNRUT': '12345678-9'}
-        propiedad = {'comuna': 'Santiago', 'manzana': 'A', 'predio': '1'}
-        value = {
-            'fojas': 100,
-            'fecha_inscripcion': '2023-01-01',
-            'numero_inscripcion': 1
-        }
-        expected_output = {
-            'comuna': 'Santiago',
-            'manzana': 'A',
-            'predio': '1',
-            'run': '12345678-9',
-            'derecho': 0,
-            'fojas': 100,
-            'fecha_inscripcion': '2023-01-01',
-            'ano_inscripccion': 2023,
-            'numero_inscripcion': 1,
-            'ano_vigencia_i': 2023
-        }
-        assert construir_fila_var_ena_100(persona, propiedad, value) == expected_output
-
-    # handles 'fecha_inscripcion' with different date formats
-    def test_handles_different_date_formats(self):
-        '''Testeo de función'''
-        persona = {'RUNRUT': '12345678-9'}
-        propiedad = {'comuna': 'Santiago', 'manzana': 'A', 'predio': '1'}
-        value = {
-            'fojas': 100,
-            'fecha_inscripcion': '2023/01/01',
-            'numero_inscripcion': 1
-        }
-        expected_output = {
-            'comuna': 'Santiago',
-            'manzana': 'A',
-            'predio': '1',
-            'run': '12345678-9',
-            'derecho': 0,
-            'fojas': 100,
-            'fecha_inscripcion': '2023/01/01',
-            'ano_inscripccion': 2023,
-            'numero_inscripcion': 1,
-            'ano_vigencia_i': 2023
-        }
-        assert construir_fila_var_ena_100(persona, propiedad, value) == expected_output
-
 class TestGenerarRegistrosFormAMulti:
     '''En esta clase se testan funciones de el controlador multipropietario'''
 
@@ -683,40 +629,6 @@ class TestObtenerFantasmas:
         result = obtener_fantasmas(multipropietario_temp)
         assert result == []
 
-class TestFiltrarDatosMultipropietario:
-    '''Testeo de función'''
-
-    # Filters rows correctly when all parameters match exactly
-    def test_filters_rows_correctly_when_all_parameters_match_exactly(self):
-        '''Testeo de función'''
-        rows = [
-            {'comuna': '1', 'manzana': 2, 'predio': 3, 'ano_vigencia_f': 2025},
-            {'comuna': '1', 'manzana': 2, 'predio': 3, 'ano_vigencia_f': None},
-            {'comuna': '1', 'manzana': 2, 'predio': 4, 'ano_vigencia_f': 2025},
-            {'comuna': '2', 'manzana': 2, 'predio': 3, 'ano_vigencia_f': 2025}
-        ]
-        comuna = '1'
-        manzana = 2
-        predio = 3
-        ano = 2023
-        expected_result = [
-            {'comuna': '1', 'manzana': 2, 'predio': 3, 'ano_vigencia_f': 2025},
-            {'comuna': '1', 'manzana': 2, 'predio': 3, 'ano_vigencia_f': None}
-        ]
-        result = filtrar_datos_multipropietario(rows, comuna, manzana, predio, ano)
-        assert result == expected_result
-
-    # Handles empty input list without errors
-    def test_handles_empty_input_list_without_errors(self):
-        '''Testeo de función'''
-        rows = []
-        comuna = '1'
-        manzana = 2
-        predio = 3
-        ano = 2023
-        expected_result = []
-        result = filtrar_datos_multipropietario(rows, comuna, manzana, predio, ano)
-        assert result == expected_result
 
 class TestEliminarEnasConDerechoCero:
     '''En esta clase se testan funciones de el controlador multipropietario'''

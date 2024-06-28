@@ -7,7 +7,8 @@ from controladores.controlador_formularios import (parsear_fecha,
                                                    actualizar_fecha_inscripcion,
                                                    convertir_a_lista_de_diccionarios,
                                                    obtener_propiedades_agrupadas,
-                                                   agrupar_formularios
+                                                   agrupar_formularios,
+                                                   agregar_datos_formulario
                                                    )
 class TestParsearFecha:
     '''En este módulo se realizan test de parseo de fechas'''
@@ -119,8 +120,8 @@ class TestObtenerClave:
     def test_handles_typical_values(self):
         '''Test de obtención de clave'''
         # Arrange
-        propiedad = {'comuna': 'Comuna1', 'manzana': 'Manzana1', 'predio': 'Predio1'}
-        expected = ('Comuna1', 'Manzana1', 'Predio1')
+        propiedad = {'comuna': 'Comuna1', 'manzana': 'Manzana3', 'predio': 'Predio1'}
+        expected = ('Comuna1', 'Manzana3', 'Predio1')
 
         # Act
         result = obtener_clave(propiedad)
@@ -132,8 +133,8 @@ class TestObtenerClave:
     def test_process_properties_with_string_values_correctly(self):
         '''Test de obtención de clave'''
         # Arrange
-        propiedad = {'comuna': 'Comuna1', 'manzana': 'Manzana1', 'predio': 'Predio1'}
-        expected = ('Comuna1', 'Manzana1', 'Predio1')
+        propiedad = {'comuna': 'Comuna2', 'manzana': 'Manzana1', 'predio': 'Predio1'}
+        expected = ('Comuna2', 'Manzana1', 'Predio1')
 
         # Act
         result = obtener_clave(propiedad)
@@ -273,6 +274,36 @@ class TestObtenerClave:
         # Assert
         assert result1[0] == result2[0]  # Comuna should be the same
         assert result1[2] == result2[2]  # Predio should be the same
+
+
+class TestAgregarDatosFormulario:
+    '''Tests del controladore formulario'''
+
+    # correctly inserts valid formulario data into the database
+    def test_inserts_valid_formulario_data(self, mocker):
+        '''Revisa el inserto valido de data'''
+        # Arrange
+        cursor = mocker.Mock()
+        formulario = {
+            'bienRaiz': {'comuna': '1', 'manzana': '2', 'predio': '3'},
+            'fechaInscripcion': '2023-01-01',
+            'nroInscripcion': '123',
+            'CNE': '456',
+            'fojas': '789',
+            'enajenantes': [{'RUNRUT': '11111111-1', 'porcDerecho': '50'}],
+            'adquirentes': [{'RUNRUT': '22222222-2', 'porcDerecho': '50'}]
+        }
+        numero_atencion = 1
+        propiedades_a_preprocesar = []
+
+        # Act
+        next_numero_atencion = agregar_datos_formulario(cursor, formulario,
+                                                         numero_atencion, propiedades_a_preprocesar)
+
+        # Assert
+        assert next_numero_atencion == 2
+        assert len(propiedades_a_preprocesar) == 1
+        cursor.execute.assert_called()
 
 class TestActualizarFechaInscripcion:
     '''Tests del método que actualiza las fechas'''
@@ -624,7 +655,7 @@ class TestAgruparFormularios:
                   'numero_inscripcion': 100, 'predio': 'predio1',
                     'status': 'status1', 'RUNRUT': '98765432-1',
                       'derecho': '50%', 'tipo': 'enajenante'},
-            {'numero_atencion': 2, 'cne': 'cne2', 'comuna': 'comuna2',
+            {'numero_atencion': 2, 'cne': 'cne3', 'comuna': 'comuna2',
               'fecha_inscripcion': '2023-02-01', 'fojas': 20,
                 'herencia': 'herencia2', 'id': 2, 'manzana': 'manzana2',
                   'numero_inscripcion': 200, 'predio': 'predio2',
@@ -649,7 +680,7 @@ class TestAgruparFormularios:
             },
             {
                 'numero_atencion': 2,
-                'cne': 'cne2',
+                'cne': 'cne3',
                 'comuna': 'comuna2',
                 'fecha_inscripcion': '2023-02-01',
                 'fojas': 20,
@@ -681,7 +712,7 @@ class TestAgruparFormularios:
                   'numero_inscripcion': 100, 'predio': 'predio1',
                     'status': 'status1', 'RUNRUT': '98765432-1',
                       'derecho': '50%', 'tipo': 'enajenante'},
-            {'numero_atencion': 2, 'cne': 'cne2', 'comuna': 'comuna2',
+            {'numero_atencion': 2, 'cne': 'cne4', 'comuna': 'comuna2',
               'fecha_inscripcion': '2023-02-01', 'fojas': 20,
                 'herencia': 'herencia2', 'id': 2, 'manzana': 'manzana2',
                   'numero_inscripcion': 200, 'predio': 'predio2',
@@ -706,7 +737,7 @@ class TestAgruparFormularios:
             },
             {
                 'numero_atencion': 2,
-                'cne': 'cne2',
+                'cne': 'cne4',
                 'comuna': 'comuna2',
                 'fecha_inscripcion': '2023-02-01',
                 'fojas': 20,
@@ -738,7 +769,7 @@ class TestAgruparFormularios:
                   'numero_inscripcion': 100, 'predio': 'predio1',
                     'status': 'status1', 'RUNRUT': '98765432-1',
                       'derecho': '50%', 'tipo': 'enajenante'},
-            {'numero_atencion': 2, 'cne': 'cne2', 'comuna': 'comuna2',
+            {'numero_atencion': 2, 'cne': 'cne2', 'comuna': 'comuna3',
               'fecha_inscripcion': '2023-02-01', 'fojas': 20,
                 'herencia': 'herencia2', 'id': 2, 'manzana': 'manzana2',
                   'numero_inscripcion': 200, 'predio': 'predio2',
@@ -764,7 +795,7 @@ class TestAgruparFormularios:
             {
                 'numero_atencion': 2,
                 'cne': 'cne2',
-                'comuna': 'comuna2',
+                'comuna': 'comuna3',
                 'fecha_inscripcion': '2023-02-01',
                 'fojas': 20,
                 'herencia': 'herencia2',

@@ -193,7 +193,7 @@ def ejecutar_query_borrar_formularios (query):
 @controlador_formularios_bp.route('/algo', methods=['GET'])
 def ejecutar_algoritmo1():
     '''función de prueba que ejecuta el algoritmo con valor artificial'''
-    lista = [{'comuna': 77, 'manzana': 65, 'predio': 32, 'fecha_inscripcion': '2000'}]
+    lista = [{'comuna': 77, 'manzana': 266, 'predio': 32, 'fecha_inscripcion': '2000'}]
     for i in lista:
         data1 = ejecutar_algoritmo([i])
     return jsonify(data1)
@@ -250,46 +250,67 @@ def revisar_propiedades(propiedades):
             propiedades_numericas.append(propiedad)
     return propiedades_numericas
 
-
-def agregar_datos_formulario(cursor, formulario, numero_atencion, propiedades_a_preprocesar):
-    '''Recibe la información de los formularios, los inserta en la base de datos y retorna
-      el numero de atención para el siguiente formulario.'''
-    bien_raiz = formulario.get('bienRaiz', {})
+def validar_datos_propiedad(bien_raiz):
+    '''Valida los datos de la propiedad'''
     comuna = bien_raiz.get('comuna')
     manzana = bien_raiz.get('manzana')
     predio = bien_raiz.get('predio')
-    cne = formulario.get('CNE')
-    fojas = formulario.get('fojas')
-    fecha_inscripcion = formulario.get('fechaInscripcion')
-    numero_inscripcion = formulario.get('nroInscripcion')
-    status = 'vigente'
 
+    if not str(manzana).isdigit() or not str(comuna).isdigit() or not str(predio).isdigit():
+        return False
+    return True
+
+
+def formatear_fecha_inscripcion(fecha_inscripcion):
+    '''Formatea la fecha de inscripción en el formato esperado'''
     try:
         fecha_inscripcion_formateada = datetime.strptime(fecha_inscripcion,
                                                           '%Y-%m-%d').strftime('%Y%m%d')
     except ValueError:
         fecha_inscripcion_formateada = '00000000'  # Fecha muy antigua
-        status = 'invalido'
+    return fecha_inscripcion_formateada
 
-    if not str(manzana).isdigit() or not str(comuna).isdigit() or not str(predio).isdigit():
+
+def insertar_persona(cursor, query, datos_persona):
+    '''Inserta los datos de una persona en la base de datos'''
+    cursor.execute(query, datos_persona)
+
+
+def agregar_datos_formulario(cursor, formulario, numero_atencion, propiedades_a_preprocesar):
+    '''Recibe la información de los formularios, los inserta en la base de 
+    datos y retorna el numero de atención para el siguiente formulario.'''
+    bien_raiz = formulario.get('bienRaiz', {})
+    comuna = bien_raiz.get('comuna')
+    manzana = bien_raiz.get('manzana')
+    predio = bien_raiz.get('predio')
+
+    if not validar_datos_propiedad(bien_raiz):
         status = 'invalido'
+    else:
+        status = 'vigente'
+
+    fecha_inscripcion = formatear_fecha_inscripcion(formulario.get('fechaInscripcion'))
+    numero_inscripcion = formulario.get('nroInscripcion')
+    cne = formulario.get('CNE')
+    fojas = formulario.get('fojas')
 
     datos_propiedad = {
         'comuna': comuna,
         'manzana': manzana,
         'predio': predio,
-        'fecha_inscripcion': fecha_inscripcion_formateada,
+        'fecha_inscripcion': fecha_inscripcion,
     }
     propiedades_a_preprocesar.append(datos_propiedad)
 
     for tipo, personas in [('enajenante', formulario.get('enajenantes', [])),
-                            ('adquirente', formulario.get('adquirentes', []))]:
+                           ('adquirente', formulario.get('adquirentes', []))]:
         for persona in personas:
             rut = persona.get('RUNRUT')
             derecho = persona.get('porcDerecho')
             query = generar_query_insertar_formularios()
-            herencia = 'n/a' #valor inicial del campo herencia, para uso en caso de rectificación.
-            cursor.execute(query, (numero_atencion, cne, comuna, manzana, predio, fojas,
-                   fecha_inscripcion_formateada, numero_inscripcion, tipo,
-                     rut, derecho, status, herencia))
+            herencia = 'n/a'  # valor inicial del campo herencia, para uso en caso de rectificación.
+            datos_persona = (numero_atencion, cne, comuna, manzana, predio, fojas,fecha_inscripcion,
+                             numero_inscripcion, tipo, rut, derecho, status, herencia)
+            insertar_persona(cursor, query, datos_persona)
+
     return numero_atencion + 1
