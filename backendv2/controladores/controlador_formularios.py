@@ -190,14 +190,6 @@ def ejecutar_query_borrar_formularios (query):
         conn.close()
 
 
-@controlador_formularios_bp.route('/algo', methods=['GET'])
-def ejecutar_algoritmo1():
-    '''función de prueba que ejecuta el algoritmo con valor artificial'''
-    lista = [{'comuna': 77, 'manzana': 266, 'predio': 32, 'fecha_inscripcion': '2000'}]
-    for i in lista:
-        data1 = ejecutar_algoritmo([i])
-    return jsonify(data1)
-
 
 @controlador_formularios_bp.route('/crear', methods=['POST'])
 def agregar_formulario_a_base_de_datos():
