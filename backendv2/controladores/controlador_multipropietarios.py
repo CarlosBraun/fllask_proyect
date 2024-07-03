@@ -2,6 +2,8 @@
 En este módulo
 '''
 import copy
+from flask import Blueprint, jsonify, request
+from mysql.connector import Error
 from controladores.controlador_requests import (
     obtener_conexion_db,
     obtener_multipropietario_data,
@@ -15,8 +17,6 @@ from controladores.controlador_queries import (
     generar_query_obtener_multipropietarios,
     generar_query_borrar_multipropietario
     )
-from flask import Blueprint, jsonify, request
-from mysql.connector import Error
 controlador_multipropietarios_bp = Blueprint(
     'controlador_multipropietarios', __name__)
 
@@ -760,7 +760,7 @@ def filtrar_filas_por_ano(rows, ano):
 
 @ controlador_multipropietarios_bp.route('/clean', methods=['GET'])
 def borrar_datos():
-    '''Elimina todas las filas de la tabla Multipropietario'''
+    '''Elimina todas las filas de la tabla Multipropietario.'''
     try:
         ejecutar_borrado_multipropietario()
         mensaje = generar_mensaje_borrado_exitoso()
@@ -768,25 +768,31 @@ def borrar_datos():
         mensaje = generar_mensaje_error(e)
     return jsonify(mensaje)
 
-def ejecutar_borrado_multipropietario():
-    '''Ejecuta la consulta SQL para borrar todas las filas de la tabla Multipropietario'''
-    conn = obtener_conexion_db()
-    cursor = conn.cursor()
-    query = generar_query_borrar_multipropietario()
-    try:
-        cursor.execute(query)
-        conn.commit()  # Confirmar la transacción
-    except Error as e:
-        conn.rollback()  # Revertir la transacción en caso de error
-        raise e  # Lanza la excepción para manejarla externamente
-    finally:
-        cursor.close()
-        conn.close()
-
 def generar_mensaje_borrado_exitoso():
-    '''Genera un mensaje indicando que los datos fueron borrados exitosamente'''
+    '''Genera un mensaje indicando que los datos fueron borrados exitosamente.'''
     return {'mensaje': 'Datos borrados exitosamente'}
 
 def generar_mensaje_error(e):
-    '''Genera un mensaje indicando que hubo un error al borrar los datos'''
+    '''Genera un mensaje indicando que hubo un error al borrar los datos.'''
     return {'error': str(e)}
+def ejecutar_query_borrado_multipropietario(query):
+    '''Ejecuta una consulta SQL y maneja la conexión a la base de datos.'''
+    conn = obtener_conexion_db()
+    cursor = conn.cursor()
+    try:
+        ejecutar_cursor_borrado_multipropietario(cursor,conn,query)
+    except Error as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
+def ejecutar_cursor_borrado_multipropietario(cursor,conn,query):
+    '''Ejecuta la consulta SQL y confirma la transacción.'''
+    cursor.execute(query)
+    conn.commit()
+
+def ejecutar_borrado_multipropietario():
+    '''Ejecuta la consulta SQL para borrar todas las filas de la tabla Multipropietario.'''
+    query = generar_query_borrar_multipropietario()
+    ejecutar_query_borrado_multipropietario(query)

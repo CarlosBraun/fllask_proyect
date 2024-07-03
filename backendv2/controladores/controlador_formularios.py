@@ -31,9 +31,8 @@ def obtener_numero_de_atencion():
     nuevo_numero_atencion = incrementar_numero_atencion(ultimo_numero_atencion)
     return nuevo_numero_atencion
 
-def ejecutar_query_obtener_ultimo_numero():
-    '''Ejecuta la consulta SQL para obtener el último número de atención desde la base de datos.'''
-    query = generar_query_obtener_ultimo_numero()
+def ejecutar_query_ultimo_numero(query):
+    '''Ejecuta una consulta SQL y retorna el resultado.'''
     conn = obtener_conexion_db()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(query)
@@ -42,14 +41,20 @@ def ejecutar_query_obtener_ultimo_numero():
     conn.close()
     return result
 
+def retornar_resultado_obtener_ultimo_numero():
+    '''Obtiene el último número de atención desde la base de datos.'''
+    query = generar_query_obtener_ultimo_numero()
+    return ejecutar_query_ultimo_numero(query)
+
+
 def obtener_ultimo_numero_atencion():
     '''Obtiene el último número de atención desde la base de datos.'''
-    result = ejecutar_query_obtener_ultimo_numero()
+    result = retornar_resultado_obtener_ultimo_numero()
     return int(result['numero_atencion']) if result else 0
 
 def incrementar_numero_atencion(ultimo_numero_atencion):
     '''Incrementa el número de atención en uno.'''
-    return ultimo_numero_atencion + 1
+    return ultimo_numero_atencion + 2
 
 
 def parsear_fecha(fecha):
@@ -252,17 +257,6 @@ def validar_datos_propiedad(bien_raiz):
         return False
     return True
 
-
-def formatear_fecha_inscripcion(fecha_inscripcion):
-    '''Formatea la fecha de inscripción en el formato esperado'''
-    try:
-        fecha_inscripcion_formateada = datetime.strptime(fecha_inscripcion,
-                                                          '%Y-%m-%d').strftime('%Y%m%d')
-    except ValueError:
-        fecha_inscripcion_formateada = '00000000'  # Fecha muy antigua
-    return fecha_inscripcion_formateada
-
-
 def insertar_persona(cursor, query, datos_persona):
     '''Inserta los datos de una persona en la base de datos'''
     cursor.execute(query, datos_persona)
@@ -271,38 +265,62 @@ def insertar_persona(cursor, query, datos_persona):
 def agregar_datos_formulario(cursor, formulario, numero_atencion, propiedades_a_preprocesar):
     '''Recibe la información de los formularios, los inserta en la base de 
     datos y retorna el numero de atención para el siguiente formulario.'''
-    bien_raiz = formulario.get('bienRaiz', {})
-    comuna = bien_raiz.get('comuna')
-    manzana = bien_raiz.get('manzana')
-    predio = bien_raiz.get('predio')
-
-    if not validar_datos_propiedad(bien_raiz):
-        status = 'invalido'
-    else:
-        status = 'vigente'
-
+    bien_raiz = obtener_datos_bien_raiz(formulario)
+    status = determinar_estado_propiedad(bien_raiz)
     fecha_inscripcion = formatear_fecha_inscripcion(formulario.get('fechaInscripcion'))
     numero_inscripcion = formulario.get('nroInscripcion')
     cne = formulario.get('CNE')
     fojas = formulario.get('fojas')
 
-    datos_propiedad = {
-        'comuna': comuna,
-        'manzana': manzana,
-        'predio': predio,
-        'fecha_inscripcion': fecha_inscripcion,
-    }
+    datos_propiedad = crear_datos_propiedad(bien_raiz, fecha_inscripcion)
     propiedades_a_preprocesar.append(datos_propiedad)
 
+    procesar_personas_formulario(cursor, formulario, numero_atencion, cne, bien_raiz,
+                                 fojas, fecha_inscripcion, numero_inscripcion, status)
+
+    return numero_atencion + 1
+def obtener_datos_bien_raiz(formulario):
+    '''Obtiene los datos del bien raíz del formulario.'''
+    return formulario.get('bienRaiz', {})
+
+def determinar_estado_propiedad(bien_raiz):
+    '''Determina el estado de la propiedad basado en los datos del bien raíz.'''
+    return 'vigente' if validar_datos_propiedad(bien_raiz) else 'invalido'
+
+def formatear_fecha_inscripcion(fecha_inscripcion):
+    '''Formatea la fecha de inscripción.'''
+    try:
+        return datetime.strptime(fecha_inscripcion, '%Y-%m-%d').strftime('%Y%m%d')
+    except ValueError:
+        return '00000000'
+
+def crear_datos_propiedad(bien_raiz, fecha_inscripcion):
+    '''Crea un diccionario con los datos de la propiedad.'''
+    return {
+        'comuna': bien_raiz.get('comuna'),
+        'manzana': bien_raiz.get('manzana'),
+        'predio': bien_raiz.get('predio'),
+        'fecha_inscripcion': fecha_inscripcion,
+    }
+
+def procesar_personas_formulario(cursor, formulario, numero_atencion, cne, bien_raiz,
+                                 fojas, fecha_inscripcion, numero_inscripcion, status):
+    '''Procesa y inserta las personas en la base de datos desde el formulario.'''
     for tipo, personas in [('enajenante', formulario.get('enajenantes', [])),
                            ('adquirente', formulario.get('adquirentes', []))]:
         for persona in personas:
-            rut = persona.get('RUNRUT')
-            derecho = persona.get('porcDerecho')
+            datos_persona = crear_datos_persona(numero_atencion, cne, bien_raiz, fojas,
+                                                fecha_inscripcion, numero_inscripcion, tipo,
+                                                persona, status)
             query = generar_query_insertar_formularios()
-            herencia = 'n/a'  # valor inicial del campo herencia, para uso en caso de rectificación.
-            datos_persona = (numero_atencion, cne, comuna, manzana, predio, fojas,fecha_inscripcion,
-                             numero_inscripcion, tipo, rut, derecho, status, herencia)
             insertar_persona(cursor, query, datos_persona)
 
-    return numero_atencion + 1
+def crear_datos_persona(numero_atencion, cne, bien_raiz, fojas, fecha_inscripcion,
+                        numero_inscripcion, tipo, persona, status):
+    '''Crea una tupla con los datos de la persona a insertar en la base de datos.'''
+    herencia = 'n/a'  # valor inicial del campo herencia, para uso en caso de rectificación.
+    return (
+        numero_atencion, cne, bien_raiz.get('comuna'), bien_raiz.get('manzana'),
+        bien_raiz.get('predio'), fojas, fecha_inscripcion, numero_inscripcion,
+        tipo, persona.get('RUNRUT'), persona.get('porcDerecho'), status, herencia
+    )
