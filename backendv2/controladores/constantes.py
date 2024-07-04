@@ -1,0 +1,3 @@
+'''Se definen los codigos de CNE'''
+CODIGO_REGULARIZACION_PATRIMONIO = 99
+CODIGO_COMPRA_VENTA = 8

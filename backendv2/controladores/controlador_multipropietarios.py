@@ -13,6 +13,7 @@ from controladores.controlador_requests import (
     eliminar_ultimo_registro_multipropietario
 
 )
+from controladores.constantes import (CODIGO_COMPRA_VENTA,CODIGO_REGULARIZACION_PATRIMONIO)
 from controladores.controlador_queries import (
     generar_query_obtener_multipropietarios,
     generar_query_borrar_multipropietario
@@ -277,11 +278,9 @@ def inicializar_multipropietario_temp(propiedad, ano_form):
 
 def procesar_cne(cne, multipropietario_temp, value, propiedad):
     '''Procesa el cne del formulario'''
-    codigo_compra_venta = 8
-    codigo_resolucion_de_patrimonio = 99
-    if cne == codigo_resolucion_de_patrimonio:
+    if cne == CODIGO_REGULARIZACION_PATRIMONIO:
         multipropietario_temp = procesar_resolucion_de_patrimonio(value, propiedad)
-    elif cne == codigo_compra_venta:
+    elif cne == CODIGO_COMPRA_VENTA:
         procesar_compra_venta(multipropietario_temp, value, propiedad)
     return multipropietario_temp
 
