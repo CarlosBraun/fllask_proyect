@@ -53,7 +53,7 @@ def obtener_ultimo_numero_atencion():
     return int(result['numero_atencion']) if result else 0
 
 def incrementar_numero_atencion(ultimo_numero_atencion):
-    '''Incrementa el número de atención en uno.'''
+    '''Incrementa el número de atención.'''
     return ultimo_numero_atencion + 2
 
 
